@@ -83,7 +83,12 @@ void draw_block(block* block) {
 	UG_FillFrame(block->pos->x - diff, block->pos->y - diff, block->pos->x + diff, block->pos->y + diff, C_RED);
 }
 
-void draw_scene() {
+void free_destroyable(destroyable* destroyable) {
+	free(destroyable->block);
+	free(destroyable);
+}
+
+void draw_scene(int SCENE[60][80]) {
 	for (int i = 0; i < 60; i++) {
 		for (int j = 0; j < 80; j++) {
 			if (SCENE[i][j] == 1) {
@@ -105,8 +110,4 @@ void free_block(block* block) {
 	free(block);
 }
 
-void free_destroyable(destroyable* destroyable) {
-	free(destroyable->block);
-	free(destroyable);
-}
 

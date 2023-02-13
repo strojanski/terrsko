@@ -56,6 +56,8 @@
 #define WIDTH 320
 #define HEIGHT 240
 #define BLOCK_WIDTH 4
+
+//int SCENE[60][80];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -228,7 +230,7 @@ int main(void)
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 
-	  /*
+
 	  // Draw ground - replace this with "whereisground"
 	  for (int i = 0; i < 80; i++) {
 
@@ -242,8 +244,9 @@ int main(void)
 			  free_destroyable(dirt);
 		  }
 	  }
-	  */
-	  draw_scene();
+
+	  //int** SCENE = init_scene();
+	  //draw_scene(SCENE);
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 	 //draw_block(block);
