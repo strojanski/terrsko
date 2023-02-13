@@ -8,6 +8,7 @@
 "./Core/Src/i2c.o"
 "./Core/Src/joystick.o"
 "./Core/Src/main.o"
+"./Core/Src/main_character.o"
 "./Core/Src/models.o"
 "./Core/Src/quadspi.o"
 "./Core/Src/scene.o"

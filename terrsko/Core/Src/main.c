@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <main_character.h>
 #include "main.h"
 #include "adc.h"
 #include "crc.h"
@@ -44,6 +45,7 @@
 #include "joystick.h"
 #include "models.h"
 #include "scene.h"
+#include "main_character.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,8 +91,8 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//coord_t joystick_raw={0,0}, joystick_new={0,0}, joystick_prev={0,0};
-	//joystick_t joystick;
+//	coord_t joystick_raw={0,0}, joystick_new={0,0}, joystick_prev={0,0};
+//	joystick_t joystick;
 	//char MSG[100]={0};
 	//uint16_t touch_x = 0, touch_y = 0;
 
@@ -171,10 +173,13 @@ int main(void)
   //UG_FontSelect(&FONT_16X26);
   //UG_PutString(5,205,"To mi deli, TANK!");
 
-  //joystick_init(&joystick);
-  //HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+//  joystick_init(&joystick);
+//  HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
 
+  // INITIALIZE PLAYER
+  main_character* player = new_main_character(5, 100, 1, 40, 10);
   /* USER CODE END 2 */
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -230,7 +235,6 @@ int main(void)
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 
-
 	  // Draw ground - replace this with "whereisground"
 	  for (int i = 0; i < 80; i++) {
 
@@ -253,7 +257,13 @@ int main(void)
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
 
-	 HAL_Delay(20);
+	  // CHARACTER BASIC tests
+	  draw_main_character(player);
+//	  joystick_get(&joystick_raw, &joystick_new, &joystick);
+//	  move_main_character(player, joystick_new.x, joystick_new.y);
+	  move_main_character(player, 5, 0);
+
+	  HAL_Delay(100);
   }
 
   /* USER CODE END 3 */
