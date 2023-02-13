@@ -77,7 +77,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/external/Inc/ugui_config.h \
  ../Drivers/external/Inc/ColorSpaces.h ../Drivers/external/Inc/ugui.h \
  ../Drivers/external/Inc/lcd_ugui.h \
- ../Drivers/external/Inc/XPT2046_touch.h ../Core/Inc/joystick.h
+ ../Drivers/external/Inc/XPT2046_touch.h ../Core/Inc/joystick.h \
+ ../Core/Inc/models.h
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
 ../Core/Inc/stm32g4xx_hal_conf.h:
@@ -173,3 +174,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/external/Inc/lcd_ugui.h:
 ../Drivers/external/Inc/XPT2046_touch.h:
 ../Core/Inc/joystick.h:
+../Core/Inc/models.h:

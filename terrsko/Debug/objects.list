@@ -8,6 +8,7 @@
 "./Core/Src/i2c.o"
 "./Core/Src/joystick.o"
 "./Core/Src/main.o"
+"./Core/Src/models.o"
 "./Core/Src/quadspi.o"
 "./Core/Src/spi.o"
 "./Core/Src/stm32g4xx_hal_msp.o"

@@ -42,6 +42,7 @@
 #include "lcd_ugui.h"
 #include "XPT2046_touch.h"
 #include "joystick.h"
+#include "models.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +90,7 @@ int main(void)
 
 	char str[50];
 	float bitrate;
-
+	ground* floor = define_floor(100, 50);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
