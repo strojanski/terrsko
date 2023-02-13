@@ -52,6 +52,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define WIDTH 320
+#define HEIGHT 240
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -90,10 +92,9 @@ int main(void)
 
 	//char str[50];
 	//float bitrate;
-	ground* floor = define_floor(160, 80);
-	printf("%d", floor->center->x);
+	ground* floor = define_floor(300, 80);
 
-	int x = floor->center->x;
+	//int x = floor->center->x;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -222,11 +223,15 @@ int main(void)
 	 //USART and USB
 	 //sprintf(MSG, "Joystick X:%05d, Y:%05d, Touch: X:%05d, Y:%05d    \r",joystick_raw.x,joystick_raw.y, touch_x, touch_y);
 
-	 //for (int i = 0; i < 240; i++) {
+	// for (uint16_t i = 0; i < WIDTH; i++) {
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 	 UG_DrawPixel(floor->center->x, floor->center->y, C_RED);
 
+	 UG_DrawLine(0, 200, 320, 200, C_BLUE);
+
+	 block* block = create_block(100, 100, 4);
+	 draw_block(block);
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
 

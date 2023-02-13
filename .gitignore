@@ -1,6 +1,7 @@
 .metadata
 terrsko/.settings/*
-terrsko/Debug/Core
-terrsko/Debug/Drivers
-terrsko/Debug/Middlewares
-terrsko/Debug/USB_Device
+terrsko/Debug/Core/*
+terrsko/Debug/Drivers/*
+terrsko/Debug/Middlewares/*
+terrsko/Debug/USB_Device/*
+terrsko/Release/*
