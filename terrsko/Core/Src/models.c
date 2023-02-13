@@ -5,12 +5,14 @@
 #include <stdbool.h>
 
 #include "ugui.h"
+#include "scene.h"
 
 // 320x240 px
 
 #define WIDTH 320
 #define HEIGHT 240
 #define BLOCK_WIDTH 4
+
 
 
 
@@ -65,7 +67,7 @@ void draw_dirt(block* block) {
 	UG_FillFrame(block->pos->x, block->pos->y, block->pos->x+2, block->pos->y+2, C_BROWN);
 }
 
-// Draws block of dirt
+// Draws block of grass
 void draw_grass(block* block) {
 	//char* colors[2] = {"C_BROWN", "C_SADDLE_BROWN"};
 
@@ -75,12 +77,26 @@ void draw_grass(block* block) {
 	UG_FillFrame(block->pos->x, block->pos->y, block->pos->x+2, block->pos->y+2, C_DARK_GREEN);
 }
 
-
-
 /* Draws a red block */
 void draw_block(block* block) {
 	int diff = floor(block->width/2);
 	UG_FillFrame(block->pos->x - diff, block->pos->y - diff, block->pos->x + diff, block->pos->y + diff, C_RED);
+}
+
+void draw_scene() {
+	for (int i = 0; i < 60; i++) {
+		for (int j = 0; j < 80; j++) {
+			if (SCENE[i][j] == 1) {
+				destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, NULL);
+				draw_dirt(dirt->block);
+				free_destroyable(dirt);
+			} else if (SCENE[i][j] == 2) {
+				destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, NULL);
+				draw_grass(grass->block);
+				free_destroyable(grass);
+			}
+		}
+	}
 }
 
 /* Frees the memory of a block pointer */

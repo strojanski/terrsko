@@ -43,6 +43,7 @@
 #include "XPT2046_touch.h"
 #include "joystick.h"
 #include "models.h"
+#include "scene.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -227,7 +228,8 @@ int main(void)
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 
-	  // Draw ground
+	  /*
+	  // Draw ground - replace this with "whereisground"
 	  for (int i = 0; i < 80; i++) {
 
 		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, NULL);
@@ -240,6 +242,8 @@ int main(void)
 			  free_destroyable(dirt);
 		  }
 	  }
+	  */
+	  draw_scene();
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 	 //draw_block(block);

@@ -34,6 +34,8 @@ void draw_block(block* block);
 
 void draw_grass(block* block);
 
+void draw_scene();
+
 void free_block(block* block);
 
 void free_destroyable(destroyable* destroyable);
