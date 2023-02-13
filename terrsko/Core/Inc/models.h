@@ -14,17 +14,26 @@ typedef struct _block {
 	uint8_t width;
 } block;
 
-typedef struct _ground {
-	coord* center;
-    coord* adjacent_pixels[240];
-} ground;
+
+typedef struct _destructible {
+	char* type;		// dirt, wood ....
+	block* block;
+	void* data;
+} destroyable;
+
+
+
 
 block* create_block(uint16_t x, uint16_t y, uint8_t width);
 
-void free_block(block* block);
+destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, void* data);
+
+void draw_dirt(block* block);
 
 void draw_block(block* block);
 
-ground* define_floor(int center_x, int center_y);
+void draw_grass(block* block);
 
-void free_floor(ground* floor);
+void free_block(block* block);
+
+void free_destroyable(destroyable* destroyable);

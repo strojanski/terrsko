@@ -54,6 +54,7 @@
 /* USER CODE BEGIN PD */
 #define WIDTH 320
 #define HEIGHT 240
+#define BLOCK_WIDTH 4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -92,7 +93,6 @@ int main(void)
 
 	//char str[50];
 	//float bitrate;
-	ground* floor = define_floor(300, 80);
 
 	//int x = floor->center->x;
   /* USER CODE END 1 */
@@ -226,19 +226,29 @@ int main(void)
 	// for (uint16_t i = 0; i < WIDTH; i++) {
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
-	 UG_DrawPixel(floor->center->x, floor->center->y, C_RED);
 
-	 UG_DrawLine(0, 200, 320, 200, C_BLUE);
+	  // Draw ground
+	  for (int i = 0; i < 80; i++) {
 
-	 block* block = create_block(100, 100, 4);
-	 draw_block(block);
+		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, NULL);
+		  draw_grass(grass->block);
+		  free_destroyable(grass);
+
+		  for (int j = 45; j < 60; j++) {
+			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, NULL);
+			  draw_dirt(dirt->block);
+			  free_destroyable(dirt);
+		  }
+	  }
+	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
+
+	 //draw_block(block);
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
 
 	 HAL_Delay(20);
   }
 
-  free_floor(floor);
   /* USER CODE END 3 */
 }
 
