@@ -6,14 +6,14 @@
 
 #include "ugui.h"
 #include "scene.h"
+#include "enums.h"
+#include "materials.h"
 
 // 320x240 px
 
 #define WIDTH 320
 #define HEIGHT 240
 #define BLOCK_WIDTH 4
-
-
 
 
 typedef struct _coord {
@@ -25,6 +25,7 @@ typedef struct _coord {
 typedef struct _block {
 	coord* pos;
 	uint8_t width;
+	int colors[4];
 } block;
 
 typedef struct _destructible {
@@ -33,21 +34,30 @@ typedef struct _destructible {
 	void* data;
 } destroyable;
 
+//typedef struct _dirt {
+//	destroyable* block;
+//	char* colors[4];
+//} dirt;
+
 
 /* Creates block with given coordinates and width */
-block* create_block(uint16_t x, uint16_t y, uint8_t width) {
+block* create_block(uint16_t x, uint16_t y, uint8_t width, int colors[4]) {
 	 block* block = malloc(sizeof(block));
 	 block->pos = malloc(sizeof(coord));
 	 block->pos->x = x;
 	 block->pos->y = y;
 	 block->width = width;
 
+	 for (uint8_t i = 0; i < 4; i++) {
+		 block->colors[i] = colors[i];
+	 }
+
 	 return block;
 }
 
 // Create wrapper for block - destroyables
-destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, void* data) {
-	block* block = create_block(x, y, width);
+destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, int colors[4], void* data) {
+	block* block = create_block(x, y, width, colors);
 
 	destroyable* destroyable = malloc(sizeof(destroyable));
 	destroyable->block = block;
@@ -56,7 +66,7 @@ destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t widt
 	return destroyable;
 }
 
-
+/*
 // Draws block of dirt
 void draw_dirt(block* block) {
 	//char* colors[2] = {"C_BROWN", "C_SADDLE_BROWN"};
@@ -76,11 +86,17 @@ void draw_grass(block* block) {
 	UG_FillFrame(block->pos->x-2, block->pos->y, block->pos->x, block->pos->y+2, C_DARK_GREEN);
 	UG_FillFrame(block->pos->x, block->pos->y, block->pos->x+2, block->pos->y+2, C_DARK_GREEN);
 }
+*/
 
 /* Draws a red block */
 void draw_block(block* block) {
-	int diff = floor(block->width/2);
-	UG_FillFrame(block->pos->x - diff, block->pos->y - diff, block->pos->x + diff, block->pos->y + diff, C_RED);
+	//int diff = floor(block->width/2);
+	//UG_FillFrame(block->pos->x - diff, block->pos->y - diff, block->pos->x + diff, block->pos->y + diff, C_RED);
+
+	UG_FillFrame(block->pos->x - 2, block->pos->y - 2, block->pos->x, block->pos->y, block->colors[0]);
+	UG_FillFrame(block->pos->x, block->pos->y - 2, block->pos->x+2, block->pos->y, block->colors[1]);
+	UG_FillFrame(block->pos->x-2, block->pos->y, block->pos->x, block->pos->y+2, block->colors[2]);
+	UG_FillFrame(block->pos->x, block->pos->y, block->pos->x+2, block->pos->y+2, block->colors[3]);
 }
 
 void free_destroyable(destroyable* destroyable) {
@@ -88,6 +104,7 @@ void free_destroyable(destroyable* destroyable) {
 	free(destroyable);
 }
 
+/*
 void draw_scene(int SCENE[60][80]) {
 	for (int i = 0; i < 60; i++) {
 		for (int j = 0; j < 80; j++) {
@@ -103,6 +120,7 @@ void draw_scene(int SCENE[60][80]) {
 		}
 	}
 }
+*/
 
 /* Frees the memory of a block pointer */
 void free_block(block* block) {

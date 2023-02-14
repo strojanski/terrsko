@@ -24,19 +24,25 @@ typedef struct _destructible {
 
 
 
-block* create_block(uint16_t x, uint16_t y, uint8_t width);
+block* create_block(uint16_t x, uint16_t y, uint8_t width, int colors[4]);
 
-destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, void* data);
+destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, int colors[4], void* data);
 
+/*
 void draw_dirt(block* block);
+*/
 
 void draw_block(block* block);
 
+/*
 void draw_grass(block* block);
+*/
 
 void free_destroyable(destroyable* destroyable);
 
+/*
 void draw_scene();
+*/
 
 void free_block(block* block);
 
