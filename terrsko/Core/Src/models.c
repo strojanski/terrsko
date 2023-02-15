@@ -14,10 +14,9 @@
 
 /* Creates block with given coordinates and width */
 block* create_block(uint16_t x, uint8_t y, uint16_t colors[4]) {
-	 block* block = malloc(sizeof(block));
-	 block->pos = malloc(sizeof(coord));
-	 block->pos->x = x;
-	 block->pos->y = y;
+	 block* block = (struct _block*) malloc(sizeof(struct _block));
+	 block->pos.x = x;
+	 block->pos.y = y;
 
 	 for (uint8_t i = 0; i < 4; i++) {
 		 block->colors[i] = colors[i];
@@ -27,21 +26,19 @@ block* create_block(uint16_t x, uint8_t y, uint16_t colors[4]) {
 }
 
 // Create wrapper for block - destroyables
-destroyable* create_destroyable(half_byte type, uint16_t x, uint8_t y, uint16_t colors[4]) {
+destroyable* create_destroyable(uint16_t x, uint8_t y, uint16_t colors[4]) {
 	block* block = create_block(x, y, colors);
 
-	destroyable* destroyable = malloc(sizeof(destroyable));
+	destroyable* destroyable = (struct _destroyable*) malloc(sizeof(struct _destroyable));
 	destroyable->block = block;
-	destroyable->type = type;
 	return destroyable;
 }
 
-bg_material* create_bg_material(half_byte type, uint16_t x, uint8_t y, uint16_t colors[4]) {
+bg_material* create_bg_material(uint16_t x, uint8_t y, uint16_t colors[4]) {
 	block* block = create_block(x, y, colors);
 
-	bg_material* bg_material= malloc(sizeof(bg_material));
+	bg_material* bg_material = (struct _bg_material*) malloc(sizeof(struct _bg_material));
 	bg_material->block = block;
-	bg_material->type = type;
 	return bg_material;
 }
 
@@ -52,10 +49,10 @@ bg_material* create_bg_material(half_byte type, uint16_t x, uint8_t y, uint16_t 
 /* Draws a block with its colors */
 void draw_block(block* block) {
 
-	UG_FillFrame(block->pos->x - 4, block->pos->y - 4, block->pos->x-2, block->pos->y-2, block->colors[0]);
-	UG_FillFrame(block->pos->x-2, block->pos->y-4, block->pos->x, block->pos->y-2, block->colors[1]);
-	UG_FillFrame(block->pos->x-4, block->pos->y-2, block->pos->x-2, block->pos->y, block->colors[2]);
-	UG_FillFrame(block->pos->x-2, block->pos->y-2, block->pos->x, block->pos->y, block->colors[3]);
+	UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x-2, block->pos.y-2, block->colors[0]);
+	UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
+	UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
+	UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
 }
 
 
@@ -65,42 +62,88 @@ void draw_scene() {
 	// update and get scene
 	get_scene();
 
+
+	//UG_FillScreen(C_RED);
+	uint16_t pos_x1 = 4;
+	uint16_t pos_x2 = 8;
+
 	for (uint8_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint8_t j = 0; j < SCENE_BLOCKS_Y; j++) {
 
-			half_byte value = SCENE[j][i]; // SCENE[y][x]
+			uint8_t value = SCENE[j][i]; // SCENE[y][x]
+			uint8_t l_cell = (value & 0xF0) >> 4;
+			uint8_t r_cell = (value & 0x0F);
 
-			if (value.val == _dirt) {
 
-				half_byte d = { val: _dirt};
-				destroyable* dirt = create_destroyable(d, 4*(i+1), 4*(j+1), C_DIRT);
+			// left (first) cell
+			if (l_cell == (uint8_t) _dirt) {
+
+				destroyable* dirt = create_destroyable(pos_x1, 4*(j+1), C_DIRT);
 
 				draw_block(dirt->block);
 				free_destroyable(dirt);
-			} else if (value.val == _grass) {
+			} else if (l_cell == (uint8_t) _grass) {
 
-				half_byte g = { val: _grass };
-				destroyable* grass = create_destroyable(g, 4*(i+1), 4*(j+1), C_GRASS);
+				destroyable* grass = create_destroyable(pos_x1, 4*(j+1), C_GRASS);
 
 				draw_block(grass->block);
 				free_destroyable(grass);
-			} else if (value.val == _sky) {
+			} else if (l_cell == (uint8_t) _wood) {
 
-				half_byte s = { val: _sky};
-				bg_material* sky = create_bg_material(s, 4*(i+1), 4*(j+1), C_SKY);
+				destroyable* sky = create_destroyable(pos_x1, 4*(j+1), C_WOOD);
+
+				draw_block(sky->block);
+				free_destroyable(sky);
+			}  else {
+				if (j < SCENE_BLOCKS_Y) {
+					// SKY
+					bg_material* sky = create_bg_material(pos_x1, 4*(j+1), C_SKY);
+					draw_block(sky->block);
+					free_bg_material(sky);
+				} else {
+					// DIRT BG
+					bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT);
+					draw_block(dirt->block);
+					free_bg_material(dirt);
+				}
+			}
+
+			// right (second) cell
+			if (r_cell == (uint8_t) _dirt) {
+
+				destroyable* dirt = create_destroyable(pos_x2, 4*(j+1), C_DIRT);
+
+				draw_block(dirt->block);
+				free_destroyable(dirt);
+			} else if (r_cell == (uint8_t) _grass) {
+
+				destroyable* grass = create_destroyable(pos_x2, 4*(j+1), C_GRASS);
+
+				draw_block(grass->block);
+				free_destroyable(grass);
+			} else if (r_cell == (uint8_t) _wood) {
+
+				bg_material* sky = create_bg_material(pos_x2, 4*(j+1), C_WOOD);
 
 				draw_block(sky->block);
 				free_bg_material(sky);
-			} else if (value.val == _dirt_bg) {
-				half_byte d = { val: _dirt_bg};
-				bg_material* dirt_bg = create_bg_material(d, 4*(i+1), 4*(j+1), C_BG_DIRT);
-
-
-				draw_block(dirt_bg->block);
-				free_bg_material(dirt_bg);
+			} else {
+				if (j < SCENE_BLOCKS_Y) {
+					// SKY
+					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), C_SKY);
+					draw_block(sky->block);
+					free_bg_material(sky);
+				} else {
+					// DIRT BG
+					bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT);
+					draw_block(dirt->block);
+					free_bg_material(dirt);
+				}
 			}
-
 		}
+		// Each cell in x-direction in SCENE = move 2 blocks on screen
+		pos_x1 += 8;
+		pos_x2 += 8;
 	}
 }
 
@@ -118,7 +161,6 @@ void free_bg_material(bg_material* mat) {
 
 /* Frees the memory of a block pointer */
 void free_block(block* block) {
-	free(block->pos);
 	free(block);
 }
 

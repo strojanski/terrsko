@@ -9,11 +9,13 @@
 
 #define WORLD_HEIGHT 120
 #define WORLD_WIDTH 160
+
 #define SCENE_HEIGHT 60
 #define SCENE_WIDTH 80
 
-extern half_byte WORLD[WORLD_HEIGHT][WORLD_WIDTH];
-extern half_byte SCENE[SCENE_HEIGHT][SCENE_WIDTH];
+
+extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
+extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
 
 void get_scene();
 

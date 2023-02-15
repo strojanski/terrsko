@@ -106,7 +106,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
 
 
@@ -187,7 +186,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-/*
+	/*
 
 	  //LEDs and KEYs
 	 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
@@ -320,8 +319,10 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
+  volatile int  a = 0;
   while (1)
   {
+	  a++;
   }
   /* USER CODE END Error_Handler_Debug */
 }

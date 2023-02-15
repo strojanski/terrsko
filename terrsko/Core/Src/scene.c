@@ -21,8 +21,8 @@
  *
  * */
 
-half_byte WORLD[WORLD_HEIGHT][WORLD_WIDTH];	// 10KB
-half_byte SCENE[SCENE_HEIGHT][SCENE_WIDTH];	// 5KB
+uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];	// 20KB
+uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 5KB
 
 //coord camera_center = {
 //		x: 0,
@@ -39,7 +39,7 @@ void init_world() {
 	uint16_t zero_height = (uint16_t) floor(WORLD_HEIGHT/2);
 
 	// Set camera center to the middle of the world
-	update_camera_center((uint16_t) floor(WORLD_WIDTH/2), zero_height);	// zero level height should be at 1/3 of the screen
+	update_camera_center((uint16_t) floor(WORLD_WIDTH/4), zero_height-20);	// zero level height should be at 1/3 of the screen
 
 	// Everything under zero_height is either dirt or rock
 	// background is either sky or bg_dirt
@@ -51,18 +51,17 @@ void init_world() {
 }
 
 void get_scene() {
-	uint16_t tl_x = camera_x - 20;
-	uint8_t tl_y = camera_y - 15;
-	uint16_t bl_x = camera_x + 20;
-	uint8_t bl_y = camera_y + 15;
+	uint16_t left = camera_x - (SCENE_WIDTH / 4);
+	uint8_t top = camera_y - (SCENE_HEIGHT / 2);
+	uint16_t right = camera_x + (SCENE_WIDTH / 4);
+	uint8_t bottom = camera_y + (SCENE_HEIGHT / 2);
 
 
 	uint16_t x = 0;
 	uint8_t y = 0;
-	for (uint8_t i = tl_y; i < bl_y; i++) {
-		for (uint16_t j = tl_x; j < bl_x; j++) {
-			SCENE[y][x].val = WORLD[i][j].val;
-			//int val = SCENE[y][x];
+	for (uint8_t i = top; i < bottom; i++) {
+		for (uint16_t j = left; j < right; j++) {
+			SCENE[y][x] = WORLD[i][j];
 			x++;
 		}
 		x = 0;
@@ -77,15 +76,15 @@ void update_camera_center(uint16_t x, uint8_t y) {
 
 // Initialize background materials
 void init_bg(uint16_t z_height) {
-	int material;
 	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
-		for (uint16_t j = 0; j < WORLD_WIDTH; j++) {
-			if (i < z_height) {
-				material = _sky;
+		for (uint16_t j = 0; j < WORLD_WIDTH/2; j++) {
+			if (i > z_height) {
+				WORLD[i][j] = (_dirt << 4) | _dirt;		// Set 2 cells at once
+			} else if (i == z_height) {
+				WORLD[i][j] = (_grass << 4) | _grass;
 			} else {
-				material = _dirt_bg;
+				WORLD[i][j] = 0x00;
 			}
-			WORLD[i][j].val = material;
 		}
 	}
 }

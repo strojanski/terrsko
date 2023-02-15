@@ -8,31 +8,29 @@
 #ifndef INC_STRUCTURES_H_
 #define INC_STRUCTURES_H_
 
-typedef struct {
-	unsigned int val : 4;
-} half_byte;
+// value & 0b11110000
 
-
-typedef struct {
+// 3B
+typedef struct _coord {
 	uint16_t x;
 	uint8_t y;
 } coord;
 
-
-typedef struct {
-	coord* pos;
-	uint16_t colors[4];
+// 9B
+typedef struct _block {
+	coord pos; // 3B
+	uint16_t colors[4]; // 6B
 } block;
 
-
-typedef struct {
-	half_byte type;		// dirt, wood ....
+// 4B
+typedef struct _destroyable {
+	//uint8_t type;
 	block* block;
 } destroyable;
 
-
-typedef struct {
-	half_byte type;
+// 4B
+typedef struct _bg_material {
+	//uint8_t type;
 	block* block;
 } bg_material;	// background material, can't be interacted with
 
