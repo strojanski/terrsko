@@ -90,11 +90,17 @@ void draw_scene() {
 				free_destroyable(grass);
 			} else if (l_cell == (uint8_t) _wood) {
 
-				destroyable* sky = create_destroyable(pos_x1, 4*(j+1), C_WOOD);
+				destroyable* wood = create_destroyable(pos_x1, 4*(j+1), C_WOOD);
 
-				draw_block(sky->block);
-				free_destroyable(sky);
-			}  else {
+				draw_block(wood->block);
+				free_destroyable(wood);
+			} else if (r_cell == (uint8_t) _rock) {
+
+				destroyable* rock = create_destroyable(pos_x1, 4*(j+1), C_ROCK);
+
+				draw_block(rock->block);
+				free_bg_material(rock);
+			} else {
 				if (j < SCENE_BLOCKS_Y) {
 					// SKY
 					bg_material* sky = create_bg_material(pos_x1, 4*(j+1), C_SKY);
@@ -123,11 +129,18 @@ void draw_scene() {
 				free_destroyable(grass);
 			} else if (r_cell == (uint8_t) _wood) {
 
-				bg_material* sky = create_bg_material(pos_x2, 4*(j+1), C_WOOD);
+				destroyable* wood = create_destroyable(pos_x2, 4*(j+1), C_WOOD);
 
-				draw_block(sky->block);
-				free_bg_material(sky);
-			} else {
+				draw_block(wood->block);
+				create_destroyable(wood);
+			} else if (r_cell == (uint8_t) _rock) {
+
+				destroyable* rock = create_destroyable(pos_x2, 4*(j+1), C_ROCK);
+
+				draw_block(rock->block);
+				free_bg_material(rock);
+			}
+			else {
 				if (j < SCENE_BLOCKS_Y) {
 					// SKY
 					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), C_SKY);
