@@ -148,15 +148,15 @@ int main(void)
 
   MX_ADC4_Init();	//bug workaround: https://community.st.com/s/question/0D50X0000BVnBhASQV/bug-report-dma-and-adc-initialization-order-changed-in-stm32f4-hal-v1241-causing-incorrect-adc-operation
 
-  for (uint8_t i=0;i<3;i++)
-  {
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
-  }
+//  for (uint8_t i=0;i<2;i++)
+//  {
+//	  HAL_Delay(100);
+//	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
+//	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
+//	  HAL_Delay(100);
+//	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
+//	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
+//  }
 
   LCD_Init();
   LCD_UG_init();

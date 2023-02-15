@@ -10,10 +10,10 @@
 
 
 typedef enum {
-	_dirt = 1,
-	_grass = 2,
-	_sky = 100,
-	_dirt_bg = 101
+	_dirt = 0b0000,
+	_grass = 0b0001,
+	_sky = 0b0010,
+	_dirt_bg = 0b0011
 } Material;
 
 #endif /* INC_ENUMS_H_ */

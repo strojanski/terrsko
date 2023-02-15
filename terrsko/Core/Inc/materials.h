@@ -9,14 +9,15 @@
 #define INC_MATERIALS_H_
 
 #include "ugui.h"
+#include <stdint.h>
 
-#define C_DARK_BROWN 0x873e23
+#define C_DARK_BROWN 0x5821//0x6000
 
 
-extern int C_GRASS[4]; //= {C_GREEN, C_GREEN, C_DARK_GREEN, C_DARK_GREEN};
-extern int C_DIRT[4]; //= {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN};
-extern int C_SKY[4]; //= {C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
-extern int C_BG_DIRT[4];
+extern uint16_t C_GRASS[4]; //= {C_GREEN, C_GREEN, C_DARK_GREEN, C_DARK_GREEN};
+extern uint16_t C_DIRT[4]; //= {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN};
+extern uint16_t C_SKY[4]; //= {C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
+extern uint16_t C_BG_DIRT[4];
 
 
 #endif /* INC_MATERIALS_H_ */
