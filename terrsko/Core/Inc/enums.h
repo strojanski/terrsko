@@ -9,12 +9,11 @@
 #define INC_ENUMS_H_
 
 
-enum destroyables {
-	dirt = 1,
-	grass = 2,
-	sky = 3
-};
-
-
+typedef enum {
+	_dirt = 1,
+	_grass = 2,
+	_sky = 100,
+	_dirt_bg = 101
+} Material;
 
 #endif /* INC_ENUMS_H_ */

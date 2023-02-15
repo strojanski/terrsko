@@ -109,6 +109,7 @@ int main(void)
 
   /* USER CODE BEGIN Init */
 
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -234,22 +235,20 @@ int main(void)
 
 
 	  // Draw ground - replace this with "whereisground"
-	  for (int i = 0; i < 80; i++) {
-		  int c_grass[4] = {C_GREEN, C_GREEN, C_DARK_GREEN, C_DARK_GREEN};
-		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, c_grass, NULL);
-		  draw_block(grass->block);
-		  free_destroyable(grass);
-
-		  for (int j = 45; j < 60; j++) {
-			  int c_dirt[4] = {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN};
-			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, c_dirt, NULL);
-			  draw_block(dirt->block);
-			  free_destroyable(dirt);
-		  }
-	  }
-
-	  //int** SCENE = init_scene();
-	  //draw_scene(SCENE);
+//	  for (int i = 0; i < 80; i++) {
+//
+//		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, C_GRASS, NULL);
+//		  draw_block(grass->block);
+//		  free_destroyable(grass);
+//
+//		  for (int j = 45; j < 60; j++) {
+//			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, C_DIRT, NULL);
+//			  draw_block(dirt->block);
+//			  free_destroyable(dirt);
+//		  }
+//	  }
+	  init_world();
+	  draw_scene();
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 	 //draw_block(block);
