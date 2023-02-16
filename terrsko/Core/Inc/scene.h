@@ -42,7 +42,7 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 float* gauss_kernel(uint8_t width, uint8_t sigma);
 
-uint8_t* filter_level(uint8_t width, uint8_t sigma);
+void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma);
 
 uint8_t random_int(uint8_t min, uint8_t max);
 

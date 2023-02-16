@@ -97,17 +97,18 @@ void init_stage_0() {
 
 	srand(time(NULL));
 
-	int8_t h_map[WORLD_WIDTH];
-	filter_level(8, 3);
-
-	// EL PARTE MAS IMPORTANTE
+	// EL PARTE MAS IMPORTANTE - fill in the values
 	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
-		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / 16 + WORLD_HEIGHT/2;
+		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + WORLD_HEIGHT / 2;
 		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
-			h_map[i+j] = val;
-			LVL1_HMAP[i+j] = h_map[i];
+			LVL1_HMAP[i+j] = val;
 		}
 	}
+
+	// LVL1_HMAP is as wide as the world, smooth the bumps
+	filter_level(WORLD_WIDTH, 16, 4);
+
+	//add_noise();
 
 	float probability_rock = 0.03;
 
@@ -116,36 +117,36 @@ void init_stage_0() {
 			uint8_t l_block; uint8_t r_block;
 
 			// left block
-			if (i > h_map[j]) { // Ground
+			if (i > LVL1_HMAP[j]) { // Ground
 
 				float random = (float) rand() / RAND_MAX;
 
 				// Add random rocks
-				if (random < probability_rock && abs(h_map[j] - i) > 2) {	// Rocks at least 2 dirt deep
+				if (random < probability_rock && abs(LVL1_HMAP[j] - i) > 2) {	// Rocks at least 2 dirt deep
 					l_block = _rock;
 				} else {
 					l_block = _dirt;		// Set 2 cells at once
 				}
 
-			} else if (i == h_map[j]) {
+			} else if (i == LVL1_HMAP[j]) {
 				l_block = _grass;
 			} else {
 				l_block = _empty;
 			}
 
 			// left block
-			if (i > h_map[j+1]) { // Ground
+			if (i > LVL1_HMAP[j+1]) { // Ground
 
 				float random = (float) rand() / RAND_MAX;
 
 				// Add random rocks
-				if (random < probability_rock && abs(h_map[j+1] - i) > 2) {
+				if (random < probability_rock && abs(LVL1_HMAP[j+1] - i) > 2) {
 					r_block = _rock;
 				} else {
 					r_block = _dirt;		// Set 2 cells at once
 				}
 
-			} else if (i == h_map[j+1]) {
+			} else if (i == LVL1_HMAP[j+1]) {
 				r_block = _grass;
 			} else {
 				r_block = _empty;
@@ -259,28 +260,29 @@ float* gauss_kernel(uint8_t width, uint8_t sigma) {
 }
 
 // Smoothes level
-uint8_t* filter_level(uint8_t width, uint8_t sigma) {
-	uint8_t* result = malloc(WORLD_WIDTH);
+void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
+	int8_t* result = malloc(array_size);
 
-	float* filter = gauss_kernel(width, sigma);
+	float* filter = gauss_kernel(kernel_width, sigma);
 
-	for (uint8_t i = 0; i < WORLD_WIDTH; i++) {
+	for (uint8_t i = 0; i < array_size; i++) {
 		float sum = 0.0;
-		for (int j = 0; j < width; j++) {
-			int k = i + j - (width - 1) / 2;
-			if (k >= 0 && k < WORLD_WIDTH) {
+		for (int j = 0; j < kernel_width; j++) {
+			int k = i + j - (kernel_width - 1) / 2;
+			if (k >= 0 && k < array_size) {
 				sum += LVL1_HMAP[k] * filter[j];
 			}
 		}
-		result[i] = (uint8_t) round(sum / 8);
+		result[i] = (int8_t) round(sum);
 	}
 
 	// Write back
-	for (uint8_t i = 0; i < WORLD_WIDTH; i++) {
+	for (uint8_t i = 0; i < array_size; i++) {
 		LVL1_HMAP[i] = result[i];
 	}
 
 	free(filter);
+	free(result);
 }
 
 uint8_t random_int(uint8_t min, uint8_t max) {
