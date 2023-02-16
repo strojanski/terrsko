@@ -18,9 +18,12 @@ extern uint16_t C_GRASS[4]; //= {C_GREEN, C_GREEN, C_DARK_GREEN, C_DARK_GREEN};
 extern uint16_t C_DIRT[4]; //= {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN};
 extern uint16_t C_WOOD[4];
 extern uint16_t C_RED_WOOD[4];
+extern uint16_t C_ROCK[4];
 
 extern uint16_t C_SKY[4]; //= {C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
+extern uint16_t C_NIGHT_SKY[4];
 extern uint16_t C_BG_DIRT[4];
 
+extern uint16_t C_STAR[4];
 
 #endif /* INC_MATERIALS_H_ */

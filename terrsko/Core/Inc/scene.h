@@ -16,12 +16,18 @@
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
+extern uint16_t camera_x;
+extern uint16_t camera_y;
+
+extern uint16_t GROUND_ZERO;
 
 void get_scene();
 
 void update_camera_center(uint16_t x, uint8_t y);
 
 void init_world();
+
+bool is_night();
 
 void init_bg(uint16_t z_height);
 

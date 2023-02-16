@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "ugui.h"
 #include "scene.h"
@@ -62,10 +63,15 @@ void draw_scene() {
 	// update and get scene
 	get_scene();
 
+	srand(time(NULL));
 
-	//UG_FillScreen(C_RED);
 	uint16_t pos_x1 = 4;
 	uint16_t pos_x2 = 8;
+
+	bool night = is_night();
+
+	float probability_star = .02;
+
 
 	for (uint8_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint8_t j = 0; j < SCENE_BLOCKS_Y; j++) {
@@ -74,6 +80,7 @@ void draw_scene() {
 			uint8_t l_cell = (value & 0xF0) >> 4;
 			uint8_t r_cell = (value & 0x0F);
 
+			float random = (float) rand() / RAND_MAX;
 
 			// left (first) cell
 			if (l_cell == (uint8_t) _dirt) {
@@ -94,16 +101,25 @@ void draw_scene() {
 
 				draw_block(wood->block);
 				free_destroyable(wood);
-			} else if (r_cell == (uint8_t) _rock) {
+			} else if (l_cell == (uint8_t) _rock) {
 
 				destroyable* rock = create_destroyable(pos_x1, 4*(j+1), C_ROCK);
 
 				draw_block(rock->block);
-				free_bg_material(rock);
+				free_destroyable(rock);
 			} else {
-				if (j < SCENE_BLOCKS_Y) {
+				if (j < camera_y) {
+
+					uint16_t* color = C_SKY;
+
+					if (random < probability_star && night) {
+						color = C_STAR;
+					} else if (night) {
+						color = C_NIGHT_SKY;
+					}
+
 					// SKY
-					bg_material* sky = create_bg_material(pos_x1, 4*(j+1), C_SKY);
+					bg_material* sky = create_bg_material(pos_x1, 4*(j+1), color);
 					draw_block(sky->block);
 					free_bg_material(sky);
 				} else {
@@ -132,18 +148,19 @@ void draw_scene() {
 				destroyable* wood = create_destroyable(pos_x2, 4*(j+1), C_WOOD);
 
 				draw_block(wood->block);
-				create_destroyable(wood);
+				free_destroyable(wood);
 			} else if (r_cell == (uint8_t) _rock) {
 
 				destroyable* rock = create_destroyable(pos_x2, 4*(j+1), C_ROCK);
 
 				draw_block(rock->block);
-				free_bg_material(rock);
+				free_destroyable(rock);
 			}
 			else {
-				if (j < SCENE_BLOCKS_Y) {
+				if (j < camera_y) {
+
 					// SKY
-					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), C_SKY);
+					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY);
 					draw_block(sky->block);
 					free_bg_material(sky);
 				} else {
