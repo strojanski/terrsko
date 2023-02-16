@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <math.h>
 #include "main.h"
 #include "adc.h"
 #include "crc.h"
@@ -41,8 +42,7 @@
 #include "ugui.h"
 #include "lcd_ugui.h"
 #include "XPT2046_touch.h"
-#include "joystick.h"
-
+#include "joystick_level_control.h"
 #include <terrlib.h>
 
 /* USER CODE END Includes */
@@ -90,10 +90,9 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//coord_t joystick_raw={0,0}, joystick_new={0,0}, joystick_prev={0,0};
-	//joystick_t joystick;
+
 	//char MSG[100]={0};
-	//uint16_t touch_x = 0, touch_y = 0;
+	uint16_t touch_x = 0, touch_y = 0;
 
 	//char str[50];
 	//float bitrate;
@@ -172,8 +171,9 @@ int main(void)
   //UG_FontSelect(&FONT_16X26);
   //UG_PutString(5,205,"To mi deli, TANK!");
 
-  //joystick_init(&joystick);
-  //HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+//  joystick_init(&joystick);
+//  HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+
 
   /* USER CODE END 2 */
 
@@ -186,8 +186,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	/*
 
+	/*
 	  //LEDs and KEYs
 	 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
 	 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin));
@@ -201,28 +201,41 @@ int main(void)
 	 {
 		 UG_FillFrame(200, 0, 319, 120, C_BLACK);
 	 }
-
+*/
 	 //Joystick
+	  /*
 	 joystick_get(&joystick_raw, &joystick_new, &joystick);
-	 //UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
-	 //UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+	 UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
+	 UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+
+	 bool left = joystick_new.x - joystick_prev.x < 0;
+	 bool up = joystick_new.y - joystick_prev.y < 0;
+
+	 uint16_t new_camera_x = ((uint16_t) (camera_x + (.05 * (joystick_prev.x - joystick_new.x) * (left ? -1 : 1))) % WORLD_WIDTH);
+	 uint16_t new_camera_y = ((uint16_t) (camera_y + (.05 * (joystick_prev.y - joystick_new.y) * (up ? 1: -1))) % WORLD_HEIGHT);
 
 	 joystick_prev.x = joystick_new.x;
 	 joystick_prev.y = joystick_new.y;
+	   */
+
+/*
 	 //Touch
 	 if(XPT2046_TouchPressed())
 	 {
 		uint16_t x = 0, y = 0;
-		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
+//		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
 		if(XPT2046_TouchGetCoordinates(&x, &y, 0))
 		{
 			touch_x = x;
 			touch_y = y;
+
+		    //update_camera_center(x, y);
 			UG_FillCircle(x, y,2, C_GREEN);
 		}
 	 }
-	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
-*/
+	 */
+//	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
+
 	 //UG_DrawCircle(250, 50, 50, C_RED);
 
 	 //USART and USB

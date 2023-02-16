@@ -40,7 +40,7 @@ uint16_t camera_y = 0;
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-1, 1, 1);
+	generate_height_map(-4, 4, 2);
 
 	// Generate level with destroyables
 	init_stage_0();
@@ -71,6 +71,18 @@ void get_scene() {
 }
 
 void update_camera_center(uint16_t x, uint8_t y) {
+	if (x >= WORLD_WIDTH - 40) {
+		x = 40;
+	} else if (x < 40) {
+		x = WORLD_WIDTH - 40;
+	}
+
+	if (y >= WORLD_HEIGHT - 30) {
+		y = 30;
+	} else if (y < 30) {
+		y = WORLD_HEIGHT - 30;
+	}
+
 	camera_x = x;
 	camera_y = y;
 }

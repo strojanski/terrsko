@@ -77,7 +77,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/external/Inc/ugui_config.h \
  ../Drivers/external/Inc/ColorSpaces.h ../Drivers/external/Inc/ugui.h \
  ../Drivers/external/Inc/lcd_ugui.h \
- ../Drivers/external/Inc/XPT2046_touch.h ../Core/Inc/joystick.h \
+ ../Drivers/external/Inc/XPT2046_touch.h \
+ ../Core/Inc/joystick_level_control.h ../Core/Inc/joystick.h \
  ../Core/Inc/terrlib.h ../Core/Inc/models.h ../Core/Inc/scene.h \
  ../Core/Inc/structures.h ../Core/Inc/materials.h ../Core/Inc/enums.h
 ../Core/Inc/main.h:
@@ -174,6 +175,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/external/Inc/ugui.h:
 ../Drivers/external/Inc/lcd_ugui.h:
 ../Drivers/external/Inc/XPT2046_touch.h:
+../Core/Inc/joystick_level_control.h:
 ../Core/Inc/joystick.h:
 ../Core/Inc/terrlib.h:
 ../Core/Inc/models.h:
