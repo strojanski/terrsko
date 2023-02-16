@@ -24,8 +24,10 @@
  *
  * */
 
-uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];	// 20KB
-uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 5KB
+uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];		// 10KB
+uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];		// 2.3KB
+int8_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
+int8_t LVL1_HMAP[WORLD_WIDTH];
 
 //coord camera_center = {
 //		x: 0,
@@ -34,25 +36,19 @@ uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 5KB
 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
-uint16_t GROUND_ZERO = WORLD_HEIGHT / 2 - 15;
-
 
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	uint16_t zero_height = (uint16_t) floor(WORLD_HEIGHT/2);
-
-	// Set camera center to the middle of the world
-	update_camera_center((uint16_t) floor(WORLD_WIDTH/4), zero_height-15);	// zero level height should be at 1/3 of the screen
-	GROUND_ZERO = zero_height + 15;
-
-	// Everything under zero_height is either dirt or rock
-	// background is either sky or bg_dirt
-	init_bg(zero_height);
+	generate_height_map(-1, 1, 1);
 
 	// Generate level with destroyables
+	init_stage_0();
 
+	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 
+	// Set camera center to the middle of the world
+	update_camera_center((uint16_t) floor(WORLD_WIDTH/4), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
 }
 
 void get_scene() {
@@ -97,28 +93,196 @@ bool is_night() {
 
 
 // Initialize background materials
-void init_bg(uint16_t z_height) {
+void init_stage_0() {
+
 	srand(time(NULL));
+
+	int8_t h_map[WORLD_WIDTH];
+	filter_level(8, 3);
+
+	// EL PARTE MAS IMPORTANTE
+	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
+		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / 16 + WORLD_HEIGHT/2;
+		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
+			h_map[i+j] = val;
+			LVL1_HMAP[i+j] = h_map[i];
+		}
+	}
 
 	float probability_rock = 0.03;
 
 	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
-		for (uint16_t j = 0; j < WORLD_WIDTH/2; j++) {
-			if (i > z_height) {
-				float random = (float)rand() / RAND_MAX;
+		for (uint16_t j = 0; j < WORLD_WIDTH; j+=2) {
+			uint8_t l_block; uint8_t r_block;
 
-				if (random < probability_rock && abs(z_height - i) > 2) {
-					WORLD[i][j] = (_rock << 4) | _dirt;
+			// left block
+			if (i > h_map[j]) { // Ground
+
+				float random = (float) rand() / RAND_MAX;
+
+				// Add random rocks
+				if (random < probability_rock && abs(h_map[j] - i) > 2) {	// Rocks at least 2 dirt deep
+					l_block = _rock;
 				} else {
-					WORLD[i][j] = (_dirt << 4) | _dirt;		// Set 2 cells at once
+					l_block = _dirt;		// Set 2 cells at once
 				}
 
-			} else if (i == z_height) {
-				WORLD[i][j] = (_grass << 4) | _grass;
+			} else if (i == h_map[j]) {
+				l_block = _grass;
 			} else {
-				WORLD[i][j] = 0x00;
+				l_block = _empty;
 			}
+
+			// left block
+			if (i > h_map[j+1]) { // Ground
+
+				float random = (float) rand() / RAND_MAX;
+
+				// Add random rocks
+				if (random < probability_rock && abs(h_map[j+1] - i) > 2) {
+					r_block = _rock;
+				} else {
+					r_block = _dirt;		// Set 2 cells at once
+				}
+
+			} else if (i == h_map[j+1]) {
+				r_block = _grass;
+			} else {
+				r_block = _empty;
+			}
+
+			WORLD[i][j/2] = (l_block << 4) | r_block;
 		}
 	}
 }
 
+// Generate 2D height map, a row can represent a level, can also be used for different tones of background underground (Worms style), Diamond-Square alg (https://en.wikipedia.org/wiki/Diamond-square_algorithm)
+void generate_height_map(uint8_t random_lower, uint8_t random_upper, float roughness) {
+
+	srand(time(NULL));
+
+	uint16_t map_size = WORLD_WIDTH + 1;
+
+	// Initialize heights - height 0 equals WORLD_HEIGHT / 2
+	HEIGHT_MAP[0][0] = 16;			// Elevated on edge
+	HEIGHT_MAP[0][map_size-1] = 4;
+	HEIGHT_MAP[map_size-1][0] = 5;	// Elevated on edge
+	HEIGHT_MAP[map_size-1][map_size-1] = 0;
+
+	uint8_t step = map_size - 1;
+
+
+	// Repeat until convergence occurs (chunk size = 1)
+	while (step > 1) {
+
+		// Diamond step
+		for (uint8_t y = step / 2; y < map_size - 1; y += step) {
+			for (uint8_t x = step / 2; x < map_size- 1; x += step) {
+
+				uint8_t half_step = step / 2;
+
+				uint8_t sum = 	HEIGHT_MAP[y-half_step][x-half_step] +
+								HEIGHT_MAP[y-half_step][x+half_step] +
+								HEIGHT_MAP[y+half_step][x-half_step] +
+								HEIGHT_MAP[y+half_step][x+half_step];
+
+				uint8_t random_n = random_lower + (uint8_t) ( (int) rand() % (random_upper - random_lower + 1));
+				uint8_t average = (uint8_t) round(sum / 4);
+
+				// Sum average and random number, make sure it is in range
+				HEIGHT_MAP[y][x] = average + random_n * roughness;
+
+			}
+		}
+
+		// Square step						9/2 = 4 -> gets middle element
+		for (uint8_t y = 0; y < map_size; y += step/2) {
+			uint8_t x0 = (y + step/2) % step;		// CHECK IF OK
+			for (uint8_t x = x0; x < map_size; x += step) {
+				uint8_t sum = 0;
+				uint8_t count = 0;
+
+				uint8_t half_step = step / 2;
+
+				if (x >= half_step ) {
+					sum += HEIGHT_MAP[y][x-half_step];
+					count++;
+				}
+				if (x < map_size - half_step ) {
+					sum += HEIGHT_MAP[y][x+half_step];
+					count++;
+				}
+				if (y >= half_step ) {
+					sum += HEIGHT_MAP[y-half_step][x];
+					count++;
+				}
+				if (y < map_size - half_step ) {
+					sum += HEIGHT_MAP[y+half_step][x];
+					count++;
+				}
+
+				uint8_t average = sum / count;
+				uint8_t random_n = random_lower + (uint8_t) ((int) rand() % (random_upper - random_lower + 1)) * roughness;
+
+				HEIGHT_MAP[y][x] = average + random_n;
+			}
+		}
+
+		step /= 2;
+
+		// Halve the randomness every iteration
+		if (abs(random_lower) > 1 && abs(random_upper) > 1) {
+			random_lower /= 2;
+			random_upper /= 2;
+		}
+	}
+}
+
+float* gauss_kernel(uint8_t width, uint8_t sigma) {
+	float* filter = (float*) malloc(width * sizeof(float));
+
+    float sum = 0.0;
+
+    // Compute the filter values
+    for (int i = 0; i < width; i++) {
+        int x = i - (width - 1) / 2;
+        filter[i] = exp(-x * x / (2 * sigma * sigma)) / (sqrt(2 * M_PI) * sigma);
+        sum += filter[i];
+    }
+
+    // Normalize the filter values
+    for (int i = 0; i < width; i++) {
+        filter[i] /= sum;
+    }
+
+    return filter;
+}
+
+// Smoothes level
+uint8_t* filter_level(uint8_t width, uint8_t sigma) {
+	uint8_t* result = malloc(WORLD_WIDTH);
+
+	float* filter = gauss_kernel(width, sigma);
+
+	for (uint8_t i = 0; i < WORLD_WIDTH; i++) {
+		float sum = 0.0;
+		for (int j = 0; j < width; j++) {
+			int k = i + j - (width - 1) / 2;
+			if (k >= 0 && k < WORLD_WIDTH) {
+				sum += LVL1_HMAP[k] * filter[j];
+			}
+		}
+		result[i] = (uint8_t) round(sum / 8);
+	}
+
+	// Write back
+	for (uint8_t i = 0; i < WORLD_WIDTH; i++) {
+		LVL1_HMAP[i] = result[i];
+	}
+
+	free(filter);
+}
+
+uint8_t random_int(uint8_t min, uint8_t max) {
+    return (uint8_t) rand() % (max - min + 1) + min;
+}

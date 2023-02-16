@@ -10,6 +10,7 @@
 
 
 typedef enum {
+	_empty		= 	0b0000,
 	_dirt 		= 	0b0001,
 	_grass 		= 	0b0010,
 	_wood 		= 	0b0011,
@@ -18,7 +19,9 @@ typedef enum {
 	_sand 		= 	0b0110,
 	_rock 		= 	0b0111,
 	_lava 		= 	0b1000,
-	_red_wood 	= 	0b1001
+	_red_wood 	= 	0b1001,
+	_gold		= 	0b1010,
+	_diamond 	= 	0b1011
 } Material;
 
 /*

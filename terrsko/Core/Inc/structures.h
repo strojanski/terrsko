@@ -10,16 +10,17 @@
 
 // value & 0b11110000
 
-// 3B
+// 4B
 typedef struct _coord {
 	uint16_t x;
 	uint8_t y;
 } coord;
 
-// 9B
+// 12B
 typedef struct _block {
 	coord pos; // 3B
 	uint16_t colors[4]; // 6B
+	//uint8_t type;
 } block;
 
 // 4B
@@ -35,6 +36,8 @@ typedef struct _bg_material {
 } bg_material;	// background material, can't be interacted with
 
 
-
+typedef struct {
+	uint8_t material;
+} destroyable_inventory;
 
 #endif /* INC_STRUCTURES_H_ */

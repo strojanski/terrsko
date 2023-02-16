@@ -42,10 +42,9 @@
 #include "lcd_ugui.h"
 #include "XPT2046_touch.h"
 #include "joystick.h"
-#include "models.h"
-#include "scene.h"
-#include "enums.h"
-#include "materials.h"
+
+#include <terrlib.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -180,6 +179,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  init_world();
 
   while (1)
   {
@@ -246,7 +246,6 @@ int main(void)
 //			  free_destroyable(dirt);
 //		  }
 //	  }
-	  init_world();
 	  draw_scene();
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 

@@ -72,7 +72,6 @@ void draw_scene() {
 
 	float probability_star = .02;
 
-
 	for (uint8_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint8_t j = 0; j < SCENE_BLOCKS_Y; j++) {
 
@@ -108,7 +107,7 @@ void draw_scene() {
 				draw_block(rock->block);
 				free_destroyable(rock);
 			} else {
-				if (j < camera_y) {
+				if (j < LVL1_HMAP[i]) {
 
 					uint16_t* color = C_SKY;
 
@@ -157,7 +156,7 @@ void draw_scene() {
 				free_destroyable(rock);
 			}
 			else {
-				if (j < camera_y) {
+				if (j < LVL1_HMAP[i]) {
 
 					// SKY
 					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY);
@@ -178,13 +177,13 @@ void draw_scene() {
 }
 
 void free_destroyable(destroyable* destroyable) {
-	free(destroyable->block);
+	free_block(destroyable->block);
 	free(destroyable);
 }
 
 
 void free_bg_material(bg_material* mat) {
-	free(mat->block);
+	free_block(mat->block);
 	free(mat);
 }
 
