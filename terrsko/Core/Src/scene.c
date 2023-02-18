@@ -40,7 +40,7 @@ uint16_t camera_y = 0;
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-4, 4, 2);
+	generate_height_map(-6, 6, 2);
 
 	// Generate level with destroyables
 	init_stage_0();
@@ -104,7 +104,7 @@ bool is_night() {
 }
 
 
-// Initialize background materials
+// Get level with only dirt
 void init_stage_0() {
 
 	srand(time(NULL));
@@ -118,7 +118,7 @@ void init_stage_0() {
 	}
 
 	// LVL1_HMAP is as wide as the world, smooth the bumps
-	filter_level(WORLD_WIDTH, 16, 4);
+	filter_level(WORLD_WIDTH, 16, 8);
 
 	//add_noise();
 
