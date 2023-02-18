@@ -109,7 +109,7 @@ void draw_scene() {
 				draw_block(rock->block);
 				free_destroyable(rock);
 			} else {
-				if (j < LVL1_HMAP[i]) {
+				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
 
 					uint16_t* color = C_SKY;
 
@@ -158,7 +158,7 @@ void draw_scene() {
 				free_destroyable(rock);
 			}
 			else {
-				if (j < LVL1_HMAP[i]) {
+				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
 
 					// SKY
 					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY);

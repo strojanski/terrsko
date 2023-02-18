@@ -40,7 +40,7 @@ uint16_t camera_y = 0;
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-6, 6, 2);
+	generate_height_map(-3, 5, 4);
 
 	// Generate level with destroyables
 	init_stage_0();
@@ -72,15 +72,15 @@ void get_scene() {
 
 void update_camera_center(uint16_t x, uint8_t y) {
 	if (x >= WORLD_WIDTH - 40) {
-		x = 40;
-	} else if (x < 40) {
 		x = WORLD_WIDTH - 40;
+	} else if (x < 40) {
+		x = 40;
 	}
 
 	if (y >= WORLD_HEIGHT - 30) {
-		y = 30;
-	} else if (y < 30) {
 		y = WORLD_HEIGHT - 30;
+	} else if (y < 30) {
+		y = 30;
 	}
 
 	camera_x = x;
@@ -118,7 +118,7 @@ void init_stage_0() {
 	}
 
 	// LVL1_HMAP is as wide as the world, smooth the bumps
-	filter_level(WORLD_WIDTH, 16, 8);
+	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR);
 
 	//add_noise();
 
@@ -168,6 +168,10 @@ void init_stage_0() {
 		}
 	}
 }
+
+//void generate_caves(uint8_t width, uint8_t height, float percent_to_fill) {
+//
+//}
 
 // Generate 2D height map, a row can represent a level, can also be used for different tones of background underground (Worms style), Diamond-Square alg (https://en.wikipedia.org/wiki/Diamond-square_algorithm)
 void generate_height_map(uint8_t random_lower, uint8_t random_upper, float roughness) {
@@ -251,6 +255,7 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 	}
 }
 
+// Returns gauss kernel of width width and given sigma
 float* gauss_kernel(uint8_t width, uint8_t sigma) {
 	float* filter = (float*) malloc(width * sizeof(float));
 
