@@ -10,7 +10,10 @@
 
 // 512kB flash drive, 128kB RAM
 
-
+#define CAVE_THRESH 5
+#define CAVE_ITER 100
+#define CAVE_BIRTH_THRESH 1
+#define CAVE_DEATH_THRESH 1
 /*
  * WORLD array of ints HxW
  * 	- stores center of LCD
@@ -26,7 +29,9 @@
 
 uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];		// 10KB
 uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];		// 2.3KB
+
 int8_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
+uint8_t CAVE_MAP[WORLD_HEIGHT][WORLD_WIDTH/2];
 int8_t LVL1_HMAP[WORLD_WIDTH];
 
 //coord camera_center = {
@@ -41,6 +46,7 @@ uint16_t camera_y = 0;
 void init_world() {
 
 	generate_height_map(-3, 5, 4);
+	generate_caves();
 
 	// Generate level with destroyables
 	init_stage_0();
@@ -59,8 +65,8 @@ void get_scene() {
 
 
 	uint16_t x = 0;
-	uint8_t y = 0;
-	for (uint8_t i = top; i < bottom; i++) {
+	uint16_t y = 0;
+	for (uint16_t i = top; i < bottom; i++) {
 		for (uint16_t j = left; j < right; j++) {
 			SCENE[y][x] = WORLD[i][j];
 			x++;
@@ -111,7 +117,7 @@ void init_stage_0() {
 
 	// EL PARTE MAS IMPORTANTE - fill in the values
 	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
-		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + WORLD_HEIGHT / 2;
+		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
 		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
 			LVL1_HMAP[i+j] = val;
 		}
@@ -127,9 +133,19 @@ void init_stage_0() {
 	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
 		for (uint16_t j = 0; j < WORLD_WIDTH; j+=2) {
 			uint8_t l_block; uint8_t r_block;
+			uint8_t prev_val_l = (WORLD[i][j/2] & 0xF0) >> 4;
+			uint8_t prev_val_r = WORLD[i][j/2] & 0x0F;
+			bool cave = false;
+
+
+			// Skip caves
+			if (prev_val_l == (uint8_t)_dirt_bg) {
+				cave = true;
+			}
 
 			// left block
 			if (i > LVL1_HMAP[j]) { // Ground
+
 
 				float random = (float) rand() / RAND_MAX;
 
@@ -146,6 +162,10 @@ void init_stage_0() {
 				l_block = _empty;
 			}
 
+			// Skip caves
+			if (prev_val_r == (uint8_t) _dirt_bg) {
+				cave = true;
+			}
 			// left block
 			if (i > LVL1_HMAP[j+1]) { // Ground
 
@@ -164,14 +184,91 @@ void init_stage_0() {
 				r_block = _empty;
 			}
 
-			WORLD[i][j/2] = (l_block << 4) | r_block;
+			if (!cave) {
+				WORLD[i][j/2] = (l_block << 4) | r_block;
+			} else {
+				WORLD[i][j/2] = ((uint8_t) _dirt_bg << 4) | (uint8_t) _dirt_bg;
+			}
 		}
 	}
 }
 
-//void generate_caves(uint8_t width, uint8_t height, float percent_to_fill) {
-//
-//}
+void generate_caves() {
+
+	uint8_t cave_value = _dirt_bg;
+	uint8_t dirt_value = _dirt;
+
+	uint16_t map_width = WORLD_WIDTH/2;
+	uint16_t map_height = WORLD_HEIGHT;
+
+	// Randomly set some cells to zero
+	for (uint16_t yy = GROUND_SKY_RATIO+5; yy < map_height; yy++) {	// Caves start 5 blocks under ground
+		for (uint16_t xx = 0; xx < map_width; xx++) {
+			if (rand() % 100 < CAVE_THRESH) {
+				CAVE_MAP[yy][xx] = (cave_value << 4) | cave_value;
+			}
+		}
+	}
+
+	// Cellular automata rules
+	for (uint8_t iter = 0; iter < CAVE_ITER; iter++) {
+		for (uint16_t y = 0; y < map_height; y++) {
+			for (uint16_t x = 0; x < map_width; x++) {
+
+				uint8_t neighbor_cave_count = 0;
+
+				// Neighbor checking
+				for (uint8_t i = -1; i <= 1; i++) {
+					for (uint8_t j = -1; j <= 1; j++) {
+
+						uint16_t neighbor_x = x + i;
+						uint16_t neighbor_y = y + j;
+
+						uint8_t l_val = CAVE_MAP[neighbor_x][neighbor_y] & 0xF0 >> 4;
+						uint8_t r_val = CAVE_MAP[neighbor_x][neighbor_y] & 0x0F;
+
+						if (i == 0 && j == 0) continue;  // Skip the target cell
+
+						// Out of bounds = cave
+						if (neighbor_x < 0 || neighbor_y < 0 || neighbor_x >= map_width || neighbor_y >= map_height) {
+							neighbor_cave_count++;
+						} else if (l_val != dirt_value && r_val != dirt_value) {
+							// Neighbor is not dirt, count it as a non-dirt cell
+							neighbor_cave_count++;
+						}
+					}
+				}
+
+				uint8_t l_val = (CAVE_MAP[y][x] & 0xF0) >> 4;
+				uint8_t r_val = CAVE_MAP[y][x] & 0x0F;
+
+				// Rules for cave spreading
+				if (l_val == (uint8_t) dirt_value || r_val == (uint8_t) dirt_value) {
+					if (neighbor_cave_count >= CAVE_BIRTH_THRESH) {
+						CAVE_MAP[y][x] = cave_value << 4 | cave_value;
+						if (y < WORLD_WIDTH) {
+							CAVE_MAP[y+1][x] = cave_value << 4 | cave_value;
+						}
+					}
+				} else {
+					if (neighbor_cave_count < CAVE_DEATH_THRESH) { //|| neighbor_cave_count > 5) {
+						//CAVE_MAP[y][x] = dirt_value;
+					}
+				}
+			}
+		}
+	}
+
+	for (uint16_t y = 0; y < map_height; y++) {
+		for (uint16_t x = 0; x < map_width; x++) {
+			//uint16_t y_coord = y + (WORLD_HEIGHT - GROUND_SKY_RATIO);
+			uint8_t cave_left = (CAVE_MAP[y][x] & 0xF0) >> 4;
+			uint8_t cave_right = CAVE_MAP[y][x] & 0x0F;
+
+			WORLD[y][x] = (cave_left << 4) | cave_right;
+		}
+	}
+}
 
 // Generate 2D height map, a row can represent a level, can also be used for different tones of background underground (Worms style), Diamond-Square alg (https://en.wikipedia.org/wiki/Diamond-square_algorithm)
 void generate_height_map(uint8_t random_lower, uint8_t random_upper, float roughness) {
@@ -193,10 +290,10 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 	while (step > 1) {
 
 		// Diamond step
-		for (uint8_t y = step / 2; y < map_size - 1; y += step) {
-			for (uint8_t x = step / 2; x < map_size- 1; x += step) {
+		for (uint16_t y = step / 2; y < map_size - 1; y += step) {
+			for (uint16_t x = step / 2; x < map_size- 1; x += step) {
 
-				uint8_t half_step = step / 2;
+				uint16_t half_step = step / 2;
 
 				uint8_t sum = 	HEIGHT_MAP[y-half_step][x-half_step] +
 								HEIGHT_MAP[y-half_step][x+half_step] +
@@ -213,9 +310,11 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 		}
 
 		// Square step						9/2 = 4 -> gets middle element
-		for (uint8_t y = 0; y < map_size; y += step/2) {
-			uint8_t x0 = (y + step/2) % step;		// CHECK IF OK
-			for (uint8_t x = x0; x < map_size; x += step) {
+		for (uint16_t y = 0; y < map_size; y += step/2) {
+
+
+			uint16_t x0 = (y + step/2) % step;		// CHECK IF OK
+			for (uint16_t x = x0; x < map_size; x += step) {
 				uint8_t sum = 0;
 				uint8_t count = 0;
 

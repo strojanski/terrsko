@@ -74,8 +74,8 @@ void draw_scene() {
 
 	float probability_star = .02;
 
-	for (uint8_t i = 0; i < SCENE_BLOCKS_X; i++) {
-		for (uint8_t j = 0; j < SCENE_BLOCKS_Y; j++) {
+	for (uint16_t i = 0; i < SCENE_BLOCKS_X; i++) {
+		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
 
 			uint8_t value = SCENE[j][i]; // SCENE[y][x]
 			uint8_t l_cell = (value & 0xF0) >> 4;
@@ -108,6 +108,10 @@ void draw_scene() {
 
 				draw_block(rock->block);
 				free_destroyable(rock);
+			} else if (l_cell == (uint8_t) _dirt_bg) {
+				bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT);
+				draw_block(dirt->block);
+				free_bg_material(dirt);
 			} else {
 				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
 
@@ -156,6 +160,10 @@ void draw_scene() {
 
 				draw_block(rock->block);
 				free_destroyable(rock);
+			} else if (r_cell == (uint8_t) _dirt_bg) {
+				bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT);
+				draw_block(dirt->block);
+				free_bg_material(dirt);
 			}
 			else {
 				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {

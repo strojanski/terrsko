@@ -21,9 +21,14 @@ typedef enum {
 	_lava 		= 	0b1000,
 	_red_wood 	= 	0b1001,
 	_gold		= 	0b1010,
-	_diamond 	= 	0b1011
+	_diamond 	= 	0b1011,
+	_dirt_bg 	= 	0b1100,
 } Material;
 
+typedef enum {
+	_sky 		= 0100001,
+	_cave_bg	= 0b10011	// Might give a seperate color?
+} BackgroundMaterial;
 /*
  * -water
  * -wood
