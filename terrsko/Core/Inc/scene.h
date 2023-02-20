@@ -23,7 +23,7 @@
 #define KERNEL_WIDTH 32
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
-#define CAVE_SAMPLES_PER_CELL 8	// One cave sample determines 8x8 blocks of cave
+#define CAVE_SAMPLES_PER_CELL 1	// One cave sample determines 8x8 blocks of cave
 
 #define CAMERA_SPEED 3
 
@@ -47,9 +47,13 @@ void init_stage_0();
 
 void generate_caves();
 
+void draw_circle(uint16_t x, uint16_t y, uint8_t radius, uint8_t cave_value);
+
 void generate_height_map(uint8_t random_lower, uint8_t random_upper, float roughness);
 
 float* gauss_kernel(uint8_t width, uint8_t sigma);
+
+//void morphological_opening();
 
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma);
 

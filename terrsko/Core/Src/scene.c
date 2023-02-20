@@ -10,10 +10,10 @@
 
 // 512kB flash drive, 128kB RAM
 
-#define CAVE_THRESH 40
-#define CAVE_ITER 100
+#define CAVE_THRESH 20 //40
+#define CAVE_ITER 10
 #define CAVE_BIRTH_THRESH 2
-#define CAVE_DEATH_THRESH 6
+#define CAVE_DEATH_THRESH 3
 
 /*
  * WORLD array of ints HxW
@@ -48,7 +48,7 @@ void init_world() {
 
 	generate_height_map(-3, 5, 4);
 	generate_caves();
-
+	//morphological_opening();
 	// Generate level with destroyables
 	init_stage_0();
 
@@ -189,6 +189,8 @@ void generate_caves() {
 	uint16_t map_width = WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL);
 	uint16_t map_height = WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL;
 
+	uint8_t radius = 2;
+
 	// Randomly set some cells to zero
 	for (uint16_t y = 0; y < map_height; y++) {	// Caves start 5 blocks under ground
 		for (uint16_t x = 0; x < map_width; x++) {
@@ -237,17 +239,20 @@ void generate_caves() {
 				if (CAVE_MAP[i][j] == dirt_value) {
 					if (neighbor_cave_count > CAVE_BIRTH_THRESH) {
 						CAVE_MAP[i][j] = cave_value;
-						CAVE_MAP[i-1][j] = cave_value;
-						CAVE_MAP[i+1][j] = cave_value;
+						draw_circle(i, j, radius, cave_value);
 					}
 				} else {
-					if (neighbor_cave_count < CAVE_BIRTH_THRESH || neighbor_cave_count > CAVE_DEATH_THRESH) {
+					if (neighbor_cave_count < CAVE_DEATH_THRESH || (neighbor_cave_count > 6 && rand() % 100 < 40)) {
 						CAVE_MAP[i][j] = dirt_value;
+						draw_circle(i, j, radius+1, dirt_value);
 					}
+					draw_circle(i, j, radius, cave_value);
 				}
 			}
 		}
 	}
+
+	// TODO implement and perform opening (erosion + dilation) to get nicer caves
 
 	for (uint16_t x = 0; x < WORLD_WIDTH/2; x += CAVE_SAMPLES_PER_CELL) {
 		int depth = random_int(4, 8);
@@ -263,6 +268,21 @@ void generate_caves() {
 						WORLD[y+cy][x+cx] = CAVE_MAP[y][x];
 					}
 				}
+			}
+
+		}
+	}
+}
+
+void draw_circle(uint16_t x, uint16_t y, uint8_t radius, uint8_t cave_value) {
+	for (int8_t xx = -radius; xx < radius; xx++) {
+		for (int8_t yy = -radius; yy < radius; yy++) {
+
+			int16_t pos_x = (int16_t) x + xx;
+			int16_t pos_y = (int16_t) y + yy;
+
+			if (pos_x > 0 && pos_x < WORLD_WIDTH/2 && pos_y > 0 && pos_y < WORLD_HEIGHT / 2) {
+				CAVE_MAP[pos_y][pos_x] = cave_value;
 			}
 
 		}
@@ -385,6 +405,28 @@ float* gauss_kernel(uint8_t width, uint8_t sigma) {
 
     return filter;
 }
+
+// Perform morphological opening on the binary mask (cave map)
+void morphological_opening() {
+	uint8_t SE[3][3] = {
+			{0, 1, 0},
+			{1, 1, 1},
+			{0, 1, 1}
+	};
+
+	uint16_t width = WORLD_WIDTH;
+	uint16_t height = WORLD_HEIGHT/2;
+	uint8_t se_size = 3;
+
+	// WORLD -> Ground -> opening -> WORLD
+	uint8_t ground[height][width];
+}
+
+
+
+
+
+
 
 // Smoothes level
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
