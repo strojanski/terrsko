@@ -22,13 +22,14 @@
 #define LEVEL_SMOOTHING_FACTOR 12
 #define KERNEL_WIDTH 32
 
-#define HMAP_SAMPLES_PER_CELL 16
+#define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
+#define CAVE_SAMPLES_PER_CELL 8	// One cave sample determines 8x8 blocks of cave
 
 #define CAMERA_SPEED 3
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
-extern uint8_t CAVE_MAP[WORLD_HEIGHT][WORLD_WIDTH/2];
+extern uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 extern int8_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
 extern int8_t LVL1_HMAP[WORLD_WIDTH];
 extern uint16_t camera_x;

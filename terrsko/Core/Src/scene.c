@@ -10,10 +10,11 @@
 
 // 512kB flash drive, 128kB RAM
 
-#define CAVE_THRESH 5
+#define CAVE_THRESH 40
 #define CAVE_ITER 100
-#define CAVE_BIRTH_THRESH 1
-#define CAVE_DEATH_THRESH 1
+#define CAVE_BIRTH_THRESH 2
+#define CAVE_DEATH_THRESH 6
+
 /*
  * WORLD array of ints HxW
  * 	- stores center of LCD
@@ -31,7 +32,7 @@ uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];		// 10KB
 uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];		// 2.3KB
 
 int8_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
-uint8_t CAVE_MAP[WORLD_HEIGHT][WORLD_WIDTH/2];
+uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 int8_t LVL1_HMAP[WORLD_WIDTH];
 
 //coord camera_center = {
@@ -115,19 +116,6 @@ void init_stage_0() {
 
 	srand(time(NULL));
 
-	// EL PARTE MAS IMPORTANTE - fill in the values
-	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
-		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
-		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
-			LVL1_HMAP[i+j] = val;
-		}
-	}
-
-	// LVL1_HMAP is as wide as the world, smooth the bumps
-	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR);
-
-	//add_noise();
-
 	float probability_rock = 0.03;
 
 	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
@@ -195,77 +183,88 @@ void init_stage_0() {
 
 void generate_caves() {
 
-	uint8_t cave_value = _dirt_bg;
-	uint8_t dirt_value = _dirt;
+	uint8_t cave_value = _dirt_bg << 4 | _dirt_bg;
+	uint8_t dirt_value = _dirt << 4 | _dirt;
 
-	uint16_t map_width = WORLD_WIDTH/2;
-	uint16_t map_height = WORLD_HEIGHT;
+	uint16_t map_width = WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL);
+	uint16_t map_height = WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL;
 
 	// Randomly set some cells to zero
-	for (uint16_t yy = GROUND_SKY_RATIO+5; yy < map_height; yy++) {	// Caves start 5 blocks under ground
-		for (uint16_t xx = 0; xx < map_width; xx++) {
+	for (uint16_t y = 0; y < map_height; y++) {	// Caves start 5 blocks under ground
+		for (uint16_t x = 0; x < map_width; x++) {
 			if (rand() % 100 < CAVE_THRESH) {
-				CAVE_MAP[yy][xx] = (cave_value << 4) | cave_value;
+				CAVE_MAP[y][x] = cave_value;
 			}
 		}
 	}
 
 	// Cellular automata rules
-	for (uint8_t iter = 0; iter < CAVE_ITER; iter++) {
-		for (uint16_t y = 0; y < map_height; y++) {
-			for (uint16_t x = 0; x < map_width; x++) {
+	for (int iter = 0; iter < CAVE_ITER; iter++) {
+		for (int j = 0; j < map_width; j++) {
+			for (int i = 0; i < map_height; i++) {
+
+				if (i * CAVE_SAMPLES_PER_CELL < LVL1_HMAP[j*CAVE_SAMPLES_PER_CELL]) continue;
 
 				uint8_t neighbor_cave_count = 0;
 
-				// Neighbor checking
-				for (uint8_t i = -1; i <= 1; i++) {
-					for (uint8_t j = -1; j <= 1; j++) {
 
-						uint16_t neighbor_x = x + i;
-						uint16_t neighbor_y = y + j;
-
-						uint8_t l_val = CAVE_MAP[neighbor_x][neighbor_y] & 0xF0 >> 4;
-						uint8_t r_val = CAVE_MAP[neighbor_x][neighbor_y] & 0x0F;
-
-						if (i == 0 && j == 0) continue;  // Skip the target cell
-
-						// Out of bounds = cave
-						if (neighbor_x < 0 || neighbor_y < 0 || neighbor_x >= map_width || neighbor_y >= map_height) {
-							neighbor_cave_count++;
-						} else if (l_val != dirt_value && r_val != dirt_value) {
-							// Neighbor is not dirt, count it as a non-dirt cell
-							neighbor_cave_count++;
-						}
-					}
+				if (i > 0 && j > 0 && CAVE_MAP[i-1][j-1] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (i > 0 && CAVE_MAP[i-1][j] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (i > 0 && j < map_height-1 && CAVE_MAP[i-1][j+1] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (j > 0 && CAVE_MAP[i][j-1] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (j < map_height-1 && CAVE_MAP[i][j+1] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (i < map_width-1 && j > 0 && CAVE_MAP[i+1][j-1] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (i < map_width-1 && CAVE_MAP[i+1][j] == cave_value) {
+					neighbor_cave_count++;
+				}
+				if (i < map_width-1 && j < map_height-1 && CAVE_MAP[i+1][j+1] == cave_value) {
+					neighbor_cave_count++;
 				}
 
-				uint8_t l_val = (CAVE_MAP[y][x] & 0xF0) >> 4;
-				uint8_t r_val = CAVE_MAP[y][x] & 0x0F;
-
 				// Rules for cave spreading
-				if (l_val == (uint8_t) dirt_value || r_val == (uint8_t) dirt_value) {
-					if (neighbor_cave_count >= CAVE_BIRTH_THRESH) {
-						CAVE_MAP[y][x] = cave_value << 4 | cave_value;
-						if (y < WORLD_WIDTH) {
-							CAVE_MAP[y+1][x] = cave_value << 4 | cave_value;
-						}
+				if (CAVE_MAP[i][j] == dirt_value) {
+					if (neighbor_cave_count > CAVE_BIRTH_THRESH) {
+						CAVE_MAP[i][j] = cave_value;
+						CAVE_MAP[i-1][j] = cave_value;
+						CAVE_MAP[i+1][j] = cave_value;
 					}
 				} else {
-					if (neighbor_cave_count < CAVE_DEATH_THRESH) { //|| neighbor_cave_count > 5) {
-						//CAVE_MAP[y][x] = dirt_value;
+					if (neighbor_cave_count < CAVE_BIRTH_THRESH || neighbor_cave_count > CAVE_DEATH_THRESH) {
+						CAVE_MAP[i][j] = dirt_value;
 					}
 				}
 			}
 		}
 	}
 
-	for (uint16_t y = 0; y < map_height; y++) {
-		for (uint16_t x = 0; x < map_width; x++) {
-			//uint16_t y_coord = y + (WORLD_HEIGHT - GROUND_SKY_RATIO);
-			uint8_t cave_left = (CAVE_MAP[y][x] & 0xF0) >> 4;
-			uint8_t cave_right = CAVE_MAP[y][x] & 0x0F;
+	for (uint16_t x = 0; x < WORLD_WIDTH/2; x += CAVE_SAMPLES_PER_CELL) {
+		int depth = random_int(4, 8);
 
-			WORLD[y][x] = (cave_left << 4) | cave_right;
+		for (uint16_t y = LVL1_HMAP[2*x] + depth; y < WORLD_HEIGHT; y+= CAVE_SAMPLES_PER_CELL) {
+
+
+			for (uint16_t cx = 0; cx < CAVE_SAMPLES_PER_CELL; cx++) {
+				for (int16_t cy = 0; cy < CAVE_SAMPLES_PER_CELL; cy++) {
+
+					// Add smoothing
+					if (y + cy > LVL1_HMAP[2*x+cx]) {
+						WORLD[y+cy][x+cx] = CAVE_MAP[y][x];
+					}
+				}
+			}
+
 		}
 	}
 }
@@ -352,6 +351,18 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 			random_upper /= 2;
 		}
 	}
+
+	// EL PARTE MAS IMPORTANTE - fill in the values
+	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
+		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
+		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
+			LVL1_HMAP[i+j] = val;
+		}
+	}
+
+	// LVL1_HMAP is as wide as the world, smooth the bumps
+	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR);
+
 }
 
 // Returns gauss kernel of width width and given sigma
