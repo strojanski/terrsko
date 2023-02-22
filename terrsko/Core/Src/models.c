@@ -83,6 +83,14 @@ void draw_scene() {
 
 			float random = (float) rand() / RAND_MAX;
 
+			if (j == WORLD_HEIGHT/2) {
+				destroyable* dirt = create_destroyable(pos_x1, 4*(j+1), C_RED_WOOD);
+
+				draw_block(dirt->block);
+				free_destroyable(dirt);
+				continue;
+			}
+
 			// left (first) cell
 			if (l_cell == (uint8_t) _dirt) {
 
