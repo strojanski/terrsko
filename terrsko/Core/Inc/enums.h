@@ -29,6 +29,10 @@ typedef enum {
 	_sky 		= 0100001,
 	_cave_bg	= 0b10011	// Might give a seperate color?
 } BackgroundMaterial;
+
+typedef enum {
+	_fire
+} LightSources;
 /*
  * -water
  * -wood

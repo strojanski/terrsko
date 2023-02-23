@@ -15,22 +15,9 @@
 #define CAVE_BIRTH_THRESH 3
 #define CAVE_DEATH_THRESH 5
 
-/*
- * WORLD array of ints HxW
- * 	- stores center of LCD
- *
- * SCENE visible part of world
- *
- * DRAW SCENE
- * 	- draws visible scene, determines position of player
- *
- *
- *
- * */
-
 // 4 bits define the block at the position
-uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];		// 10KB
-uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];		// 2.3KB
+uint8_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 10KB
+uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];				// 2.3KB
 
 // Only holds bytes
 uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
@@ -45,17 +32,18 @@ uint16_t camera_y = 0;
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-3, 4, 5);
+	generate_height_map(-3, 3, 2);
 	generate_caves();
 	shape_caves_with_morphological_operations();
+	place_lava();
 
 	// Generate level with destroyables
 	init_stage_0();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 
-	// Set camera center to the middle of the world
-	update_camera_center((uint16_t) floor(WORLD_WIDTH/2), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
+	// Set spawn center to the top left third of the world
+	update_camera_center((uint16_t) floor(WORLD_WIDTH/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
 }
 
 void get_scene() {
@@ -79,15 +67,15 @@ void get_scene() {
 
 void update_camera_center(uint16_t x, uint16_t y) {
 	if (x >= WORLD_WIDTH - 40) {
-		x = WORLD_WIDTH - 40;
+		x = 41;
 	} else if (x < 40) {
-		x = 40;
+		x = WORLD_WIDTH - 41;
 	}
 
-	if (y >= WORLD_HEIGHT - 30) {
-		y = WORLD_HEIGHT - 30;
-	} else if (y < 30) {
-		y = 30;
+	if (y >= WORLD_HEIGHT - 31) {
+		y = WORLD_HEIGHT - 31;
+	} else if (y < 31) {
+		y = 31;
 	}
 
 	camera_x = x;
@@ -117,18 +105,19 @@ void init_stage_0() {
 	srand(time(NULL));
 
 	float probability_rock = 0.03;
+	uint8_t cave = ((_dirt_bg << 4) | _dirt_bg);
+	uint8_t lava = ((_lava << 4) | _lava);
 
 	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
 		for (uint16_t j = 0; j < WORLD_WIDTH; j+=2) {
 			uint8_t l_block; uint8_t r_block;
 
-			// Cave
-			if (WORLD[i][j/2] == ((_dirt_bg << 4) | _dirt_bg) && i > LVL1_HMAP[j]) {
+			// Check for predetermined special values
+			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
 				continue;
 			}
 
-			// left block
-
+			// Only change the empty cells
 			// Ground
 			if (i > LVL1_HMAP[j]) {
 				float random = (float) rand() / RAND_MAX;
@@ -165,6 +154,27 @@ void init_stage_0() {
 			}
 
 			WORLD[i][j/2] = (l_block << 4) | r_block;
+		}
+	}
+}
+
+void place_lava() {
+	// 1% chance of random spawn + last 2 row
+	srand(time(NULL));
+	uint8_t chance_of_lava = 1;
+	uint8_t lava_blob_radius = 2;
+	uint8_t lava_block = (_lava << 4) | _lava;
+
+	for (uint16_t i = 0; i < WORLD_MAP_WIDTH; i++) {
+		for (uint16_t j = LVL1_HMAP[2*i]; j < WORLD_MAP_HEIGHT; j++) {
+			if (rand() % 100 < chance_of_lava) {
+				draw_circle(i, j, lava_blob_radius, lava_block);
+//				WORLD[j][i] = lava_block;
+			}
+
+			if (j >= WORLD_MAP_HEIGHT - 2) {
+				WORLD[j][i] = lava_block;
+			}
 		}
 	}
 }
@@ -297,9 +307,9 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 	uint16_t map_size = WORLD_WIDTH + 1;
 
 	// Initialize heights - height 0 equals WORLD_HEIGHT / 2
-	HEIGHT_MAP[0][0] = 16;			// Elevated on edge
-	HEIGHT_MAP[0][map_size-1] = 4;
-	HEIGHT_MAP[map_size-1][0] = 5;	// Elevated on edge
+	HEIGHT_MAP[0][0] = 0;			// Elevated on edge
+	HEIGHT_MAP[0][map_size-1] = 0;
+	HEIGHT_MAP[map_size-1][0] = 0;	// Elevated on edge
 	HEIGHT_MAP[map_size-1][map_size-1] = 0;
 
 	uint8_t step = map_size - 1;
@@ -320,6 +330,11 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 								HEIGHT_MAP[y+half_step][x+half_step];
 
 				uint8_t random_n = random_lower + (uint8_t) ( (int) rand() % (random_upper - random_lower + 1));
+
+				if (step == map_size - 1) {
+					random_n /= 2;
+				}
+
 				uint8_t average = (uint8_t) round(sum / 4);
 
 				// Sum average and random number, make sure it is in range
@@ -374,14 +389,17 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 	// EL PARTE MAS IMPORTANTE - fill in the values
 	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
-		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
+		uint8_t val = HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
 		for (uint8_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
 			LVL1_HMAP[i+j] = val;
 		}
 	}
 
+
 	// LVL1_HMAP is as wide as the world, smooth the bumps
-	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR);
+	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, false);
+	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
 
 }
 
@@ -522,20 +540,44 @@ void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width
 	}
 }
 
-void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
+void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool only_sharp_edges) {
 	int8_t* result = malloc(array_size);
 
 	float* filter = gauss_kernel(kernel_width, sigma);
 
+
 	for (uint16_t i = 0; i < array_size; i++) {
 		float sum = 0.0;
+
+		float std = 0.0;
+		float mean = 0.0;
+
 		for (int j = 0; j < kernel_width; j++) {
 			int k = i + j - (kernel_width - 1) / 2;
 			if (k >= 0 && k < array_size) {
 				sum += LVL1_HMAP[k] * filter[j];
+				mean += LVL1_HMAP[k];
 			}
 		}
-		result[i] = (int8_t) round(sum);
+
+		// Calculate standard deviation
+		if (only_sharp_edges) {
+			mean = mean / (kernel_width-1);
+			for (int j = 0; j < kernel_width; j++) {
+				int k = i + j - (kernel_width - 1) / 2;
+				if (k >= 0 && k < array_size) {
+					std += pow(LVL1_HMAP[k] - mean, 2);
+				}
+			}
+			std /= (kernel_width - 1);
+			std = sqrt(std);
+		}
+
+		if ((only_sharp_edges && std > TERRAIN_STD_THRESH) || !only_sharp_edges) {
+			result[i] = (int8_t) round(sum);
+		} else {
+			result[i] = LVL1_HMAP[i];
+		}
 	}
 
 	// Write back

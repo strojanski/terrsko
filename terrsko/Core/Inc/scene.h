@@ -16,11 +16,15 @@
 #define WORLD_HEIGHT ((uint16_t) SCENE_HEIGHT * 3) //120
 #define WORLD_WIDTH ((uint16_t) SCENE_WIDTH * 6) //160
 
+#define WORLD_MAP_HEIGHT WORLD_HEIGHT
+#define WORLD_MAP_WIDTH WORLD_WIDTH / 2
+
 #define N_LEVELS 9
 #define SKY_GROUND_OFFSET 15
 #define GROUND_SKY_RATIO WORLD_HEIGHT / 3	// how much of the world is sky
 #define LEVEL_SMOOTHING_FACTOR 12
 #define KERNEL_WIDTH 32
+#define TERRAIN_STD_THRESH 3
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
@@ -28,6 +32,10 @@
 #define CAMERA_SPEED 3
 #define SE_SIZE_DILATION 3
 #define SE_SIZE_EROSION 5
+
+#define LIGHT_SOURCE_RADIUS 4	// Each light source reaches RADIUS blocks in each direction, intensity falls exponentially, has to be determined seperately in draw_scene
+#define LIGHT_MAP_HEIGHT (WORLD_MAP_HEIGHT / 2 * LIGHT_SOURCE_RADIUS)
+#define LIGHT_MAP_WIDTH (WORLD_MAP_WIDTH / 2 * LIGHT_SOURCE_RADIUS)
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
@@ -55,13 +63,15 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 float* gauss_kernel(uint8_t width, uint8_t sigma);
 
+void place_lava();
+
 void shape_caves_with_morphological_operations();
 
 void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height);
 
 void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height);
 
-void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma);
+void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool only_sharp_edges);
 
 uint8_t random_int(uint8_t min, uint8_t max);
 

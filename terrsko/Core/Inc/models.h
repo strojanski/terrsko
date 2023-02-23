@@ -14,15 +14,19 @@
 
 #define BLOCK_WIDTH 4
 
-block* create_block(uint16_t x, uint8_t y, uint16_t colors[4]);
+uint16_t* apply_shading(uint16_t colors[4], float illumination);
 
-destroyable* create_destroyable(uint16_t x, uint8_t y, uint16_t colors[4]);
+block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
-bg_material* create_bg_material(uint16_t x, uint8_t y, uint16_t colors[4]);
+destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
+
+bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
 void draw_scene();
 
 void draw_block(block* block);
+
+void draw_detailed_block(block* block);
 
 void free_destroyable(destroyable* destroyable);
 
