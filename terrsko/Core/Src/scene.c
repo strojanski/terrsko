@@ -28,17 +28,16 @@
  *
  * */
 
+// 4 bits define the block at the position
 uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];		// 10KB
 uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];		// 2.3KB
 
-int8_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
+// Only holds bytes
 uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
-int8_t LVL1_HMAP[WORLD_WIDTH];
 
-//coord camera_center = {
-//		x: 0,
-//		y: 0
-//};
+// Height can be > 256, need uint16_t
+int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
+int16_t LVL1_HMAP[WORLD_WIDTH];
 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
@@ -46,7 +45,7 @@ uint16_t camera_y = 0;
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-3, 5, 4);
+	generate_height_map(-3, 4, 5);
 	generate_caves();
 	shape_caves_with_morphological_operations();
 
@@ -61,9 +60,9 @@ void init_world() {
 
 void get_scene() {
 	uint16_t left = camera_x - (SCENE_WIDTH / 4);
-	uint8_t top = camera_y - (SCENE_HEIGHT / 2);
+	uint16_t top = camera_y - (SCENE_HEIGHT / 2);
 	uint16_t right = camera_x + (SCENE_WIDTH / 4);
-	uint8_t bottom = camera_y + (SCENE_HEIGHT / 2);
+	uint16_t bottom = camera_y + (SCENE_HEIGHT / 2);
 
 
 	uint16_t x = 0;
@@ -78,7 +77,7 @@ void get_scene() {
 	}
 }
 
-void update_camera_center(uint16_t x, uint8_t y) {
+void update_camera_center(uint16_t x, uint16_t y) {
 	if (x >= WORLD_WIDTH - 40) {
 		x = WORLD_WIDTH - 40;
 	} else if (x < 40) {
@@ -124,7 +123,7 @@ void init_stage_0() {
 			uint8_t l_block; uint8_t r_block;
 
 			// Cave
-			if (WORLD[i][j/2] == ((_dirt_bg << 4) | _dirt_bg)) {
+			if (WORLD[i][j/2] == ((_dirt_bg << 4) | _dirt_bg) && i > LVL1_HMAP[j]) {
 				continue;
 			}
 
@@ -376,7 +375,7 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 	// EL PARTE MAS IMPORTANTE - fill in the values
 	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
 		uint8_t val = HEIGHT_MAP[0][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
-		for (uint16_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
+		for (uint8_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
 			LVL1_HMAP[i+j] = val;
 		}
 	}
@@ -528,7 +527,7 @@ void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
 
 	float* filter = gauss_kernel(kernel_width, sigma);
 
-	for (uint8_t i = 0; i < array_size; i++) {
+	for (uint16_t i = 0; i < array_size; i++) {
 		float sum = 0.0;
 		for (int j = 0; j < kernel_width; j++) {
 			int k = i + j - (kernel_width - 1) / 2;
@@ -540,7 +539,7 @@ void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
 	}
 
 	// Write back
-	for (uint8_t i = 0; i < array_size; i++) {
+	for (uint16_t i = 0; i < array_size; i++) {
 		LVL1_HMAP[i] = result[i];
 	}
 
