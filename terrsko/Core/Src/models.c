@@ -103,7 +103,8 @@ void draw_scene() {
 			uint8_t value = SCENE[j][i]; // SCENE[y][x]
 			uint8_t l_cell = (value & 0xF0) >> 4;
 			uint8_t r_cell = (value & 0x0F);
-			float illumination = 0.8;
+
+			float illumination = compute_illumination(i, j);
 
 			float random = (float) rand() / RAND_MAX;
 			// left (first) cell

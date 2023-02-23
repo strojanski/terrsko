@@ -7,6 +7,7 @@
 #include "materials.h"
 #include "ugui.h"
 #include "scene.h"
+#include "material_classes.h"
 
 // 512kB flash drive, 128kB RAM
 
@@ -25,6 +26,7 @@ uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES
 // Height can be > 256, need uint16_t
 int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
 int16_t LVL1_HMAP[WORLD_WIDTH];
+uint8_t LIGHT_MAP[LIGHT_MAP_HEIGHT][LIGHT_MAP_WIDTH];	// 1 - illuminated 0 - not illuminated
 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
@@ -39,6 +41,9 @@ void init_world() {
 
 	// Generate level with destroyables
 	init_stage_0();
+
+	// compute illumination map
+	get_illumination();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 
@@ -98,6 +103,78 @@ bool is_night() {
 	return false;
 }
 
+void get_illumination() {
+	for (uint16_t i = 0; i < LIGHT_MAP_WIDTH; i++) {
+		for (uint16_t j = 0; j < LIGHT_MAP_HEIGHT; j++) {
+
+			bool is_illuminated = false;
+
+			// Check for light sources
+			for (uint16_t x = 0; x < LIGHT_SAMPLES_PER_CELL; x++) {
+				for (uint16_t y = 0; y < LIGHT_SAMPLES_PER_CELL; y++) {
+
+					uint16_t x_coor = i * LIGHT_SAMPLES_PER_CELL + x;
+					uint16_t y_coor = j * LIGHT_SAMPLES_PER_CELL + y;
+
+					if (is_light_source(WORLD[y_coor][x_coor])) {
+						is_illuminated = true;
+					}
+				}
+			}
+
+			if (is_illuminated) {
+				LIGHT_MAP[j][i] = 1;
+			} else {
+				LIGHT_MAP[j][i] = 0;
+			}
+
+		}
+	}
+}
+
+// convert world coordinates to light coordinates
+coord convert_world_to_light(uint16_t x, uint16_t y) {
+	uint16_t lx = x / LIGHT_SAMPLES_PER_CELL;
+	uint16_t ly = y / LIGHT_SAMPLES_PER_CELL;
+
+	coord new_pos = {
+			x: lx,
+			y: ly
+	};
+
+	return new_pos;
+}
+
+float compute_illumination(uint16_t x, uint16_t y) {
+
+	coord pos = convert_world_to_light(x, y);
+
+	if (LIGHT_MAP[pos.y][pos.x] == 1) {
+		if (y < LVL1_HMAP[2*x]) {
+			return 1;
+		} else {
+			// How far from center it is, from [-light_source_radius : light source radius]
+			uint8_t offset_x = abs((x % LIGHT_SAMPLES_PER_CELL) - LIGHT_SOURCE_RADIUS);
+			uint8_t offset_y = abs((y % LIGHT_SAMPLES_PER_CELL) - LIGHT_SOURCE_RADIUS);
+
+			// in center illumination is 1
+			float dist = sqrt(pow(offset_x, 2) + pow(offset_y, 2));
+			dist = dist < 1 ? 1 : dist;
+			float illumination = exp(1) * (1 / exp(dist));
+			if (illumination < 0.5) {
+				illumination *= 2;
+			}
+
+			return illumination;
+
+		}
+
+	} else {
+		return 0.0;
+	}
+
+
+}
 
 // Get level with only dirt
 void init_stage_0() {

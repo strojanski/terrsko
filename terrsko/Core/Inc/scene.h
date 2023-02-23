@@ -26,22 +26,25 @@
 #define KERNEL_WIDTH 32
 #define TERRAIN_STD_THRESH 3
 
-#define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
-#define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
-
 #define CAMERA_SPEED 3
 #define SE_SIZE_DILATION 3
 #define SE_SIZE_EROSION 5
 
 #define LIGHT_SOURCE_RADIUS 4	// Each light source reaches RADIUS blocks in each direction, intensity falls exponentially, has to be determined seperately in draw_scene
-#define LIGHT_MAP_HEIGHT (WORLD_MAP_HEIGHT / 2 * LIGHT_SOURCE_RADIUS)
-#define LIGHT_MAP_WIDTH (WORLD_MAP_WIDTH / 2 * LIGHT_SOURCE_RADIUS)
+#define LIGHT_MAP_HEIGHT (WORLD_MAP_HEIGHT / (2 * LIGHT_SOURCE_RADIUS))
+#define LIGHT_MAP_WIDTH (WORLD_MAP_WIDTH / (2 * LIGHT_SOURCE_RADIUS))
+
+#define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
+#define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
+#define LIGHT_SAMPLES_PER_CELL (2 * LIGHT_SOURCE_RADIUS)
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
 extern uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 extern int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
 extern int16_t LVL1_HMAP[WORLD_WIDTH];
+extern uint8_t LIGHT_MAP[LIGHT_MAP_HEIGHT][LIGHT_MAP_WIDTH];
+
 extern uint16_t camera_x;
 extern uint16_t camera_y;
 
@@ -52,6 +55,12 @@ void update_camera_center(uint16_t x, uint16_t y);
 void init_world();
 
 bool is_night();
+
+void get_illumination();
+
+coord convert_world_to_light(uint16_t x, uint16_t y);
+
+float compute_illumination(uint16_t x, uint16_t y);
 
 void init_stage_0();
 
