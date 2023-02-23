@@ -26,7 +26,8 @@
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
 
 #define CAMERA_SPEED 3
-#define SE_SIZE 3
+#define SE_SIZE_DILATION 3
+#define SE_SIZE_EROSION 5
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
@@ -54,11 +55,11 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 float* gauss_kernel(uint8_t width, uint8_t sigma);
 
-void morphological_opening();
+void shape_caves_with_morphological_operations();
 
-void erosion(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
+void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height);
 
-void dilation(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
+void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height);
 
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma);
 
