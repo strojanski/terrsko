@@ -10,10 +10,10 @@
 
 // 512kB flash drive, 128kB RAM
 
-#define CAVE_THRESH 20 //40
+#define CAVE_THRESH 10 //40
 #define CAVE_ITER 10
-#define CAVE_BIRTH_THRESH 2
-#define CAVE_DEATH_THRESH 3
+#define CAVE_BIRTH_THRESH 3
+#define CAVE_DEATH_THRESH 5
 
 /*
  * WORLD array of ints HxW
@@ -49,13 +49,14 @@ void init_world() {
 	generate_height_map(-3, 5, 4);
 	generate_caves();
 	morphological_opening();
+
 	// Generate level with destroyables
 	init_stage_0();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 
 	// Set camera center to the middle of the world
-	update_camera_center((uint16_t) floor(WORLD_WIDTH/4), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
+	update_camera_center((uint16_t) floor(WORLD_WIDTH/2), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
 }
 
 void get_scene() {
@@ -177,11 +178,13 @@ void generate_caves() {
 	uint16_t map_width = WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL);
 	uint16_t map_height = WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL;
 
-	uint8_t radius = 2;
+	uint8_t radius = 1;
+
 
 	// Randomly set some cells to zero
 	for (uint16_t x = 0; x < map_width; x++) {
 		for (uint16_t y = 0; y < map_height; y++) {	// Caves start 5 blocks under ground
+			CAVE_MAP[y][x] = dirt_value;
 			if (rand() % 100 < CAVE_THRESH) {
 				CAVE_MAP[y][x] = cave_value;
 			}
@@ -225,30 +228,30 @@ void generate_caves() {
 				if (CAVE_MAP[i][j] == dirt_value) {
 					if (neighbor_cave_count > CAVE_BIRTH_THRESH) {
 						CAVE_MAP[i][j] = cave_value;
-						draw_circle(i, j, radius, cave_value);
+//						draw_circle(i, j, radius, cave_value);
 					}
 				} else {
 					if (neighbor_cave_count < CAVE_DEATH_THRESH || (neighbor_cave_count > 6 && rand() % 100 < 40)) {
 						CAVE_MAP[i][j] = dirt_value;
-						draw_circle(i, j, radius, dirt_value);
+//						draw_circle(i, j, radius, dirt_value);
 					}
-					draw_circle(i, j, radius, cave_value);
+					CAVE_MAP[i][j] = cave_value;
+//					CAVE_MAP[i+1][j+1] = cave_value;
+//					draw_circle(i, j, radius, cave_value);
 				}
 			}
 		}
 	}
 
-	// TODO implement and perform opening (erosion + dilation) to get nicer caves
-
 	for (uint16_t x = 0; x < map_width; x += 1) {
 		for (uint16_t y = 0; y < map_height; y += 1) {
 
-			uint8_t value = CAVE_MAP[y][x];
+			uint8_t value = CAVE_MAP[map_height - y][x];
 
 			for (uint8_t cx = 0; cx < CAVE_SAMPLES_PER_CELL; cx++) {
 				for (int8_t cy = 0; cy < CAVE_SAMPLES_PER_CELL; cy++) {
 
-					uint8_t depth = rand() % 6 + 2;
+					uint8_t depth = rand() % 6 + 7;
 					uint16_t y_coor = y * CAVE_SAMPLES_PER_CELL + cy;
 					uint16_t x_coor = x * CAVE_SAMPLES_PER_CELL + cx;
 
@@ -411,8 +414,7 @@ void morphological_opening() {
 			{cave, cave, cave, cave, cave},
 			{dirt, cave, cave, cave, dirt},
 			{dirt, dirt, cave, dirt, dirt}
-	};*/
-
+*/
 	for (uint8_t i = 0; i < SE_SIZE; i++) {
 		for (uint8_t j = 0; j < SE_SIZE; j++) {
 			if ((i < SE_SIZE/3 || i > 2*SE_SIZE/3) && (j < SE_SIZE/3 || j > 2*SE_SIZE/3)) {
@@ -422,55 +424,53 @@ void morphological_opening() {
 			}
 		}
 	}
-	/*{
-			{dirt, dirt, dirt},
+	/*
+	uint8_t SE[3][3] = {
 			{dirt, cave, dirt},
-			{dirt, dirt, dirt}
-	};*/
+			{cave, cave, cave},
+			{dirt, cave, dirt}
+//	};*/
 
 	uint16_t width = WORLD_WIDTH/2;
-	uint16_t height = WORLD_HEIGHT/2;
+	uint16_t height = WORLD_HEIGHT;
 
 
-	uint8_t** ground = (uint8_t**) malloc(height * sizeof(uint8_t*));
+//	uint8_t** ground = (uint8_t**) malloc(height * sizeof(uint8_t*));
 
-	for (uint16_t j = 0; j < height; j++) {
-		ground[j] = (uint8_t*) malloc(width * sizeof(uint8_t));
-		for (uint16_t i = 0; i < width; i++) {
-			ground[j][i] = WORLD[j + height][i];
-		}
-	}
+//	for (uint16_t j = 0; j < height; j++) {
+//		ground[j] = (uint8_t*) malloc(width * sizeof(uint8_t));
+//		for (uint16_t i = 0; i < width; i++) {
+//			ground[j][i] = WORLD[j + GROUND_SKY_RATIO][i];
+//		}
+//	}
 	// WORLD -> Ground -> opening -> WORLD
 
-	uint8_t** eroded = erosion(ground, SE, width, height);
-	uint8_t** eroded1 = erosion(eroded, SE, width, height);
-	uint8_t** eroded2 = erosion(eroded1, SE, width, height);
+	erosion(SE, width, height);
+	dilation(SE, width, height);
 
-	uint8_t** dilated = dilation(eroded2, SE, width, height);
+//	for (uint16_t j = 0; j < height; j++) {
+//		for (uint16_t i = 0; i < width; i++) {
+//			WORLD[j + GROUND_SKY_RATIO][i] = dilated[j][i];
+//		}
+//	}
 
-	for (uint16_t j = 0; j < height; j++) {
-		for (uint16_t i = 0; i < width; i++) {
-			WORLD[j + height][i] = dilated[j][i];
-		}
-	}
-
-	for (uint16_t j = 0; j < height; j++) {
-		free(ground[j]);
-	}
-	free(ground);
+//	for (uint16_t j = 0; j < height; j++) {
+//		free(ground[j]);
+//	}
+//	free(ground);
 
 }
 
-uint8_t** erosion(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height) {
+void erosion(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height) {
 	uint8_t se_size = SE_SIZE;
 
 	uint8_t temp[map_height][map_width];
 
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
-	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
+	//uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
 
-	for (uint16_t j = 0; j < map_height; j++) {
-		for (uint16_t i = 0; i < map_width; i++) {
+	for (uint16_t i = 0; i < map_width; i++) {
+		for (uint16_t j = LVL1_HMAP[i]; j < map_height; j++) {
 			uint8_t min_value = dirt;
 			for (uint16_t k = 0; k < se_size; k++) {
 				for (uint16_t l = 0; l < se_size; l++) {
@@ -478,7 +478,7 @@ uint8_t** erosion(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_w
 						uint16_t x = i - k + se_size / 2;
 						uint16_t y = j - l + se_size / 2;
 						if (x >= 0 && x < map_width && y >= 0 && y < map_height) {
-							min_value = min_value > ground[y][x] ? min_value : ground[y][x];
+							min_value = min_value > WORLD[y][x] ? min_value : WORLD[y][x];
 						}
 					}
 				}
@@ -488,16 +488,14 @@ uint8_t** erosion(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_w
 		}
 	}
 
-	for (uint16_t j = 0; j < map_height; j++) {
-		for (uint16_t i = 0; i < map_width; i++) {
-			ground[j][i] = temp[j][i];
+	for (uint16_t i = 0; i < map_width; i++) {
+		for (uint16_t j = LVL1_HMAP[i]; j < map_height; j++) {
+			WORLD[j][i] = temp[j][i];
 		}
 	}
-
-	return ground;
 }
 
-uint8_t** dilation(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height) {
+void dilation(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height) {
 
 	uint8_t se_size = 3;
 
@@ -506,8 +504,8 @@ uint8_t** dilation(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
 	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
 
-	for (uint16_t j = 0; j < map_height; j++) {
-		for (uint16_t i = 0; i < map_width; i++) {
+	for (uint16_t i = 0; i < map_width; i++) {
+		for (uint16_t j = LVL1_HMAP[i]; j < map_height; j++) {
 			uint8_t max_value = dirt;
 			for (uint16_t k = 0; k < se_size; k++) {
 				for (uint16_t l = 0; l < se_size; l++) {
@@ -515,7 +513,7 @@ uint8_t** dilation(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_
 						uint16_t x = i - k + se_size / 2;
 						uint16_t y = j - l + se_size / 2;
 						if (x >= 0 && x < map_width && y >= 0 && y < map_height) {
-							max_value = max_value > ground[y][x] ? max_value : ground[y][x];
+							max_value = max_value > WORLD[y][x] ? max_value : WORLD[y][x];
 						}
 					}
 				}
@@ -525,17 +523,13 @@ uint8_t** dilation(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_
 		}
 	}
 
-	for (uint16_t j = 0; j < map_height; j++) {
-		for (uint16_t i = 0; i < map_width; i++) {
-			ground[j][i] = temp[j][i];
+	for (uint16_t i = 0; i < map_width; i++) {
+		for (uint16_t j = LVL1_HMAP[i]; j < map_height; j++) {
+			WORLD[j][i] = temp[j][i];
 		}
 	}
-
-	return ground;
-
 }
 
-// Smoothes level
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma) {
 	int8_t* result = malloc(array_size);
 

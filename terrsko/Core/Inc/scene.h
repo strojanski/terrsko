@@ -23,10 +23,10 @@
 #define KERNEL_WIDTH 32
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
-#define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines 8x8 blocks of cave
+#define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
 
 #define CAMERA_SPEED 3
-#define SE_SIZE 17
+#define SE_SIZE 3
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
@@ -56,9 +56,9 @@ float* gauss_kernel(uint8_t width, uint8_t sigma);
 
 void morphological_opening();
 
-uint8_t** erosion(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
+void erosion(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
 
-uint8_t** dilation(uint8_t** ground, uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
+void dilation(uint8_t SE[SE_SIZE][SE_SIZE], uint16_t map_width, uint16_t map_height);
 
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma);
 

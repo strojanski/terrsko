@@ -82,15 +82,6 @@ void draw_scene() {
 			uint8_t r_cell = (value & 0x0F);
 
 			float random = (float) rand() / RAND_MAX;
-
-			if (j == WORLD_HEIGHT/2) {
-				destroyable* dirt = create_destroyable(pos_x1, 4*(j+1), C_RED_WOOD);
-
-				draw_block(dirt->block);
-				free_destroyable(dirt);
-				continue;
-			}
-
 			// left (first) cell
 			if (l_cell == (uint8_t) _dirt) {
 
@@ -117,7 +108,9 @@ void draw_scene() {
 				draw_block(rock->block);
 				free_destroyable(rock);
 			} else if (l_cell == (uint8_t) _dirt_bg) {
+
 				bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT);
+
 				draw_block(dirt->block);
 				free_bg_material(dirt);
 			} else {
@@ -169,11 +162,12 @@ void draw_scene() {
 				draw_block(rock->block);
 				free_destroyable(rock);
 			} else if (r_cell == (uint8_t) _dirt_bg) {
+
 				bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT);
+
 				draw_block(dirt->block);
 				free_bg_material(dirt);
-			}
-			else {
+			} else {
 				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
 
 					// SKY
