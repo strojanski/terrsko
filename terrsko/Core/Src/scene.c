@@ -106,9 +106,13 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	global_x = camera_x - (SCENE_WIDTH / 4) + x;
 	global_y = camera_y - (SCENE_HEIGHT / 2) + y;
 
-	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x), 2) + pow((camera_y - global_y), 2)));
+	// Light source is lit
+	if (is_light_source(WORLD[global_y][global_x])) return 1.0;
+
+	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x) * 2, 2) + pow((camera_y - global_y), 2)));
 	if (dist_to_camera < LIGHT_RADIUS) {
 		return light_intensity(dist_to_camera);
+
 	}
 
 	// For each block, calculate the distance to light source
@@ -117,7 +121,7 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	bool found = false;
 
 	for (int8_t i = -search_radius; i <= search_radius; i++) {
-		for (int8_t j = -search_radius; j <= search_radius; j++) {
+		for (int8_t j = -search_radius/2; j <= search_radius/2; j++) {
 			if (is_light_source(WORLD[global_y + i][global_x + j])) {
 				found = true;
 
@@ -144,7 +148,7 @@ float euclidean(int8_t x, int8_t y) {
 }
 
 float light_intensity(float dist) {
-	return MIN(1, pow(LIGHT_DEGRADATION_RATE, dist));
+	return MIN(1, 0.1 + pow(LIGHT_DEGRADATION_RATE, dist));
 }
 
 // Get level with only dirt
@@ -209,14 +213,14 @@ void init_stage_0() {
 void place_lava() {
 	// 1% chance of random spawn + last 2 row
 	srand(time(NULL));
-	uint8_t chance_of_lava = 40;
+	float chance_of_lava = 0.1;
 	uint8_t lava_blob_radius = 2;
 	uint8_t lava_block = (_lava << 4) | _lava;
 
 	for (uint16_t i = 0; i < WORLD_MAP_WIDTH; i++) {
-		for (uint16_t j = LVL1_HMAP[2*i]; j < WORLD_MAP_HEIGHT; j++) {
-			if (rand() % 100 < chance_of_lava) {
-				draw_circle(i, j, lava_blob_radius, lava_block);
+		for (uint16_t j = LVL1_HMAP[2*i]+10; j < WORLD_MAP_HEIGHT; j++) {
+			if ((float)rand()/(float)(RAND_MAX/100) < chance_of_lava) { // && WORLD[j][i] & 0xF0 != _dirt_bg) {
+				draw_blob(i, j, lava_blob_radius, lava_block);
 //				WORLD[j][i] = lava_block;
 			}
 
@@ -325,6 +329,14 @@ void generate_caves() {
 				}
 			}
 
+		}
+	}
+}
+
+void draw_blob(uint16_t x, uint16_t y, uint16_t radius, uint8_t value) {
+	for (int8_t i = -radius; i <= radius; i++) {
+		for (int8_t j = -radius; j <= radius; j++) {
+			WORLD[y+i][x+j] = value;
 		}
 	}
 }

@@ -33,8 +33,8 @@
 #define SE_SIZE_DILATION 3
 #define SE_SIZE_EROSION 5
 
-#define LIGHT_RADIUS 5 		// radius of light in blocks
-#define LIGHT_DEGRADATION_RATE 0.95
+#define LIGHT_RADIUS 10 		// radius of light in blocks
+#define LIGHT_DEGRADATION_RATE 0.9
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
@@ -73,6 +73,8 @@ float light_intensity(float dist);
 void init_stage_0();
 
 void generate_caves();
+
+void draw_blob(uint16_t x, uint16_t y, uint16_t radius, uint8_t value);
 
 void draw_circle(uint16_t x, uint16_t y, uint8_t radius, uint8_t cave_value);
 

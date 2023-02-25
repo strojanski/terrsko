@@ -15,7 +15,7 @@
 #define RGB565_GREEN 0x7E0
 #define RGB565_BLUE 0x1F
 
-// 320x240 px
+// 320x240 pi
 uint16_t* apply_shading(uint16_t colors[4], float illumination) {
 
 	for (uint8_t i = 0; i < 4; i++) {
