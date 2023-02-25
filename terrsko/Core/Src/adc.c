@@ -211,6 +211,7 @@ void MX_ADC3_Init(void)
 
 }
 /* ADC4 init function */
+// JOYSTICK
 void MX_ADC4_Init(void)
 {
 

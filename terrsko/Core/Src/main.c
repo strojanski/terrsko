@@ -18,6 +18,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <stdbool.h>
+
 #include "main.h"
 #include "adc.h"
 #include "crc.h"
@@ -44,6 +46,9 @@
 #include "joystick.h"
 #include "models.h"
 #include "scene.h"
+
+#include "guysko.h"
+#include "action.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,9 +84,9 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+TIM_HandleTypeDef htim2;
+bool cycle = false;
 /* USER CODE END 0 */
-
 /**
   * @brief  The application entry point.
   * @retval int
@@ -89,8 +94,9 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//coord_t joystick_raw={0,0}, joystick_new={0,0}, joystick_prev={0,0};
-	//joystick_t joystick;
+	coord_t joystick_raw	=	{0,0};
+	coord_t joystick_new	=	{0,0};
+	joystick_t joystick;
 	//char MSG[100]={0};
 	//uint16_t touch_x = 0, touch_y = 0;
 
@@ -141,23 +147,12 @@ int main(void)
   MX_USB_Device_Init();
   MX_DMA_Init();
   MX_CRC_Init();
+
   /* USER CODE BEGIN 2 */
 
   MX_ADC4_Init();	//bug workaround: https://community.st.com/s/question/0D50X0000BVnBhASQV/bug-report-dma-and-adc-initialization-order-changed-in-stm32f4-hal-v1241-causing-incorrect-adc-operation
-
-  for (uint8_t i=0;i<3;i++)
-  {
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
-  }
-
-  LCD_Init();
-  LCD_UG_init();
-
+	LCD_Init();
+	LCD_UG_init();
   //LCD_Intro_LogoSlide(140,200);
   //bitrate = DrawColors(0,0,80);
 
@@ -171,21 +166,57 @@ int main(void)
   //UG_FontSelect(&FONT_16X26);
   //UG_PutString(5,205,"To mi deli, TANK!");
 
-  //joystick_init(&joystick);
-  //HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+
+  // initialize guysko
+	coord* guysko_position = malloc(sizeof(coord));
+	guysko_position->x = 50;
+	guysko_position->y = 150;
+	guysko* player = new_guysko(100, RIGHT, guysko_position);
+	draw_guysko(player);
+
+  joystick_init(&joystick);
+  HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+
+	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
+//	__HAL_RCC_TIM2_CLK_ENABLE();
+//	htim2.Instance = TIM2;
+//	htim2.Init.Prescaler = 10000 - 1;
+//	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+//	htim2.Init.Period = 16800 - 1;
+//	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+//	HAL_TIM_Base_Init(&htim2);
+//
+//	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+//	HAL_TIM_Base_Start(&htim2);
+//
+//	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
+//	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
+
+
+
+
   while (1)
   {
-    /* USER CODE END WHILE */
+  	cycle = false;
 
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
 /*
-
 	  //LEDs and KEYs
 	 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
 	 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin));
@@ -199,9 +230,7 @@ int main(void)
 	 {
 		 UG_FillFrame(200, 0, 319, 120, C_BLACK);
 	 }
-
 	 //Joystick
-	 joystick_get(&joystick_raw, &joystick_new, &joystick);
 	 //UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
 	 //UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
 
@@ -220,7 +249,7 @@ int main(void)
 		}
 	 }
 	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
-*/
+ 	 */
 	 //UG_DrawCircle(250, 50, 50, C_RED);
 
 	 //USART and USB
@@ -230,21 +259,6 @@ int main(void)
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 
-
-	  // Draw ground - replace this with "whereisground"
-	  for (int i = 0; i < 80; i++) {
-
-		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, NULL);
-		  draw_grass(grass->block);
-		  free_destroyable(grass);
-
-		  for (int j = 45; j < 60; j++) {
-			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, NULL);
-			  draw_dirt(dirt->block);
-			  free_destroyable(dirt);
-		  }
-	  }
-
 	  //int** SCENE = init_scene();
 	  //draw_scene(SCENE);
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
@@ -252,8 +266,10 @@ int main(void)
 	 //draw_block(block);
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
-
-	 HAL_Delay(20);
+		HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
+  	while (!cycle) {
+			joystick_get(&joystick_raw, &joystick_new, &joystick);
+  	}
   }
 
   /* USER CODE END 3 */

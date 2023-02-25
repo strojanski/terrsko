@@ -1,11 +1,15 @@
+#ifndef MODELS_H
+#define MODELS_H
+
 #include <stdio.h>
 #include <stdlib.h>
+
 
 #define MODELS_H
 
 
 typedef struct _coord {
-	uint8_t x;
+	uint16_t x;
 	uint8_t y;
 } coord;
 
@@ -40,3 +44,4 @@ void draw_scene();
 
 void free_block(block* block);
 
+#endif

@@ -29,6 +29,7 @@ UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
+
 /* UART4 init function */
 void MX_UART4_Init(void)
 {
