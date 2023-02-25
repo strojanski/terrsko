@@ -14,6 +14,10 @@
 
 #define BLOCK_WIDTH 4
 
+void rgb565_to_hsl(uint16_t color, float *h, float *s, float *l);
+
+uint16_t hsl_to_rgb565(float h, float s, float l);
+
 uint16_t* apply_shading(uint16_t colors[4], float illumination);
 
 block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);

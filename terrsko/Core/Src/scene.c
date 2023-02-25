@@ -26,7 +26,6 @@ uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES
 // Height can be > 256, need uint16_t
 int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
 int16_t LVL1_HMAP[WORLD_WIDTH];
-uint8_t LIGHT_MAP[LIGHT_MAP_HEIGHT][LIGHT_MAP_WIDTH];	// 1 - illuminated 0 - not illuminated
 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
@@ -42,13 +41,9 @@ void init_world() {
 	// Generate level with destroyables
 	init_stage_0();
 
-	// compute illumination map
-	get_illumination();
-
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
-
-	// Set spawn center to the top left third of the world
 	update_camera_center((uint16_t) floor(WORLD_WIDTH/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
+
 }
 
 void get_scene() {
@@ -71,16 +66,16 @@ void get_scene() {
 }
 
 void update_camera_center(uint16_t x, uint16_t y) {
-	if (x >= WORLD_WIDTH - 40) {
-		x = 41;
-	} else if (x < 40) {
-		x = WORLD_WIDTH - 41;
+	if (x >= WORLD_WIDTH - (SCENE_WIDTH/2 + 1)) {
+		x = SCENE_WIDTH/2 + 1;
+	} else if (x < SCENE_WIDTH/2) {
+		x = WORLD_WIDTH - SCENE_WIDTH/2 + 1;
 	}
 
-	if (y >= WORLD_HEIGHT - 31) {
-		y = WORLD_HEIGHT - 31;
-	} else if (y < 31) {
-		y = 31;
+	if (y >= WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1)) {
+		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
+	} else if (y < (SCENE_HEIGHT/2 + 1)) {
+		y = (SCENE_HEIGHT/2 + 1);
 	}
 
 	camera_x = x;
@@ -103,77 +98,53 @@ bool is_night() {
 	return false;
 }
 
-void get_illumination() {
-	for (uint16_t i = 0; i < LIGHT_MAP_WIDTH; i++) {
-		for (uint16_t j = 0; j < LIGHT_MAP_HEIGHT; j++) {
+// x,y are scene coordinates
+float compute_illumination(uint16_t x, uint16_t y) {
+	// TODO check if the neighbors are lit as well and interpolate brightness
+	uint16_t global_x, global_y;
 
-			bool is_illuminated = false;
+	global_x = camera_x - (SCENE_WIDTH / 4) + x;
+	global_y = camera_y - (SCENE_HEIGHT / 2) + y;
 
-			// Check for light sources
-			for (uint16_t x = 0; x < LIGHT_SAMPLES_PER_CELL; x++) {
-				for (uint16_t y = 0; y < LIGHT_SAMPLES_PER_CELL; y++) {
+	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x), 2) + pow((camera_y - global_y), 2)));
+	if (dist_to_camera < LIGHT_RADIUS) {
+		return light_intensity(dist_to_camera);
+	}
 
-					uint16_t x_coor = i * LIGHT_SAMPLES_PER_CELL + x;
-					uint16_t y_coor = j * LIGHT_SAMPLES_PER_CELL + y;
+	// For each block, calculate the distance to light source
+	uint8_t search_radius = LIGHT_RADIUS;	// In blocks
+	float min_dist = 100;
+	bool found = false;
 
-					if (is_light_source(WORLD[y_coor][x_coor])) {
-						is_illuminated = true;
-					}
+	for (int8_t i = -search_radius; i <= search_radius; i++) {
+		for (int8_t j = -search_radius; j <= search_radius; j++) {
+			if (is_light_source(WORLD[global_y + i][global_x + j])) {
+				found = true;
+
+				float dist = MAX(1, manhattan_dist(i, j));
+				if (dist < min_dist) {
+					min_dist = dist;
 				}
 			}
-
-			if (is_illuminated) {
-				LIGHT_MAP[j][i] = 1;
-			} else {
-				LIGHT_MAP[j][i] = 0;
-			}
-
 		}
 	}
-}
-
-// convert world coordinates to light coordinates
-coord convert_world_to_light(uint16_t x, uint16_t y) {
-	uint16_t lx = x / LIGHT_SAMPLES_PER_CELL;
-	uint16_t ly = y / LIGHT_SAMPLES_PER_CELL;
-
-	coord new_pos = {
-			x: lx,
-			y: ly
-	};
-
-	return new_pos;
-}
-
-float compute_illumination(uint16_t x, uint16_t y) {
-
-	coord pos = convert_world_to_light(x, y);
-
-	if (LIGHT_MAP[pos.y][pos.x] == 1) {
-		if (y < LVL1_HMAP[2*x]) {
-			return 1;
-		} else {
-			// How far from center it is, from [-light_source_radius : light source radius]
-			uint8_t offset_x = abs((x % LIGHT_SAMPLES_PER_CELL) - LIGHT_SOURCE_RADIUS);
-			uint8_t offset_y = abs((y % LIGHT_SAMPLES_PER_CELL) - LIGHT_SOURCE_RADIUS);
-
-			// in center illumination is 1
-			float dist = sqrt(pow(offset_x, 2) + pow(offset_y, 2));
-			dist = dist < 1 ? 1 : dist;
-			float illumination = exp(1) * (1 / exp(dist));
-			if (illumination < 0.5) {
-				illumination *= 2;
-			}
-
-			return illumination;
-
-		}
-
+	if (!found) {
+		return 0;
 	} else {
-		return 0.0;
+		return light_intensity(min_dist);
 	}
+}
 
+float manhattan_dist(int8_t x, int8_t y) {
+	return abs(x) + abs(y);
+}
 
+float euclidean(int8_t x, int8_t y) {
+	return sqrt(pow(x,2) + pow(y,2));
+}
+
+float light_intensity(float dist) {
+	return MIN(1, pow(LIGHT_DEGRADATION_RATE, dist));
 }
 
 // Get level with only dirt
@@ -238,7 +209,7 @@ void init_stage_0() {
 void place_lava() {
 	// 1% chance of random spawn + last 2 row
 	srand(time(NULL));
-	uint8_t chance_of_lava = 1;
+	uint8_t chance_of_lava = 40;
 	uint8_t lava_blob_radius = 2;
 	uint8_t lava_block = (_lava << 4) | _lava;
 

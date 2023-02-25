@@ -16,18 +16,21 @@
 #define RGB565_BLUE 0x1F
 
 // 320x240 px
-
 uint16_t* apply_shading(uint16_t colors[4], float illumination) {
+
 	for (uint8_t i = 0; i < 4; i++) {
 		uint16_t r = (colors[i] & RGB565_RED) >> 11;
 		uint16_t g = (colors[i] & RGB565_GREEN) >> 5;
 		uint16_t b = colors[i] & RGB565_BLUE;
 
-		r = (uint16_t) (r * illumination);
-		g = (uint16_t) (g * illumination);
-		b = (uint16_t) (b * illumination);
+		r = (uint8_t) (r * illumination);
+		g = (uint8_t) (g * illumination);
+		b = (uint8_t) (b * illumination);
 
-		colors[i] = (r << 11) | (g << 5) | (b);
+		// MAKE SURE TO 0 PAD TO GET RGB OF LENGTH 4
+		uint16_t rgb = (r << 11) | (g << 5) | (b);
+
+		colors[i] = rgb;
 	}
 
 	return colors;
@@ -40,10 +43,15 @@ block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, fl
 	 block->pos.y = y;
 	 block->type = type;
 
-	 apply_shading(colors, illumination);
+	 uint16_t copy[4];
+	 for (uint8_t i = 0; i < 4; i++) {
+		 copy[i] = colors[i];
+	 }
+
+	 uint16_t* new_colors = apply_shading(copy, illumination);
 
 	 for (uint8_t i = 0; i < 4; i++) {
-		 block->colors[i] = colors[i];
+		 block->colors[i] = new_colors[i];
 	 }
 
 	 return block;
@@ -96,6 +104,7 @@ void draw_scene() {
 	bool night = is_night();
 
 	float probability_star = .02;
+	float illumination = 1;
 
 	for (uint16_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
@@ -104,7 +113,7 @@ void draw_scene() {
 			uint8_t l_cell = (value & 0xF0) >> 4;
 			uint8_t r_cell = (value & 0x0F);
 
-			float illumination = compute_illumination(i, j);
+			illumination = compute_illumination(i, j);
 
 			float random = (float) rand() / RAND_MAX;
 			// left (first) cell
