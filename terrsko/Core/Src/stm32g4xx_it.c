@@ -24,16 +24,7 @@
 #include <stdbool.h>
 #include "action.h"
 
-#define FPS_10 	100
-#define FPS_20 	50
-#define FPS_30 	33
-#define FPS_40 	25
-#define FPS_50 	20
-#define FPS_60	16
-#define FPS_70	14
-#define FPS_80 	12
-#define FPS_90 	11
-#define FPS_100 10
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -201,6 +192,7 @@ void PendSV_Handler(void)
   */
 volatile	uint8_t	milliseconds 	= 1;
 extern bool cycle;
+extern uint8_t FPS;
 
 void SysTick_Handler(void)
 {
@@ -210,7 +202,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
   	// Here the frame rate of TERRSKO is set to values of 10 to 100 FPS
-    if (milliseconds >= FPS_10) {
+    if (milliseconds >= FPS) {
     	milliseconds = 1;
     	cycle = true;
     }

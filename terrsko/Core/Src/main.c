@@ -86,6 +86,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
+uint8_t FPS = FPS_60;
 /* USER CODE END 0 */
 /**
   * @brief  The application entry point.
@@ -190,7 +191,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
+	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ
+	 * TIMER FREQ: 168000000 (168 MHz)
+	 * Prescaler 10000 - 1
+	 * TIM4 intervals: 1 / 16800
+	 * Meaning it "ticks" 16800 times every 1 second
+	 * */
 //	__HAL_RCC_TIM2_CLK_ENABLE();
 //	htim2.Instance = TIM2;
 //	htim2.Init.Prescaler = 10000 - 1;
@@ -205,7 +211,6 @@ int main(void)
 //
 //	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
 //	HAL_NVIC_EnableIRQ(TIM2_IRQn);
-	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
 
 
 
@@ -213,6 +218,10 @@ int main(void)
   while (1)
   {
   	cycle = false;
+
+  	update_guysko_moving(player);
+		draw_guysko(player);
+		update_guysko_position(player, FPS);
 
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -266,9 +275,17 @@ int main(void)
 	 //draw_block(block);
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
-		HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
+		/*
+		 * test if the fps is correct and the while
+		 * loop is executeing
+		 * HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
+		 */
   	while (!cycle) {
-			joystick_get(&joystick_raw, &joystick_new, &joystick);
+  		/*
+  		 * if joystick_new is needed:
+  		 * joystick_get(&joystick_raw, &joystick_new, &joystick);
+  		 */
+  		action_set(&joystick_raw);
   	}
   }
 

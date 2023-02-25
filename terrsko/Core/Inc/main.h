@@ -43,6 +43,7 @@ extern "C" {
 
 #include "stm32g4xx_ll_exti.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -207,6 +208,17 @@ void Error_Handler(void);
 #define TOUCH_CS_Pin GPIO_PIN_1
 #define TOUCH_CS_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
+
+#define FPS_10 	100
+#define FPS_20 	50
+#define FPS_30 	33
+#define FPS_40 	25
+#define FPS_50 	20
+#define FPS_60	16
+#define FPS_70	14
+#define FPS_80 	12
+#define FPS_90 	11
+#define FPS_100 10
 
 /* USER CODE END Private defines */
 
