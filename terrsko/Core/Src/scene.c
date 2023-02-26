@@ -30,12 +30,20 @@ int16_t LVL1_HMAP[WORLD_WIDTH];
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
 
+float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * LIGHT_RADIUS + 1];	// Inclusive precomputed euclidean distances for all possible distances
+
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
+	precompute_euclidean();
+
 	generate_height_map(-3, 3, 2);
 	generate_caves();
-	shape_caves_with_morphological_operations();
+	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
+	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
+
+
+	shape_caves_with_morphological_operations(dirt, cave);
 	place_lava();
 
 	// Generate level with destroyables
@@ -108,6 +116,8 @@ float compute_illumination(uint16_t x, uint16_t y) {
 
 	// Light source is lit
 	if (is_light_source(WORLD[global_y][global_x])) return 1.0;
+	else if (is_light_source((WORLD[global_y][global_x] & 0xF0) >> 4) || is_light_source(WORLD[global_y][global_x] & 0x0F))
+		return 1.0;
 
 	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x) * 2, 2) + pow((camera_y - global_y), 2)));
 	if (dist_to_camera < LIGHT_RADIUS) {
@@ -122,10 +132,17 @@ float compute_illumination(uint16_t x, uint16_t y) {
 
 	for (int8_t i = -search_radius; i <= search_radius; i++) {
 		for (int8_t j = -search_radius/2; j <= search_radius/2; j++) {
-			if (is_light_source(WORLD[global_y + i][global_x + j])) {
+			uint8_t cell_value;
+			if (global_x + j % 2 == 0) {
+				cell_value = (WORLD[global_y+i][global_x+j] & 0xF0) >> 4;
+			} else {
+				cell_value = WORLD[global_y+i][global_x+j] & 0x0F;
+			}
+
+			if (is_light_source(cell_value)) {
 				found = true;
 
-				float dist = MAX(1, manhattan_dist(i, j));
+				float dist = MAX(1, get_euclidean(manhattan_dist(i, 2*j)));
 				if (dist < min_dist) {
 					min_dist = dist;
 				}
@@ -143,12 +160,31 @@ float manhattan_dist(int8_t x, int8_t y) {
 	return abs(x) + abs(y);
 }
 
-float euclidean(int8_t x, int8_t y) {
+float euclidean_dist(int8_t x, int8_t y) {
 	return sqrt(pow(x,2) + pow(y,2));
 }
 
+void precompute_euclidean() {
+	for (uint8_t i = 0; i <= LIGHT_RADIUS; i++) {
+		for (uint8_t j = i; j <= LIGHT_RADIUS; j++) {
+			float dist = euclidean_dist(i, j);
+			EUCLIDEAN_DISTANCES[i+j] = dist;
+		}
+	}
+}
+
+float get_euclidean(uint8_t manhattan_dist) {
+	return EUCLIDEAN_DISTANCES[manhattan_dist];
+}
+
 float light_intensity(float dist) {
-	return MIN(1, 0.1 + pow(LIGHT_DEGRADATION_RATE, dist));
+	if (dist < 4) {
+		return MIN(1, pow(LIGHT_DEGRADATION_RATE, dist));
+	} else if (dist < 6) {
+		return MIN(1, pow(LIGHT_DEGRADATION_RATE-.1, dist));
+	} else {
+		return MIN(1, pow(LIGHT_DEGRADATION_RATE-.2, dist));
+	}
 }
 
 // Get level with only dirt
@@ -156,7 +192,7 @@ void init_stage_0() {
 
 	srand(time(NULL));
 
-	float probability_rock = 0.03;
+	float probability_rock = 0.01;
 	uint8_t cave = ((_dirt_bg << 4) | _dirt_bg);
 	uint8_t lava = ((_lava << 4) | _lava);
 
@@ -190,7 +226,7 @@ void init_stage_0() {
 			// left block
 			if (i > LVL1_HMAP[j+1]) { // Ground
 
-				float random = (float) rand() / RAND_MAX;
+				float random = (float)rand()/(float)(RAND_MAX/100);
 
 				// Add random rocks
 				if (random < probability_rock && abs(LVL1_HMAP[j+1] - i) > 2) {
@@ -214,8 +250,9 @@ void place_lava() {
 	// 1% chance of random spawn + last 2 row
 	srand(time(NULL));
 	float chance_of_lava = 0.1;
-	uint8_t lava_blob_radius = 2;
+	uint8_t lava_blob_radius = rand() % 3;
 	uint8_t lava_block = (_lava << 4) | _lava;
+	uint8_t dirt_block = (_dirt << 4) | _dirt;
 
 	for (uint16_t i = 0; i < WORLD_MAP_WIDTH; i++) {
 		for (uint16_t j = LVL1_HMAP[2*i]+10; j < WORLD_MAP_HEIGHT; j++) {
@@ -229,6 +266,9 @@ void place_lava() {
 			}
 		}
 	}
+
+	shape_caves_with_morphological_operations(dirt_block, lava_block);
+
 }
 
 void generate_caves() {
@@ -485,10 +525,7 @@ float* gauss_kernel(uint8_t width, uint8_t sigma) {
 }
 
 // Perform morphological opening on the binary mask (cave map) - connect the caves
-void shape_caves_with_morphological_operations() {
-
-	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
-	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
+void shape_caves_with_morphological_operations(uint8_t dirt, uint8_t foreground) {
 
 	uint8_t EROSION_SE[SE_SIZE_EROSION][SE_SIZE_EROSION];
 
@@ -497,7 +534,7 @@ void shape_caves_with_morphological_operations() {
 			if ((i < SE_SIZE_EROSION/3 || i > 2*SE_SIZE_EROSION/3) && (j < SE_SIZE_EROSION/3 || j > 2*SE_SIZE_EROSION/3)) {
 				EROSION_SE[i][j] = dirt;
 			} else {
-				EROSION_SE[i][j] = cave;
+				EROSION_SE[i][j] = foreground;
 			}
 		}
 	}
@@ -509,40 +546,45 @@ void shape_caves_with_morphological_operations() {
 			if ((i < SE_SIZE_DILATION/3 || i > 2*SE_SIZE_DILATION/3) && (j < SE_SIZE_DILATION/3 || j > 2*SE_SIZE_DILATION/3)) {
 				DILATION_SE[i][j] = dirt;
 			} else {
-				DILATION_SE[i][j] = cave;
+				DILATION_SE[i][j] = foreground;
 			}
 		}
 	}
 
 	uint16_t width = WORLD_WIDTH/2;
 	uint16_t height = WORLD_HEIGHT;
+	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;
 
-	dilation(DILATION_SE, width, height);
-	erosion(EROSION_SE, width, height);
-	dilation(DILATION_SE, width, height);
-	erosion(EROSION_SE, width, height);
-	dilation(DILATION_SE, width, height);
-	erosion(EROSION_SE, width, height);
-	dilation(DILATION_SE, width, height);
-	dilation(DILATION_SE, width, height);
+	if (foreground == cave) {
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		erosion(EROSION_SE, width, height, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		erosion(EROSION_SE, width, height, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		erosion(EROSION_SE, width, height, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+	} else {
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+		dilation(DILATION_SE, width, height, dirt, foreground);
+	}
 
 
 }
 
-void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height) {
+void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height, uint8_t foreground) {
 	uint8_t se_size = SE_SIZE_EROSION;
 
 	uint8_t temp[map_height][map_width];
 
-//	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
-	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
-
 	for (uint16_t i = 0; i < map_width; i++) {
 		for (uint16_t j = LVL1_HMAP[i]; j < map_height; j++) {
-			uint8_t min_value = cave;
+			uint8_t min_value = foreground;
 			for (uint16_t k = 0; k < se_size; k++) {
 				for (uint16_t l = 0; l < se_size; l++) {
-					if (SE[k][l] == cave) {
+					if (SE[k][l] == foreground) {
 						uint16_t x = i - k + se_size / 2;
 						uint16_t y = j - l + se_size / 2;
 						if (x >= 0 && x < map_width && y >= 0 && y < map_height) {
@@ -563,14 +605,11 @@ void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, u
 	}
 }
 
-void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height) {
+void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height, uint8_t dirt, uint8_t foreground) {
 
 	uint8_t se_size = SE_SIZE_DILATION;
 
 	uint8_t temp[map_height][map_width];
-
-	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
-	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
 
 	uint8_t depth = rand() % 5 + 5;
 
@@ -579,7 +618,7 @@ void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width
 			uint8_t max_value = dirt;
 			for (uint16_t k = 0; k < se_size; k++) {
 				for (uint16_t l = 0; l < se_size; l++) {
-					if (SE[k][l] == cave) {
+					if (SE[k][l] == foreground) {
 						uint16_t x = i - k + se_size / 2;
 						uint16_t y = j - l + se_size / 2;
 						if (x >= 0 && x < map_width && y > GROUND_SKY_RATIO + depth && y < map_height) {

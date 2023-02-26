@@ -33,8 +33,8 @@
 #define SE_SIZE_DILATION 3
 #define SE_SIZE_EROSION 5
 
-#define LIGHT_RADIUS 10 		// radius of light in blocks
-#define LIGHT_DEGRADATION_RATE 0.9
+#define LIGHT_RADIUS 13 		// radius of light in blocks
+#define LIGHT_DEGRADATION_RATE 0.95
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
@@ -70,6 +70,10 @@ float compute_illumination(uint16_t x, uint16_t y);
 
 float light_intensity(float dist);
 
+void precompute_euclidean();
+
+float get_euclidean(uint8_t manhattan_dist);
+
 void init_stage_0();
 
 void generate_caves();
@@ -84,11 +88,11 @@ float* gauss_kernel(uint8_t width, uint8_t sigma);
 
 void place_lava();
 
-void shape_caves_with_morphological_operations();
+void shape_caves_with_morphological_operations(uint8_t dirt, uint8_t foreground);
 
-void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height);
+void erosion(uint8_t SE[SE_SIZE_EROSION][SE_SIZE_EROSION], uint16_t map_width, uint16_t map_height, uint8_t foreground);
 
-void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height);
+void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width, uint16_t map_height, uint8_t dirt, uint8_t foreground);
 
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool only_sharp_edges);
 

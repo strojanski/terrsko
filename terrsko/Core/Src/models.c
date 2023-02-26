@@ -19,13 +19,28 @@
 uint16_t* apply_shading(uint16_t colors[4], float illumination) {
 
 	for (uint8_t i = 0; i < 4; i++) {
-		uint16_t r = (colors[i] & RGB565_RED) >> 11;
 		uint16_t g = (colors[i] & RGB565_GREEN) >> 5;
+		uint16_t r = (colors[i] & RGB565_RED) >> 11;
 		uint16_t b = colors[i] & RGB565_BLUE;
 
-		r = (uint8_t) (r * illumination);
-		g = (uint8_t) (g * illumination);
-		b = (uint8_t) (b * illumination);
+		// For dirt, remove less red and green to get a better color
+		if (colors[i] == C_DIRT[0]) {
+			r = (uint8_t) (r * MIN(1, illumination * 1.3));
+			g = (uint8_t) (g * MIN(1, illumination * 1.3));
+
+			b = (uint8_t) (b * illumination);
+		} else if (colors[i] == C_BG_DIRT[0]) {
+			// Leave extra red in caves
+			r = (uint8_t) (r * MIN(1, illumination * 1.5));
+
+			g = (uint8_t) (g * illumination);
+			b = (uint8_t) (b * illumination);
+		}
+		else {
+			r = (uint8_t) (r * illumination);
+			g = (uint8_t) (g * illumination);
+			b = (uint8_t) (b * illumination);
+		}
 
 		// MAKE SURE TO 0 PAD TO GET RGB OF LENGTH 4
 		uint16_t rgb = (r << 11) | (g << 5) | (b);
@@ -133,7 +148,7 @@ void draw_scene() {
 
 				destroyable* lava = create_destroyable(pos_x1, 4*(j+1), C_LAVA, _lava, illumination);
 
-				draw_detailed_block(lava->block);
+				draw_block(lava->block);
 				free_destroyable(lava);
 			} else if (l_cell == (uint8_t) _wood) {
 
@@ -193,7 +208,7 @@ void draw_scene() {
 
 				destroyable* lava = create_destroyable(pos_x2, 4*(j+1), C_LAVA, _lava, illumination);
 
-				draw_detailed_block(lava->block);
+				draw_block(lava->block);
 				free_destroyable(lava);
 			}  else if (r_cell == (uint8_t) _wood) {
 
