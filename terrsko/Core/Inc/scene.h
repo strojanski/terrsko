@@ -16,8 +16,8 @@
 #define SCENE_HEIGHT 60
 #define SCENE_WIDTH 80
 
-#define WORLD_HEIGHT ((uint16_t) SCENE_HEIGHT * 3) //120
-#define WORLD_WIDTH ((uint16_t) SCENE_WIDTH * 6) //160
+#define WORLD_HEIGHT ((uint16_t) SCENE_HEIGHT * 4) //120
+#define WORLD_WIDTH ((uint16_t) SCENE_WIDTH * 5) //160
 
 #define WORLD_MAP_HEIGHT WORLD_HEIGHT
 #define WORLD_MAP_WIDTH WORLD_WIDTH / 2
