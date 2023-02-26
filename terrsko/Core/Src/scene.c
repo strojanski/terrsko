@@ -18,7 +18,9 @@
 
 // 4 bits define the block at the position
 uint8_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 10KB
-uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];				// 2.3KB
+uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
+
+uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
 
 // Only holds bytes
 uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
@@ -38,9 +40,9 @@ void init_world() {
 
 	generate_height_map(-3, 3, 2);
 	generate_caves();
+
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
 	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
-
 
 	shape_caves_with_morphological_operations(dirt, cave);
 	place_lava();
@@ -50,6 +52,8 @@ void init_world() {
 
 	// Generate level with destroyables
 	init_stage_0();
+
+	init_light_map();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 	update_camera_center((uint16_t) floor(WORLD_WIDTH/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
@@ -98,6 +102,42 @@ int get_time_of_day() {
 }
 */
 
+void init_light_map() {
+
+	// Coefficient between world and light width, !HEIGHT IS THE SAME!
+	uint8_t light_to_world_coefficient = WORLD_MAP_WIDTH / LIGHT_MAP_WIDTH;
+
+	for (uint16_t i = 0; i < LIGHT_MAP_WIDTH; i++) {
+		for (uint16_t j = 0; j < LIGHT_MAP_HEIGHT; j++) {
+
+			uint8_t lighting_byte = 0;
+
+			uint16_t x_coor = i * light_to_world_coefficient;
+			uint16_t y_coor = j;
+
+			// Check 4 world cells, equivalent to 8 blocks
+			for (uint16_t k = 0; k < light_to_world_coefficient; k++) {
+				uint16_t world_x = x_coor + k;
+				uint16_t world_y = y_coor;
+
+				uint8_t cell = WORLD[world_y][world_x];
+
+				uint8_t l_cell = (cell & 0xF0) >> 4;
+				uint8_t r_cell = cell & 0x0F;
+
+				if (is_light_source(l_cell)) {
+					lighting_byte |= 1 << (8 - (2 * k));
+				}
+
+				if (is_light_source(r_cell)) {
+					lighting_byte |= 1 << (8 - (2 * k) - 1);
+				}
+			}
+		LIGHT_MAP[j][i] = lighting_byte;
+		}
+	}
+}
+
 bool is_night() {
 	srand(time(NULL));
 	float random = (float)rand() / RAND_MAX;
@@ -129,7 +169,75 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	// For each block, calculate the distance to light source
 	uint8_t search_radius = LIGHT_RADIUS;	// In blocks
 	float max_illumination = 0;
-	bool found = false;
+	uint8_t max_i = search_radius / 8;
+	uint8_t n_bits = search_radius % 8;
+
+	for (int8_t j = -search_radius; j <= search_radius; j++) {		// Each column
+		for (int8_t i = -ceil(search_radius/8); i <= ceil(search_radius/8); i++) {	// Each row
+			uint16_t x_coor = global_x / 4 + i;
+			uint16_t y_coor = global_y + j;
+			float illumination = 0;
+
+			// Decode horizontal cells
+			uint8_t light_cell_value = LIGHT_MAP[y_coor][x_coor];
+
+			uint8_t c1 = (light_cell_value & 0b10000000) >> 7;
+			uint8_t c2 = (light_cell_value & 0b01000000) >> 6;
+			uint8_t c3 = (light_cell_value & 0b00100000) >> 5;
+			uint8_t c4 = (light_cell_value & 0b00010000) >> 4;
+
+			uint8_t c5 = (light_cell_value & 0b00001000) >> 3;
+			uint8_t c6 = (light_cell_value & 0b00000100) >> 2;
+			uint8_t c7 = (light_cell_value & 0b00000010) >> 1;
+			uint8_t c8 = (light_cell_value & 0b00000001);
+
+			if (j < 0) {
+				if (c8) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i));
+				} else if (c7) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+1));
+				} else if (c6) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+2));
+				} else if (c5) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+3));
+				} else if (c4) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+4));
+				} else if (c3) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+5));
+				} else if (c2) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+6));
+				} else if (c1) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+7));
+				}
+			} else {
+				if (c1) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i));
+				} else if (c2) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+1));
+				} else if (c3) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+2));
+				} else if (c4) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+3));
+				} else if (c5) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+4));
+				} else if (c6) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+5));
+				} else if (c7) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+6));
+				} else if (c8) {
+					illumination = get_light_intensity(manhattan_dist(j, 8*i+7));
+				}
+			}
+
+			if (illumination > max_illumination) {
+				max_illumination = illumination;
+			}
+		}
+	}
+
+	return max_illumination;
+
+	/*bool found = false;
 
 	for (int8_t i = -search_radius; i <= search_radius; i++) {
 		for (int8_t j = -search_radius/2; j <= search_radius/2; j++) {
@@ -154,7 +262,7 @@ float compute_illumination(uint16_t x, uint16_t y) {
 		return 0;
 	} else {
 		return max_illumination;
-	}
+	}*/
 }
 
 float manhattan_dist(int8_t x, int8_t y) {
