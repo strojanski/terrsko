@@ -30,12 +30,11 @@ int16_t LVL1_HMAP[WORLD_WIDTH];
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
 
-float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * LIGHT_RADIUS + 1];	// Inclusive precomputed euclidean distances for all possible distances
+float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * 2];	// Inclusive precomputed euclidean distances for all possible distances
+float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
-
-	precompute_euclidean();
 
 	generate_height_map(-3, 3, 2);
 	generate_caves();
@@ -45,6 +44,9 @@ void init_world() {
 
 	shape_caves_with_morphological_operations(dirt, cave);
 	place_lava();
+
+	precompute_euclidean();
+	precompute_light_intensity();
 
 	// Generate level with destroyables
 	init_stage_0();
@@ -119,15 +121,14 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	else if (is_light_source((WORLD[global_y][global_x] & 0xF0) >> 4) || is_light_source(WORLD[global_y][global_x] & 0x0F))
 		return 1.0;
 
-	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x) * 2, 2) + pow((camera_y - global_y), 2)));
-	if (dist_to_camera < LIGHT_RADIUS) {
-		return light_intensity(dist_to_camera);
-
-	}
+//	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x) * 2, 2) + pow((camera_y - global_y), 2)));
+//	if (dist_to_camera < LIGHT_RADIUS) {
+//		return light_intensity(dist_to_camera);
+//	}
 
 	// For each block, calculate the distance to light source
 	uint8_t search_radius = LIGHT_RADIUS;	// In blocks
-	float min_dist = 100;
+	float max_illumination = 0;
 	bool found = false;
 
 	for (int8_t i = -search_radius; i <= search_radius; i++) {
@@ -142,9 +143,9 @@ float compute_illumination(uint16_t x, uint16_t y) {
 			if (is_light_source(cell_value)) {
 				found = true;
 
-				float dist = MAX(1, get_euclidean(manhattan_dist(i, 2*j)));
-				if (dist < min_dist) {
-					min_dist = dist;
+				float illumination = get_light_intensity(manhattan_dist(i, j));
+				if (illumination > max_illumination) {
+					max_illumination = illumination;
 				}
 			}
 		}
@@ -152,7 +153,7 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	if (!found) {
 		return 0;
 	} else {
-		return light_intensity(min_dist);
+		return max_illumination;
 	}
 }
 
@@ -175,6 +176,22 @@ void precompute_euclidean() {
 
 float get_euclidean(uint8_t manhattan_dist) {
 	return EUCLIDEAN_DISTANCES[manhattan_dist];
+}
+
+void precompute_light_intensity() {
+	uint8_t n_values = LIGHT_RADIUS * 2;
+	for (uint8_t i = 0; i < n_values; i++) {
+		float euclidean = get_euclidean(i);
+		euclidean = MAX(1, euclidean);
+		if (euclidean > 0.01) {
+			LIGHT_INTENSITIES[i] = light_intensity(euclidean);
+		}
+	}
+}
+
+float get_light_intensity(uint8_t manhattan_dist) {
+	float value = LIGHT_INTENSITIES[manhattan_dist];
+	return value;
 }
 
 float light_intensity(float dist) {

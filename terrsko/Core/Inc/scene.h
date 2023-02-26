@@ -74,6 +74,10 @@ void precompute_euclidean();
 
 float get_euclidean(uint8_t manhattan_dist);
 
+void precompute_light_intensity();
+
+float get_light_intensity(uint8_t manhattan_dist);
+
 void init_stage_0();
 
 void generate_caves();
