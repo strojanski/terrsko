@@ -35,7 +35,7 @@
 
 #define LIGHT_MAP_HEIGHT WORLD_HEIGHT
 #define LIGHT_MAP_WIDTH (WORLD_WIDTH / 8)
-#define LIGHT_RADIUS 13 		// radius of light in blocks
+#define LIGHT_RADIUS 16		// radius of light in blocks
 #define LIGHT_DEGRADATION_RATE 0.95
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks

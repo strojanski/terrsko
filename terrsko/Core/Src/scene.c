@@ -169,14 +169,15 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	// For each block, calculate the distance to light source
 	uint8_t search_radius = LIGHT_RADIUS;	// In blocks
 	float max_illumination = 0;
-	uint8_t max_i = search_radius / 8;
-	uint8_t n_bits = search_radius % 8;
-
+//	uint8_t max_i = search_radius / 8;
+//	uint8_t n_bits = search_radius % 8;
+	uint8_t iter = 0;
 	for (int8_t j = -search_radius; j <= search_radius; j++) {		// Each column
 		for (int8_t i = -ceil(search_radius/8); i <= ceil(search_radius/8); i++) {	// Each row
 			uint16_t x_coor = global_x / 4 + i;
 			uint16_t y_coor = global_y + j;
 			float illumination = 0;
+			iter++;
 
 			// Decode horizontal cells
 			uint8_t light_cell_value = LIGHT_MAP[y_coor][x_coor];
@@ -191,41 +192,57 @@ float compute_illumination(uint16_t x, uint16_t y) {
 			uint8_t c7 = (light_cell_value & 0b00000010) >> 1;
 			uint8_t c8 = (light_cell_value & 0b00000001);
 
+			int8_t factor = 8*i;
+
+			// Try getting average/min/max illumination
+			// TODO currently returns 1 for every block less than 8 blocks away from light source horizontally
+			// 		The offset distance is of (the hardcoded +/-)
+
 			if (j < 0) {
 				if (c8) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i));
+					illumination = get_light_intensity(manhattan_dist(j, factor));
 				} else if (c7) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+1));
+					illumination = get_light_intensity(manhattan_dist(j, factor+1));
 				} else if (c6) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+2));
+					illumination = get_light_intensity(manhattan_dist(j, factor+2));
 				} else if (c5) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+3));
+					illumination = get_light_intensity(manhattan_dist(j, factor+3));
 				} else if (c4) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+4));
+					illumination = get_light_intensity(manhattan_dist(j, factor+4));
 				} else if (c3) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+5));
+					illumination = get_light_intensity(manhattan_dist(j, factor+5));
 				} else if (c2) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+6));
+					illumination = get_light_intensity(manhattan_dist(j, factor+6));
 				} else if (c1) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+7));
+					illumination = get_light_intensity(manhattan_dist(j, factor+7));
+				}
+			} else if (j > 0) {
+				if (c1) {
+					illumination = get_light_intensity(manhattan_dist(j, factor));
+				} else if (c2) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+1));
+				} else if (c3) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+2));
+				} else if (c4) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+3));
+				} else if (c5) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+4));
+				} else if (c6) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+5));
+				} else if (c7) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+6));
+				} else if (c8) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+7));
 				}
 			} else {
-				if (c1) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i));
-				} else if (c2) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+1));
-				} else if (c3) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+2));
-				} else if (c4) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+3));
-				} else if (c5) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+4));
-				} else if (c6) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+5));
-				} else if (c7) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+6));
-				} else if (c8) {
-					illumination = get_light_intensity(manhattan_dist(j, 8*i+7));
+				if (c1 || c2) {
+					illumination = get_light_intensity(manhattan_dist(j, factor));
+				} else if (c3 || c4) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+1));
+				} else if (c5 || c6) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+2));
+				} else if (c7 || c8) {
+					illumination = get_light_intensity(manhattan_dist(j, factor+3));
 				}
 			}
 
