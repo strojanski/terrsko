@@ -23,7 +23,7 @@ uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
 uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
 
 // Only holds bytes
-uint8_t CAVE_MAP[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
+uint8_t** CAVE_MAP;//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 
 // Height can be > 256, need uint16_t
 int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
@@ -161,6 +161,7 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	else if (is_light_source((WORLD[global_y][global_x] & 0xF0) >> 4) || is_light_source(WORLD[global_y][global_x] & 0x0F))
 		return 1.0;
 
+//	Should look like this
 //	uint8_t dist_to_camera = floor(sqrt(pow((camera_x - global_x) * 2, 2) + pow((camera_y - global_y), 2)));
 //	if (dist_to_camera < LIGHT_RADIUS) {
 //		return light_intensity(dist_to_camera);
@@ -169,8 +170,7 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	// For each block, calculate the distance to light source
 	uint8_t search_radius = LIGHT_RADIUS;	// In blocks
 	float max_illumination = 0;
-//	uint8_t max_i = search_radius / 8;
-//	uint8_t n_bits = search_radius % 8;
+	uint8_t current_bit_position = global_x % 4;
 	uint8_t iter = 0;
 	for (int8_t j = -search_radius; j <= search_radius; j++) {		// Each column
 		for (int8_t i = -ceil(search_radius/8); i <= ceil(search_radius/8); i++) {	// Each row
@@ -182,67 +182,92 @@ float compute_illumination(uint16_t x, uint16_t y) {
 			// Decode horizontal cells
 			uint8_t light_cell_value = LIGHT_MAP[y_coor][x_coor];
 
-			uint8_t c1 = (light_cell_value & 0b10000000) >> 7;
-			uint8_t c2 = (light_cell_value & 0b01000000) >> 6;
-			uint8_t c3 = (light_cell_value & 0b00100000) >> 5;
-			uint8_t c4 = (light_cell_value & 0b00010000) >> 4;
+			uint8_t c8 = (light_cell_value & 0b10000000) >> 7;	// 8 = most important bit (left)
+			uint8_t c7 = (light_cell_value & 0b01000000) >> 6;
+			uint8_t c6 = (light_cell_value & 0b00100000) >> 5;
+			uint8_t c5 = (light_cell_value & 0b00010000) >> 4;
 
-			uint8_t c5 = (light_cell_value & 0b00001000) >> 3;
-			uint8_t c6 = (light_cell_value & 0b00000100) >> 2;
-			uint8_t c7 = (light_cell_value & 0b00000010) >> 1;
-			uint8_t c8 = (light_cell_value & 0b00000001);
+			uint8_t c4 = (light_cell_value & 0b00001000) >> 3;
+			uint8_t c3 = (light_cell_value & 0b00000100) >> 2;
+			uint8_t c2 = (light_cell_value & 0b00000010) >> 1;
+			uint8_t c1 = (light_cell_value & 0b00000001);
 
-			int8_t factor = 8*i;
-
+			int8_t horizontal_dist = 0;
+			uint8_t dist = 0;
+			uint8_t max_manhattan = 2 * search_radius;
 			// Try getting average/min/max illumination
 			// TODO currently returns 1 for every block less than 8 blocks away from light source horizontally
 			// 		The offset distance is of (the hardcoded +/-)
 
-			if (j < 0) {
-				if (c8) {
-					illumination = get_light_intensity(manhattan_dist(j, factor));
-				} else if (c7) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+1));
-				} else if (c6) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+2));
-				} else if (c5) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+3));
-				} else if (c4) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+4));
-				} else if (c3) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+5));
-				} else if (c2) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+6));
-				} else if (c1) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+7));
+
+			if (i > 0) {
+				horizontal_dist = (i - 1) * 8;					// full blocks
+				horizontal_dist += (8 - current_bit_position);	// original inner offset
+				dist = manhattan_dist(horizontal_dist, abs(j));
+				if (c8 && dist < max_manhattan) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c7 && dist < max_manhattan - 1) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+1));
+				} else if (c6 && dist < max_manhattan - 2) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+2));
+				} else if (c5 && dist < max_manhattan - 3) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+3));
+				} else if (c4 && dist < max_manhattan - 4) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+4));
+				} else if (c3 && dist < max_manhattan - 5) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+5));
+				} else if (c2 && dist < max_manhattan - 6) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+6));
+				} else if (c1 && dist < max_manhattan - 7) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+7));
 				}
-			} else if (j > 0) {
-				if (c1) {
-					illumination = get_light_intensity(manhattan_dist(j, factor));
-				} else if (c2) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+1));
-				} else if (c3) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+2));
-				} else if (c4) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+3));
-				} else if (c5) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+4));
-				} else if (c6) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+5));
-				} else if (c7) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+6));
-				} else if (c8) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+7));
+			} else if (i < 0) {
+				horizontal_dist = (abs(i) - 1) * 8;
+				horizontal_dist += current_bit_position;
+				dist = manhattan_dist(horizontal_dist, abs(j));
+
+				if (c1 && dist < max_manhattan) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c2 && dist < max_manhattan - 1) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+1));
+				} else if (c3 && dist < max_manhattan - 2) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+2));
+				} else if (c4 && dist < max_manhattan - 3) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+3));
+				} else if (c5 && dist < max_manhattan - 4) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+4));
+				} else if (c6 && dist < max_manhattan - 5) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+5));
+				} else if (c7 && dist < max_manhattan - 6) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+6));
+				} else if (c8 && dist < max_manhattan - 7) {
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist+7));
 				}
 			} else {
-				if (c1 || c2) {
-					illumination = get_light_intensity(manhattan_dist(j, factor));
-				} else if (c3 || c4) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+1));
-				} else if (c5 || c6) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+2));
-				} else if (c7 || c8) {
-					illumination = get_light_intensity(manhattan_dist(j, factor+3));
+				if (c1) {
+//					horizontal_dist += abs(0 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c2) {
+//					horizontal_dist += abs(1 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c3) {
+//					horizontal_dist += abs(2 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c4) {
+//					horizontal_dist += abs(3 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c5) {
+//					horizontal_dist += abs(4 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c6) {
+//					horizontal_dist += abs(5 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c7) {
+//					horizontal_dist += abs(6 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
+				} else if (c8) {
+//					horizontal_dist += abs(7 - current_bit_position);
+					illumination = get_light_intensity(manhattan_dist(j, horizontal_dist));
 				}
 			}
 
@@ -253,8 +278,8 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	}
 
 	return max_illumination;
-
-	/*bool found = false;
+	/*
+	bool found = false;
 
 	for (int8_t i = -search_radius; i <= search_radius; i++) {
 		for (int8_t j = -search_radius/2; j <= search_radius/2; j++) {
@@ -279,7 +304,8 @@ float compute_illumination(uint16_t x, uint16_t y) {
 		return 0;
 	} else {
 		return max_illumination;
-	}*/
+	}
+	*/
 }
 
 float manhattan_dist(int8_t x, int8_t y) {
@@ -415,6 +441,13 @@ void place_lava() {
 
 void generate_caves() {
 
+	CAVE_MAP = (uint8_t**) malloc((WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL) * sizeof(uint8_t*));
+
+	for (uint16_t j = 0; j < WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL; j++) {
+		CAVE_MAP[j] = (uint8_t*) malloc((WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)) * sizeof(uint8_t));
+	}
+
+
 	uint8_t cave_value = (_dirt_bg << 4) | _dirt_bg;
 	uint8_t dirt_value = (_dirt << 4) | _dirt;
 
@@ -513,6 +546,12 @@ void generate_caves() {
 
 		}
 	}
+
+	for (uint16_t j = 0; j < WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL; j++) {
+		free(CAVE_MAP[j]);
+	}
+	free(CAVE_MAP);
+
 }
 
 void draw_blob(uint16_t x, uint16_t y, uint16_t radius, uint8_t value) {
