@@ -13,14 +13,14 @@
 // 4B
 typedef struct _coord {
 	uint16_t x;
-	uint8_t y;
+	uint16_t y;
 } coord;
 
 // 12B
 typedef struct _block {
 	coord pos; // 3B
 	uint16_t colors[4]; // 6B
-	//uint8_t type;
+	uint8_t type;
 } block;
 
 // 4B
