@@ -8,6 +8,7 @@
 #include "ugui.h"
 #include "scene.h"
 #include "material_classes.h"
+#include "environment_models.h"
 
 // 512kB flash drive, 128kB RAM
 
@@ -54,6 +55,8 @@ void init_world() {
 	init_stage_0();
 
 	init_light_map();
+	place_trees();
+	init_stage_1();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
 	update_camera_center((uint16_t) floor(WORLD_WIDTH/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
@@ -96,11 +99,29 @@ void update_camera_center(uint16_t x, uint16_t y) {
 	camera_y = y;
 }
 
-/*
-int get_time_of_day() {
+
+void init_stage_1() {
+	// Read in the tree matrix
+
+
 
 }
-*/
+
+
+void place_trees() {
+
+	srand(time(NULL));
+	float tree_density = 0.1;
+
+	uint8_t tree = (_tree << 4) | 0;
+	for (uint16_t i = 0; i < WORLD_WIDTH; i++) {
+		uint16_t y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
+		if (rand() % 100 < tree_density) {
+			WORLD[y][i/2] = tree;
+		}
+	}
+}
+
 
 void init_light_map() {
 

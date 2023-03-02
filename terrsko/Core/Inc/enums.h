@@ -23,7 +23,8 @@ typedef enum {
 	_gold		= 	0b1010,
 	_diamond 	= 	0b1011,
 	_dirt_bg 	= 	0b1100,
-	_fire		= 	0b1101
+	_fire		= 	0b1101,
+	_tree		= 	0b1110
 } Material;
 
 

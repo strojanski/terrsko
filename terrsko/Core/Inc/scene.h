@@ -83,6 +83,10 @@ float get_light_intensity(uint8_t manhattan_dist);
 
 void init_stage_0();
 
+void init_stage_1();
+
+void place_trees();
+
 void generate_caves();
 
 void draw_blob(uint16_t x, uint16_t y, uint16_t radius, uint8_t value);

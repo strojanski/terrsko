@@ -10,6 +10,7 @@
 #include "enums.h"
 #include "materials.h"
 #include "models.h"
+#include "environment_models.h"
 
 #define RGB565_RED 0xF800
 #define RGB565_GREEN 0x7E0
@@ -91,11 +92,26 @@ bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint
 
 /* Draws a block with its colors */
 void draw_block(block* block) {
+	if (block->colors[0] == block->colors[1] && block->colors[1] == block->colors[2] && block->colors[2] == block->colors[3]) {
+		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x, block->pos.y, block->colors[0]);
+	} else {
+		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x-2, block->pos.y-2, block->colors[0]);
+		UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
+		UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
+		UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
+	}
 
-	UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x-2, block->pos.y-2, block->colors[0]);
-	UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
-	UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
-	UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
+}
+
+void draw_tree(coord* pos) {
+
+	for (int i = 0; i < 64; i++) {
+		for (int j = 0; j < 32; j++) {
+			if (tree[i][j] == 0) continue;
+			UG_DrawPixel(j + pos->x, i + pos->y, tree[i][j]);
+			WORLD[i][j] = (_wood << 4) | _wood;
+		}
+	}
 }
 
 // Black outline
@@ -191,6 +207,11 @@ void draw_scene() {
 				}
 			}
 
+			if (l_cell == (uint8_t) _tree) {
+				coord pos = { x: pos_x1, y: 4*(j+1)};
+				draw_tree(&pos);
+			}
+
 			// right (second) cell
 			if (r_cell == (uint8_t) _dirt) {
 
@@ -242,11 +263,18 @@ void draw_scene() {
 					free_bg_material(dirt);
 				}
 			}
+
+			if (r_cell == (uint8_t) _tree) {
+				coord pos = { x: pos_x2, y: 4*(j+1)};
+				draw_tree(&pos);
+			}
+
 		}
 		// Each cell in x-direction in SCENE = move 2 blocks on screen
 		pos_x1 += 8;
 		pos_x2 += 8;
 	}
+
 }
 
 void free_destroyable(destroyable* destroyable) {
