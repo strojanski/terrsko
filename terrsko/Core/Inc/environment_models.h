@@ -25,8 +25,8 @@
 
 
 extern uint16_t tree[TREE_HEIGHT][TREE_WIDTH];
-extern uint16_t tree_tall_green[120][25];
-extern uint16_t tree_tall_yellow[120][52];
+//extern uint16_t tree_tall_green[120][25];
+//extern uint16_t tree_tall_yellow[120][52];
 
 
 #endif /* INC_ENVIRONMENT_MODELS_H_ */

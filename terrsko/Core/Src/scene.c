@@ -30,6 +30,8 @@ uint8_t** CAVE_MAP;//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SA
 int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
 int16_t LVL1_HMAP[WORLD_WIDTH];
 
+uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
+
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
 
@@ -109,15 +111,25 @@ void init_stage_1() {
 
 
 void place_trees() {
+	// TODO - mark every covered pixel as taken
 
 	srand(time(NULL));
-	float tree_density = 0.1;
+	float tree_density = 0.2;
 
-	uint8_t tree = (_tree << 4) | 0;
 	for (uint16_t i = 0; i < WORLD_WIDTH; i++) {
+
+
 		uint16_t y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
+		uint16_t coord = i/(TREE_WIDTH / BLOCK_WIDTH);
+
+		TREE_MASK[coord] = 0;
+
 		if (rand() % 100 < tree_density) {
-			WORLD[y][i/2] = tree;
+
+			// Trees only on odd numbered blocks (bottom 4 bits)
+			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
+
+			TREE_MASK[i/(TREE_WIDTH / BLOCK_WIDTH)] = 1;
 		}
 	}
 }
@@ -299,34 +311,6 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	}
 
 	return max_illumination;
-	/*
-	bool found = false;
-
-	for (int8_t i = -search_radius; i <= search_radius; i++) {
-		for (int8_t j = -search_radius/2; j <= search_radius/2; j++) {
-			uint8_t cell_value;
-			if (global_x + j % 2 == 0) {
-				cell_value = (WORLD[global_y+i][global_x+j] & 0xF0) >> 4;
-			} else {
-				cell_value = WORLD[global_y+i][global_x+j] & 0x0F;
-			}
-
-			if (is_light_source(cell_value)) {
-				found = true;
-
-				float illumination = get_light_intensity(manhattan_dist(i, j));
-				if (illumination > max_illumination) {
-					max_illumination = illumination;
-				}
-			}
-		}
-	}
-	if (!found) {
-		return 0;
-	} else {
-		return max_illumination;
-	}
-	*/
 }
 
 float manhattan_dist(int8_t x, int8_t y) {

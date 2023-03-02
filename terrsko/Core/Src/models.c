@@ -94,6 +94,10 @@ bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint
 void draw_block(block* block) {
 	if (block->colors[0] == block->colors[1] && block->colors[1] == block->colors[2] && block->colors[2] == block->colors[3]) {
 		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x, block->pos.y, block->colors[0]);
+	} else if (block->colors[0] == block->colors[1]) {
+		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[0]);
+		UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
+		UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
 	} else {
 		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x-2, block->pos.y-2, block->colors[0]);
 		UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
@@ -103,16 +107,35 @@ void draw_block(block* block) {
 
 }
 
-void draw_tree(coord* pos) {
+void draw_tree_normal(coord* pos) {
 
-	for (int i = 0; i < 64; i++) {
-		for (int j = 0; j < 32; j++) {
+	for (int i = 0; i < TREE_HEIGHT; i++) {
+		for (int j = 0; j < TREE_WIDTH; j++) {
 			if (tree[i][j] == 0) continue;
 			UG_DrawPixel(j + pos->x, i + pos->y, tree[i][j]);
-			WORLD[i][j] = (_wood << 4) | _wood;
 		}
 	}
 }
+
+//void draw_tree_tall_green(coord* pos) {
+//
+//	for (int i = 0; i < TREE_TALL_GREEN_HEIGHT; i++) {
+//		for (int j = 0; j < TREE_TALL_GREEN_WIDTH; j++) {
+//			if (tree_tall_green[i][j] == 0) continue;
+//			UG_DrawPixel(j + pos->x, i + pos->y, tree_tall_green[i][j]);
+//		}
+//	}
+//}
+
+//void draw_tree_tall_yellow(coord* pos) {
+//
+//	for (int i = 0; i < TREE_TALL_YELLOW_HEIGHT; i++) {
+//		for (int j = 0; j < TREE_TALL_YELLOW_WIDTH; j++) {
+//			if (tree_tall_yellow[i][j] == 0) continue;
+//			UG_DrawPixel(j + pos->x, i + pos->y, tree_tall_yellow[i][j]);
+//		}
+//	}
+//}
 
 // Black outline
 void draw_detailed_block(block* block) {
@@ -145,6 +168,20 @@ void draw_scene() {
 			uint8_t r_cell = (value & 0x0F);
 
 			illumination = compute_illumination(i, j);
+
+			// Check for tree
+			coord pos = { x: pos_x2, y: 4*(j+1) };
+			if (r_cell == (Material) _tree) {
+				draw_tree_normal(&pos);
+			}
+
+			uint16_t coord_1 = pos_x1 / (TREE_WIDTH / BLOCK_WIDTH);
+			uint16_t coord_2 = pos_x2 / (TREE_WIDTH / BLOCK_WIDTH);
+
+			// Above the ground + theres a tree
+			if (j <= LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i] && (TREE_MASK[coord_1] || TREE_MASK[coord_2])) {
+				continue;
+			}
 
 			float random = (float) rand() / RAND_MAX;
 			// left (first) cell
@@ -207,11 +244,6 @@ void draw_scene() {
 				}
 			}
 
-			if (l_cell == (uint8_t) _tree) {
-				coord pos = { x: pos_x1, y: 4*(j+1)};
-				draw_tree(&pos);
-			}
-
 			// right (second) cell
 			if (r_cell == (uint8_t) _dirt) {
 
@@ -262,11 +294,6 @@ void draw_scene() {
 					draw_block(dirt->block);
 					free_bg_material(dirt);
 				}
-			}
-
-			if (r_cell == (uint8_t) _tree) {
-				coord pos = { x: pos_x2, y: 4*(j+1)};
-				draw_tree(&pos);
 			}
 
 		}

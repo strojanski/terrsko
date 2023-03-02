@@ -27,6 +27,11 @@ typedef enum {
 	_tree		= 	0b1110
 } Material;
 
+//typedef enum {
+//	_tree_normal 		=	 	17,
+//	_tree_high_green 	= 		0b10,
+//	_tree_high_yellow 	= 		0b11
+//} Tree;
 
 
 /*
