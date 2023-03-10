@@ -15,15 +15,16 @@
 #include "models.h"
 #include "action.h"
 
-#define RIGHT true
-#define LEFT 	false
+#include "guysko_img.h"
 
-#define AIR_RESISTANCE		10
-#define GRAVITY						30
-#define WALK_ACCELERATION	30
-#define JUMP_ACCELERATION	30
-#define MAX_X_VELOCITY 		60
-#define MAX_Y_VELOCITY 		100
+
+#include "life_points.h"
+#include "acceleration.h"
+#include "velocity.h"
+#include "move.h"
+#include "position.h"
+
+
 
 
 /*
@@ -40,20 +41,13 @@
  * p/s === pixels per second
  *
  * 						.
- * 						.
  * 30 FPS -> 2 p/F -> 60 p/s
  * 40 FPS -> 1 p/F -> 40 p/s
  * 50 FPS -> 1 p/F -> 50 p/s
  * 60 FPS -> 1 p/F -> 60 p/s
  * 70 FPS -> 1 p/F -> 70 p/s
  * 80 FPS -> 1 p/F -> 80 p/s
- * 						.
- * 						.
  */
-typedef struct _velocity {
-	float x;
-	float y;
-} velocity;
 
 /*
  * direction:
@@ -62,20 +56,18 @@ typedef struct _velocity {
  */
 
 typedef struct _guysko {
-	uint8_t life_points;
+	life_points* lp;
 
-	float x_remainder;
-	float y_remainder;
-	bool direction;
-	coord* position;
+	uint8_t state;
+	acceleration* acc;
 	velocity* vel;
+	move* mov;
+	position* pos;
 
 } guysko;
 
-velocity* set_velocity(guysko* player, float x, float y);
-void update_guysko_moving (guysko* player);
-void update_guysko_position (guysko* player, uint8_t FPS);
 void draw_guysko ();
-guysko* new_guysko(uint8_t life_points, bool direction, coord* position);
+guysko* new_guysko(life_points* lp, uint8_t state, acceleration*acc, velocity* vel, move* mov, position* pos);
+
 
 #endif /* INC_GUYSKO_H_ */

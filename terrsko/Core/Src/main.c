@@ -49,6 +49,10 @@
 
 #include "guysko.h"
 #include "action.h"
+#include "acceleration.h"
+#include "velocity.h"
+#include "move.h"
+#include "position.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,7 +90,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_60;
+uint8_t FPS = FPS_100;
 /* USER CODE END 0 */
 /**
   * @brief  The application entry point.
@@ -168,12 +172,6 @@ int main(void)
   //UG_PutString(5,205,"To mi deli, TANK!");
 
 
-  // initialize guysko
-	coord* guysko_position = malloc(sizeof(coord));
-	guysko_position->x = 50;
-	guysko_position->y = 150;
-	guysko* player = new_guysko(100, RIGHT, guysko_position);
-	draw_guysko(player);
 
   joystick_init(&joystick);
   HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
@@ -212,17 +210,64 @@ int main(void)
 //	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
 //	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
+  // initialize guysko
 
+	life_points* lp 					= malloc(sizeof(life_points));
+	lp->life_points = 100;
+	acceleration* guysko_acc 	= malloc(sizeof(acceleration));
+	guysko_acc->x = 0;
+	guysko_acc->y = 0;
+	velocity* guysko_vel 			= malloc(sizeof(velocity));
+	guysko_vel->x = 0;
+	guysko_vel->y = 0;
+	move* guysko_mov 					= malloc(sizeof(move));
+	guysko_mov->x = 0;
+	guysko_mov->y = 0;
+	guysko_mov->x_remainder = 0;
+	guysko_mov->y_remainder = 0;
+	position* guysko_pos 			= malloc(sizeof(position));
+	guysko_pos->x = 50;
+	guysko_pos->y = 150;
+
+	guysko* player = new_guysko(lp, 0, guysko_acc, guysko_vel, guysko_mov, guysko_pos);
+
+
+	/*
+	 * Procedure for movable objects:
+	 *
+	 * 1.) The input of player will be read and updated all the time
+	 * 2.) Just before the calculation of movement of guysko, each movement and action will be declared
+	 * 3.) Calculate acc, vel, movement, action and demage of guysko and every other movable object
+	 * 	FOR EVERY MOVABLE OBJECT:
+	 *	3.1) calculate/add acceleration in y direction
+	 *	3.2) calculate velocity in every direction.
+	 *	Depends on : 	a)blocks around moveable object,
+	 *								b)acceleration,
+	 *								c)player input
+	 *	3.2.1) Calculate damage done to movable object based on difference of velocity of guysko
+	 *	3.3) change postion of movable object based on velocity
+	 *	3.4) update move of guysko based on velocity
+	 *	3.5) calculate postion of action based on orientation of move object
+	 *	3.6) action()
+	 *		3.6.1) (POINT DAMAGE CALCULATOR) calculate damage done to another movables
+	 * 4.) Calculate health points based on POINT DAMAGE CALCULATOR
+	 * 5.) Draw all the movable objects in scene
+	 */
 
 
   while (1)
   {
   	cycle = false;
 
-  	update_guysko_moving(player);
-		draw_guysko(player);
-		update_guysko_position(player, FPS);
-
+  	update_guysko_acceleration(player->acc, player->pos->x, player->pos->y);
+  	update_guysko_velocity(guysko_vel, guysko_acc, player->pos->x, player->pos->y);
+  	update_guysko_move(guysko_mov, guysko_vel, FPS);
+  	update_guysko_position(guysko_pos, guysko_mov);
+  	draw_guysko(player);
+  	/*
+  	 * first guysko and then
+  	 * ITERATE through movable
+  	 */
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
 /*
@@ -280,6 +325,7 @@ int main(void)
 		 * loop is executeing
 		 * HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
 		 */
+		action_set(&joystick_raw);
   	while (!cycle) {
   		/*
   		 * if joystick_new is needed:

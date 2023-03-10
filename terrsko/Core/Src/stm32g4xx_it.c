@@ -190,7 +190,7 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
-volatile	uint8_t	milliseconds 	= 1;
+volatile	uint8_t	milliseconds 	= 0;
 extern bool cycle;
 extern uint8_t FPS;
 
@@ -203,7 +203,7 @@ void SysTick_Handler(void)
   /* USER CODE BEGIN SysTick_IRQn 1 */
   	// Here the frame rate of TERRSKO is set to values of 10 to 100 FPS
     if (milliseconds >= FPS) {
-    	milliseconds = 1;
+    	milliseconds = 0;
     	cycle = true;
     }
     milliseconds++;

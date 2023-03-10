@@ -8,7 +8,6 @@
 
 
 
-#include <stdbool.h>
 #include "action.h"
 
 bool act_up			=	false;
