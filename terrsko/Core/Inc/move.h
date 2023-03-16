@@ -9,7 +9,6 @@
 #define INC_MOVE_H_
 
 #include "action.h"
-#include "velocity.h"
 
 typedef struct _move {
 	short x;
@@ -19,7 +18,5 @@ typedef struct _move {
 } move;
 
 void set_move (move* mov, short x, short y);
-void update_npc_move ();
-void update_guysko_move (move* mov, velocity* vel, int FPS);
 
 #endif /* INC_MOVE_H_ */

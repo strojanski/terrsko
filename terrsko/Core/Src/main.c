@@ -90,7 +90,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_100;
+uint8_t FPS = FPS_80;
 /* USER CODE END 0 */
 /**
   * @brief  The application entry point.
@@ -259,10 +259,10 @@ int main(void)
   {
   	cycle = false;
 
-  	update_guysko_acceleration(player->acc, player->pos->x, player->pos->y);
-  	update_guysko_velocity(guysko_vel, guysko_acc, player->pos->x, player->pos->y);
-  	update_guysko_move(guysko_mov, guysko_vel, FPS);
-  	update_guysko_position(guysko_pos, guysko_mov);
+  	update_guysko_acceleration(player);
+  	update_guysko_velocity(player);
+  	update_guysko_move(player, FPS);
+  	update_guysko_position(player);
   	draw_guysko(player);
   	/*
   	 * first guysko and then

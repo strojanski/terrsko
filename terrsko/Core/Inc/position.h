@@ -9,10 +9,7 @@
 #define INC_POSITION_H_
 
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdint.h>
-
-#include "move.h"
 
 typedef struct _position {
 	uint16_t	x;
@@ -20,6 +17,6 @@ typedef struct _position {
 } position;
 
 void set_postition (position* pos, uint16_t x, uint8_t y);
-void update_guysko_position (position* pos, move* mov);
+
 
 #endif /* INC_POSITION_H_ */
