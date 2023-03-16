@@ -37,6 +37,7 @@ Core/Src \
 Core/Src/movable \
 Core/Src/movable/animal \
 Core/Src/movable/guysko \
+Core/Src/movable/npc \
 Core/Startup \
 Drivers/STM32G4xx_HAL_Driver/Src \
 Drivers/external \

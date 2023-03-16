@@ -16,6 +16,7 @@ RM := rm -rf
 -include Drivers/external/subdir.mk
 -include Drivers/STM32G4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
+-include Core/Src/movable/npc/subdir.mk
 -include Core/Src/movable/guysko/subdir.mk
 -include Core/Src/movable/animal/subdir.mk
 -include Core/Src/movable/subdir.mk

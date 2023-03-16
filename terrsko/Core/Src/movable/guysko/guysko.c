@@ -60,7 +60,11 @@ void update_guysko_velocity(guysko* player) {
 	}
 
 	// y axis
-	set_velocity(player->vel, player->vel->x, player->vel->y + player->acc->y);
+	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
+	if (move_up /* && pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
+		set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
+		action_reset(MOVE_UP_INDEX);
+	}
 	// MAX VELOCITY IN Y DIRECTION
 	if (player->vel->y < GUYSKO_MAX_DOWN_VELOCITY) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_DOWN_VELOCITY);
@@ -72,23 +76,19 @@ void update_guysko_velocity(guysko* player) {
 }
 
 void update_guysko_acceleration (guysko* player) {
-	if (true /*pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
-		if (move_up) {
-			set_acceleration(player->acc, player->acc->x, player->acc->y + GUYSKO_JUMP_ACCELERATION + GRAVITY);
-			action_reset(MOVE_UP_INDEX);
-		} else {
-			set_acceleration(player->acc, player->acc->x, GRAVITY);
-		}
-	} else {
-			set_acceleration(player->acc, player->acc->x, player->acc->y + GRAVITY);
-	}
-
-	// MAX ACCLERATION IN Y DIRECTION
-	if (player->acc->y < GUYSKO_MAX_DOWN_ACC) {
-		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_DOWN_ACC);
-	} else if (player->acc->y > GUYSKO_MAX_UP_ACC) {
-		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_UP_ACC);
-	}
+//	set_acceleration(player->acc, player->acc->x, player->acc->y + GRAVITY);
+//	if (true /*pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
+//		if (move_up) {
+//			set_acceleration(player->acc, player->acc->x, player->acc->y + GUYSKO_JUMP_ACCELERATION + GRAVITY);
+//
+//		}
+//	}
+//	// MAX ACCLERATION IN Y DIRECTION
+//	if (player->acc->y < GUYSKO_MAX_DOWN_ACC) {
+//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_DOWN_ACC);
+//	} else if (player->acc->y > GUYSKO_MAX_UP_ACC) {
+//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_UP_ACC);
+//	}
 }
 
 
