@@ -49,7 +49,6 @@
 
 #include "guysko.h"
 #include "action.h"
-#include "acceleration.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
@@ -214,9 +213,6 @@ int main(void)
 
 	life_points* lp 					= malloc(sizeof(life_points));
 	lp->life_points = 100;
-	acceleration* guysko_acc 	= malloc(sizeof(acceleration));
-	guysko_acc->x = 0;
-	guysko_acc->y = 0;
 	velocity* guysko_vel 			= malloc(sizeof(velocity));
 	guysko_vel->x = 0;
 	guysko_vel->y = 0;
@@ -229,7 +225,7 @@ int main(void)
 	guysko_pos->x = 50;
 	guysko_pos->y = 150;
 
-	guysko* player = new_guysko(lp, 0, guysko_acc, guysko_vel, guysko_mov, guysko_pos);
+	guysko* player = new_guysko(lp, 0, guysko_vel, guysko_mov, guysko_pos);
 
 
 	/*

@@ -135,16 +135,13 @@ void draw_guysko (guysko* player) {
  * @param move					difference of position guysko will make inbetween frame
  * @param position 			guysko's new position
  */
-guysko* new_guysko(life_points* lp, uint8_t state, acceleration*acc, velocity* vel, move* mov, position* pos) {
+guysko* new_guysko(life_points* lp, uint8_t state, velocity* vel, move* mov, position* pos) {
 	guysko* player = malloc(sizeof(guysko));
 
 	player->lp					= malloc(sizeof(life_points));
 	player->lp->life_points = lp->life_points;
 
 	player->state 			= 0;
-
-	player->acc			 		= malloc(sizeof(acceleration));
-	player->acc					= acc;
 
 	player->vel 				= malloc(sizeof(velocity));
 	player->vel					= vel;
