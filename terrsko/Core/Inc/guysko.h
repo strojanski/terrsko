@@ -58,7 +58,6 @@ void draw_guysko (guysko* player);
 void update_guysko_position (guysko* player);
 void update_guysko_move (guysko*, int FPS);
 void update_guysko_velocity(guysko* player);
-void update_guysko_acceleration (guysko* player);
 
 guysko* new_guysko(life_points* lp, uint8_t state, acceleration*acc, velocity* vel, move* mov, position* pos);
 

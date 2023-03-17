@@ -259,7 +259,6 @@ int main(void)
   {
   	cycle = false;
 
-  	update_guysko_acceleration(player);
   	update_guysko_velocity(player);
   	update_guysko_move(player, FPS);
   	update_guysko_position(player);

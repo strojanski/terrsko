@@ -75,22 +75,6 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
 
-void update_guysko_acceleration (guysko* player) {
-//	set_acceleration(player->acc, player->acc->x, player->acc->y + GRAVITY);
-//	if (true /*pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
-//		if (move_up) {
-//			set_acceleration(player->acc, player->acc->x, player->acc->y + GUYSKO_JUMP_ACCELERATION + GRAVITY);
-//
-//		}
-//	}
-//	// MAX ACCLERATION IN Y DIRECTION
-//	if (player->acc->y < GUYSKO_MAX_DOWN_ACC) {
-//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_DOWN_ACC);
-//	} else if (player->acc->y > GUYSKO_MAX_UP_ACC) {
-//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_UP_ACC);
-//	}
-}
-
 
 void draw_guysko (guysko* player) {
 	int index = 0;
