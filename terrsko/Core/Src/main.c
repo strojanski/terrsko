@@ -53,6 +53,10 @@
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
+
+#include "movable.h"
+#include "rand_range.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -213,7 +217,7 @@ int main(void)
   // initialize guysko
 
 	life_points* lp 					= malloc(sizeof(life_points));
-	lp->life_points = 100;
+	lp->life_points = GUYSKO_MAX_LP;
 	acceleration* guysko_acc 	= malloc(sizeof(acceleration));
 	guysko_acc->x = 0;
 	guysko_acc->y = 0;
@@ -228,8 +232,8 @@ int main(void)
 	position* guysko_pos 			= malloc(sizeof(position));
 	guysko_pos->x = 50;
 	guysko_pos->y = 150;
-
 	guysko* player = new_guysko(lp, 0, guysko_acc, guysko_vel, guysko_mov, guysko_pos);
+
 
 
 	/*
@@ -264,6 +268,19 @@ int main(void)
   	update_guysko_move(player, FPS);
   	update_guysko_position(player);
   	draw_guysko(player);
+
+  	movable* beeings = new_movable();
+
+  	//EXAMPLE
+  	if (rand_range(0, 100) < COW_SPAWN_POS) {
+			position* krava_pos = malloc(sizeof(position));
+			krava_pos->x = 200;
+			krava_pos->y = 150;
+			cow* krava = new_cow(lp, guysko_vel, krava_pos);
+			draw_cow(krava);
+			UG_DrawCircle(50, 50, 10, C_BLUE_VIOLET);
+  	}
+
   	/*
   	 * first guysko and then
   	 * ITERATE through movable

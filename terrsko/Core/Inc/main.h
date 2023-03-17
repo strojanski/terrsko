@@ -208,6 +208,7 @@ void Error_Handler(void);
 #define TOUCH_CS_Pin GPIO_PIN_1
 #define TOUCH_CS_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
+#define MAX_MOVABLE_CAPACTIY	100
 
 #define FPS_10 	100
 #define FPS_20 	50

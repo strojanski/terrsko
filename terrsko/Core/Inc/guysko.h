@@ -23,8 +23,12 @@
 #include "move.h"
 #include "position.h"
 
-
-
+#define GUYSKO_MAX_UP_VELOCITY 				150
+#define GUYSKO_MAX_RIGHT_VELOCITY 		100
+#define GUYSKO_MAX_DOWN_VELOCITY 			-300
+#define GUYSKO_MAX_LEFT_VELOCITY 			-100
+#define GUYSKO_WALK_VEL_INC						5
+#define GUYSKO_MAX_LP									1000
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second
