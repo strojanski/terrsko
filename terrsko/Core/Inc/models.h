@@ -3,10 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifndef MODELS_H
-#define MODELS_H
-
 #include "scene.h"
 
 #define SCREEN_WIDTH 320
