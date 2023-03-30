@@ -276,7 +276,7 @@ int main(void)
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
 
-	 HAL_Delay(10);
+	 //HAL_Delay(10);
   }
 
   /* USER CODE END 3 */

@@ -7,6 +7,7 @@
 #include "materials.h"
 #include "enums.h"
 #include "ugui.h"
+#include "environment_models.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -41,17 +42,22 @@
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
 
+#define tree_mask_width WORLD_WIDTH/(TREE_WIDTH/BLOCK_WIDTH)
+
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
+extern uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
 extern uint8_t** CAVE_MAP; 	//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 extern int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
 extern int16_t LVL1_HMAP[WORLD_WIDTH];
 extern uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
-
+extern uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
 extern uint16_t camera_x;
 extern uint16_t camera_y;
 
 void get_scene();
+
+void get_scene_mask();
 
 void update_camera_center(uint16_t x, uint16_t y);
 
@@ -82,6 +88,10 @@ void precompute_light_intensity();
 float get_light_intensity(uint8_t manhattan_dist);
 
 void init_stage_0();
+
+void init_stage_1();
+
+void place_trees();
 
 void generate_caves();
 
