@@ -42,6 +42,7 @@ extern "C" {
 
 #include "stm32g4xx_ll_exti.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 

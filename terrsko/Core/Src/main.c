@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <math.h>
 #include "main.h"
 #include "adc.h"
 #include "crc.h"
@@ -41,9 +42,9 @@
 #include "ugui.h"
 #include "lcd_ugui.h"
 #include "XPT2046_touch.h"
-#include "joystick.h"
-#include "models.h"
-#include "scene.h"
+#include "joystick_level_control.h"
+#include <terrlib.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,10 +90,8 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//coord_t joystick_raw={0,0}, joystick_new={0,0}, joystick_prev={0,0};
-	//joystick_t joystick;
+
 	//char MSG[100]={0};
-	//uint16_t touch_x = 0, touch_y = 0;
 
 	//char str[50];
 	//float bitrate;
@@ -104,8 +103,8 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
+
 
   /* USER CODE END Init */
 
@@ -145,15 +144,15 @@ int main(void)
 
   MX_ADC4_Init();	//bug workaround: https://community.st.com/s/question/0D50X0000BVnBhASQV/bug-report-dma-and-adc-initialization-order-changed-in-stm32f4-hal-v1241-causing-incorrect-adc-operation
 
-  for (uint8_t i=0;i<3;i++)
-  {
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
-	  HAL_Delay(100);
-	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
-  }
+//  for (uint8_t i=0;i<2;i++)
+//  {
+//	  HAL_Delay(100);
+//	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
+//	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
+//	  HAL_Delay(100);
+//	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
+//	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
+//  }
 
   LCD_Init();
   LCD_UG_init();
@@ -171,20 +170,21 @@ int main(void)
   //UG_FontSelect(&FONT_16X26);
   //UG_PutString(5,205,"To mi deli, TANK!");
 
-  //joystick_init(&joystick);
-  //HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+//  joystick_init(&joystick);
+//  HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
+
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  init_world();
 
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-/*
 
 	  //LEDs and KEYs
 	 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
@@ -195,32 +195,57 @@ int main(void)
 	 HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, !HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin));
 	 HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, !HAL_GPIO_ReadPin(JOY_BTN_GPIO_Port, JOY_BTN_Pin));
 
+/*
 	 if (!HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin))
 	 {
 		 UG_FillFrame(200, 0, 319, 120, C_BLACK);
 	 }
+*/
+	 uint8_t left = !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) * CAMERA_SPEED;
+	 uint8_t right = !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) * CAMERA_SPEED;
+	 uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
+	 uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
+
+	 uint16_t new_camera_x = camera_x + right - left;
+	 uint16_t new_camera_y = camera_y + down - up;
+
+	 update_camera_center(new_camera_x, new_camera_y);
+
 
 	 //Joystick
+	  /*
 	 joystick_get(&joystick_raw, &joystick_new, &joystick);
-	 //UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
-	 //UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+	 UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
+	 UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+
+	 bool left = joystick_new.x - joystick_prev.x < 0;
+	 bool up = joystick_new.y - joystick_prev.y < 0;
+
+	 uint16_t new_camera_x = ((uint16_t) (camera_x + (.05 * (joystick_prev.x - joystick_new.x) * (left ? -1 : 1))) % WORLD_WIDTH);
+	 uint16_t new_camera_y = ((uint16_t) (camera_y + (.05 * (joystick_prev.y - joystick_new.y) * (up ? 1: -1))) % WORLD_HEIGHT);
 
 	 joystick_prev.x = joystick_new.x;
 	 joystick_prev.y = joystick_new.y;
+	   */
+
+/*
 	 //Touch
 	 if(XPT2046_TouchPressed())
 	 {
 		uint16_t x = 0, y = 0;
-		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
+//		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
 		if(XPT2046_TouchGetCoordinates(&x, &y, 0))
 		{
 			touch_x = x;
 			touch_y = y;
+
+		    //update_camera_center(x, y);
 			UG_FillCircle(x, y,2, C_GREEN);
 		}
 	 }
-	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
-*/
+	 */
+//	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
+
 	 //UG_DrawCircle(250, 50, 50, C_RED);
 
 	 //USART and USB
@@ -232,28 +257,26 @@ int main(void)
 
 
 	  // Draw ground - replace this with "whereisground"
-	  for (int i = 0; i < 80; i++) {
-
-		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, NULL);
-		  draw_grass(grass->block);
-		  free_destroyable(grass);
-
-		  for (int j = 45; j < 60; j++) {
-			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, NULL);
-			  draw_dirt(dirt->block);
-			  free_destroyable(dirt);
-		  }
-	  }
-
-	  //int** SCENE = init_scene();
-	  //draw_scene(SCENE);
+//	  for (int i = 0; i < 80; i++) {
+//
+//		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, C_GRASS, NULL);
+//		  draw_block(grass->block);
+//		  free_destroyable(grass);
+//
+//		  for (int j = 45; j < 60; j++) {
+//			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, C_DIRT, NULL);
+//			  draw_block(dirt->block);
+//			  free_destroyable(dirt);
+//		  }
+//	  }
+	  draw_scene();
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 	 //draw_block(block);
 	 //HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 	 //CDC_Transmit_FS(MSG, strlen(MSG));
 
-	 HAL_Delay(20);
+	 //HAL_Delay(10);
   }
 
   /* USER CODE END 3 */
@@ -318,8 +341,10 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
+  volatile int  a = 0;
   while (1)
   {
+	  a++;
   }
   /* USER CODE END Error_Handler_Debug */
 }
