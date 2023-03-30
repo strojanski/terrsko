@@ -90,13 +90,24 @@ bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint
 	return bg_material;
 }
 
-/* Draws a block with its colors */
+/* Draws a block with its colors, attempt to draw chunks as big as possible */
 void draw_block(block* block) {
 	if (block->colors[0] == block->colors[1] && block->colors[1] == block->colors[2] && block->colors[2] == block->colors[3]) {
 		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x, block->pos.y, block->colors[0]);
-	} else if (block->colors[0] == block->colors[1]) {
+	} else if (block->colors[0] == block->colors[1]) {	// Top part
 		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[0]);
-		UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
+		if (block->colors[2] == block->colors[3]) {		// Bottom part
+			UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x, block->pos.y, block->colors[2]);
+		} else {
+			UG_FillFrame(block->pos.x-4, block->pos.y-2, block->pos.x-2, block->pos.y, block->colors[2]);
+			UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
+		}
+	} else if (block->colors[0] == block->colors[2]) {	// Left part
+		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x-2, block->pos.y, block->colors[0]);
+		if (block->colors[1] == block->colors[3]) {		// Right part
+			UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
+		}
+		UG_FillFrame(block->pos.x-2, block->pos.y-4, block->pos.x, block->pos.y-2, block->colors[1]);
 		UG_FillFrame(block->pos.x-2, block->pos.y-2, block->pos.x, block->pos.y, block->colors[3]);
 	} else {
 		UG_FillFrame(block->pos.x-4, block->pos.y-4, block->pos.x-2, block->pos.y-2, block->colors[0]);
@@ -108,9 +119,9 @@ void draw_block(block* block) {
 }
 
 void draw_tree_normal(coord* pos) {
-
-	for (int i = 0; i < TREE_HEIGHT; i++) {
-		for (int j = 0; j < TREE_WIDTH; j++) {
+	// 0,0 in top left corner
+	for (int j = 0; j < TREE_WIDTH; j++) {
+		for (int i = 0; i < TREE_HEIGHT; i++) {
 			if (tree[i][j] == 0) continue;
 			UG_DrawPixel(j + pos->x, i + pos->y, tree[i][j]);
 		}
@@ -149,6 +160,7 @@ void draw_detailed_block(block* block) {
 void draw_scene() {
 	// update and get scene
 	get_scene();
+	get_scene_mask();	// 1 - do not overwrite, 0 do overwrite
 
 	srand(time(NULL));
 
@@ -164,137 +176,146 @@ void draw_scene() {
 		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
 
 			uint8_t value = SCENE[j][i]; // SCENE[y][x]
+			uint8_t skip_left = (SCENE_MASK[j][i] & 0xF0) >> 4;
+			uint8_t skip_right = SCENE_MASK[j][i] & 0x0F;
+
 			uint8_t l_cell = (value & 0xF0) >> 4;
 			uint8_t r_cell = (value & 0x0F);
 
-			illumination = compute_illumination(i, j);
+			illumination = 1;//compute_illumination(i, j);
 
 			// Check for tree
 			coord pos = { x: pos_x2, y: 4*(j+1) };
-			if (r_cell == (Material) _tree) {
-				draw_tree_normal(&pos);
+			if (l_cell == _tree || r_cell == _tree) {
+//				draw_tree_normal(&pos);
 			}
 
-			uint16_t coord_1 = pos_x1 / (TREE_WIDTH / BLOCK_WIDTH);
-			uint16_t coord_2 = pos_x2 / (TREE_WIDTH / BLOCK_WIDTH);
+			uint16_t global_x = (camera_x - SCENE_WIDTH/2 + i);
+			uint16_t tree_cell = global_x / (TREE_WIDTH / BLOCK_WIDTH);
+
 
 			// Above the ground + theres a tree
-			if (j <= LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i] && (TREE_MASK[coord_1] || TREE_MASK[coord_2])) {
-				continue;
-			}
+//			if (j <= LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i] && TREE_MASK[tree_cell] == 1) {
+//				continue;
+//			}
 
-			float random = (float) rand() / RAND_MAX;
-			// left (first) cell
-			if (l_cell == (uint8_t) _dirt) {
+//			if (skip_left == 0) {
 
-				destroyable* dirt = create_destroyable(pos_x1, 4*(j+1), C_DIRT, _dirt, illumination);
+				float random = (float) rand() / RAND_MAX;
+				// left (first) cell
+				if (l_cell == (uint8_t) _dirt) {
 
-				draw_block(dirt->block);
-				free_destroyable(dirt);
-			} else if (l_cell == (uint8_t) _grass) {
+					destroyable* dirt = create_destroyable(pos_x1, 4*(j+1), C_DIRT, _dirt, illumination);
 
-				destroyable* grass = create_destroyable(pos_x1, 4*(j+1), C_GRASS, _grass, illumination);
+					draw_block(dirt->block);
+					free_destroyable(dirt);
+				} else if (l_cell == (uint8_t) _grass) {
 
-				draw_block(grass->block);
-				free_destroyable(grass);
-			} else if (l_cell == (uint8_t) _lava) {
+					destroyable* grass = create_destroyable(pos_x1, 4*(j+1), C_GRASS, _grass, illumination);
 
-				destroyable* lava = create_destroyable(pos_x1, 4*(j+1), C_LAVA, _lava, illumination);
+					draw_block(grass->block);
+					free_destroyable(grass);
+				} else if (l_cell == (uint8_t) _lava) {
 
-				draw_block(lava->block);
-				free_destroyable(lava);
-			} else if (l_cell == (uint8_t) _wood) {
+					destroyable* lava = create_destroyable(pos_x1, 4*(j+1), C_LAVA, _lava, illumination);
 
-				destroyable* wood = create_destroyable(pos_x1, 4*(j+1), C_WOOD, _wood, illumination);
+					draw_block(lava->block);
+					free_destroyable(lava);
+				} else if (l_cell == (uint8_t) _wood) {
 
-				draw_block(wood->block);
-				free_destroyable(wood);
-			} else if (l_cell == (uint8_t) _rock) {
+					destroyable* wood = create_destroyable(pos_x1, 4*(j+1), C_WOOD, _wood, illumination);
 
-				destroyable* rock = create_destroyable(pos_x1, 4*(j+1), C_ROCK, _rock, illumination);
+					draw_block(wood->block);
+					free_destroyable(wood);
+				} else if (l_cell == (uint8_t) _rock) {
 
-				draw_block(rock->block);
-				free_destroyable(rock);
-			} else if (l_cell == (uint8_t) _dirt_bg) {
+					destroyable* rock = create_destroyable(pos_x1, 4*(j+1), C_ROCK, _rock, illumination);
 
-				bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
+					draw_block(rock->block);
+					free_destroyable(rock);
+				} else if (l_cell == (uint8_t) _dirt_bg) {
 
-				draw_block(dirt->block);
-				free_bg_material(dirt);
-			} else {
-				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
-
-					uint16_t* color = C_SKY;
-
-					if (random < probability_star && night) {
-						color = C_STAR;
-					} else if (night) {
-						color = C_NIGHT_SKY;
-					}
-
-					// SKY
-					bg_material* sky = create_bg_material(pos_x1, 4*(j+1), color, _empty, illumination);
-					draw_block(sky->block);
-					free_bg_material(sky);
-				} else {
-					// DIRT BG
 					bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
+
 					draw_block(dirt->block);
 					free_bg_material(dirt);
-				}
-			}
-
-			// right (second) cell
-			if (r_cell == (uint8_t) _dirt) {
-
-				destroyable* dirt = create_destroyable(pos_x2, 4*(j+1), C_DIRT, _dirt, illumination);
-
-				draw_block(dirt->block);
-				free_destroyable(dirt);
-			} else if (r_cell == (uint8_t) _grass) {
-
-				destroyable* grass = create_destroyable(pos_x2, 4*(j+1), C_GRASS, _grass, illumination);
-
-				draw_block(grass->block);
-				free_destroyable(grass);
-			} else if (r_cell == (uint8_t) _lava) {
-
-				destroyable* lava = create_destroyable(pos_x2, 4*(j+1), C_LAVA, _lava, illumination);
-
-				draw_block(lava->block);
-				free_destroyable(lava);
-			}  else if (r_cell == (uint8_t) _wood) {
-
-				destroyable* wood = create_destroyable(pos_x2, 4*(j+1), C_WOOD, _wood, illumination);
-
-				draw_block(wood->block);
-				free_destroyable(wood);
-			} else if (r_cell == (uint8_t) _rock) {
-
-				destroyable* rock = create_destroyable(pos_x2, 4*(j+1), C_ROCK, _rock, illumination);
-
-				draw_block(rock->block);
-				free_destroyable(rock);
-			} else if (r_cell == (uint8_t) _dirt_bg) {
-
-				bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
-
-				draw_block(dirt->block);
-				free_bg_material(dirt);
-			} else {
-				if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
-
-					// SKY
-					bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY, _empty, illumination);
-					draw_block(sky->block);
-					free_bg_material(sky);
 				} else {
-					// DIRT BG
+					if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
+
+						uint16_t* color = C_SKY;
+
+						if (random < probability_star && night) {
+							color = C_STAR;
+						} else if (night) {
+							color = C_NIGHT_SKY;
+						}
+
+						// SKY
+						bg_material* sky = create_bg_material(pos_x1, 4*(j+1), color, _empty, illumination);
+						draw_block(sky->block);
+						free_bg_material(sky);
+					} else {
+						// DIRT BG
+						bg_material* dirt = create_bg_material(pos_x1, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
+						draw_block(dirt->block);
+						free_bg_material(dirt);
+					}
+				}
+//			}
+
+//			if (skip_right == 0) {
+				// right (second) cell
+				if (r_cell == (uint8_t) _dirt) {
+
+					destroyable* dirt = create_destroyable(pos_x2, 4*(j+1), C_DIRT, _dirt, illumination);
+
+					draw_block(dirt->block);
+					free_destroyable(dirt);
+				} else if (r_cell == (uint8_t) _grass) {
+
+					destroyable* grass = create_destroyable(pos_x2, 4*(j+1), C_GRASS, _grass, illumination);
+
+					draw_block(grass->block);
+					free_destroyable(grass);
+				} else if (r_cell == (uint8_t) _lava) {
+
+					destroyable* lava = create_destroyable(pos_x2, 4*(j+1), C_LAVA, _lava, illumination);
+
+					draw_block(lava->block);
+					free_destroyable(lava);
+				}  else if (r_cell == (uint8_t) _wood) {
+
+					destroyable* wood = create_destroyable(pos_x2, 4*(j+1), C_WOOD, _wood, illumination);
+
+					draw_block(wood->block);
+					free_destroyable(wood);
+				} else if (r_cell == (uint8_t) _rock) {
+
+					destroyable* rock = create_destroyable(pos_x2, 4*(j+1), C_ROCK, _rock, illumination);
+
+					draw_block(rock->block);
+					free_destroyable(rock);
+				} else if (r_cell == (uint8_t) _dirt_bg) {
+
 					bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
+
 					draw_block(dirt->block);
 					free_bg_material(dirt);
+				} else {
+					if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
+
+						// SKY
+						bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY, _empty, illumination);
+						draw_block(sky->block);
+						free_bg_material(sky);
+					} else {
+						// DIRT BG
+						bg_material* dirt = create_bg_material(pos_x2, 4*(j+1), C_BG_DIRT, _dirt_bg, illumination);
+						draw_block(dirt->block);
+						free_bg_material(dirt);
+					}
 				}
-			}
+//			}
 
 		}
 		// Each cell in x-direction in SCENE = move 2 blocks on screen

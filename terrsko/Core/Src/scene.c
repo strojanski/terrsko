@@ -18,8 +18,9 @@
 #define CAVE_DEATH_THRESH 5
 
 // 4 bits define the block at the position
-uint8_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 10KB
+uint8_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 46KB
 uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
+uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
 
 uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
 
@@ -34,6 +35,7 @@ uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal 
 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
+uint8_t new_frame = 0;
 
 float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * 2];	// Inclusive precomputed euclidean distances for all possible distances
 float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
@@ -84,6 +86,71 @@ void get_scene() {
 	}
 }
 
+void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint16_t width);
+
+void get_scene_mask() {
+	uint16_t left = camera_x - (SCENE_WIDTH / 4);
+	uint16_t top = camera_y - (SCENE_HEIGHT / 2);
+	uint16_t right = camera_x + (SCENE_WIDTH / 4);
+	uint16_t bottom = camera_y + (SCENE_HEIGHT / 2);
+	new_frame = 0;
+
+
+	uint16_t x = 0;
+	uint16_t y = 0;
+
+	// Init to zero
+	for (uint16_t i = top; i < bottom; i++) {
+		for (uint16_t j = left; j < right; j++) {
+			SCENE_MASK[y][x] = 0;
+			x++;
+		}
+		y++;
+	}
+
+	x = 0; y = 0;
+
+	for (uint16_t i = top; i < bottom; i++) {
+		for (uint16_t j = left; j < right; j++) {
+			// Dont overwrite the tree marks
+			if (SCENE_MASK[y][x] > 0 && new_frame == 0) continue;
+			uint8_t val = WORLD[i][j];
+			uint8_t l_val = (val & 0xF0) >> 4;
+			uint8_t r_val = val & 0x0F;
+
+			uint8_t mask_val_l = 0, mask_val_r = 0;
+
+			// Check if there is an overlay
+			if (l_val == _tree) {
+				mask_val_l = 1;
+				mark_tree(y, x, 0, TREE_HEIGHT/BLOCK_WIDTH, TREE_WIDTH/BLOCK_WIDTH);
+			}
+			if (r_val == _tree) {
+				mask_val_r = 1;
+				mark_tree(y, x, 1, TREE_HEIGHT/BLOCK_WIDTH, TREE_WIDTH/BLOCK_WIDTH);
+			}
+
+
+
+//			SCENE_MASK[y][x] = (mask_val_l << 4) | mask_val_r;
+			x++;
+		}
+		x = 0;
+		y++;
+	}
+
+	new_frame = 1;
+}
+
+void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint16_t width) {
+//	x += left_right;
+	for (uint16_t j = x; j < x + width; j++) {
+		for (uint16_t i = y; i < y + height; i++) {
+			SCENE_MASK[i][j] = 1 << 4 | 1;
+		}
+	}
+}
+
 void update_camera_center(uint16_t x, uint16_t y) {
 	if (x >= WORLD_WIDTH - (SCENE_WIDTH/2 + 1)) {
 		x = SCENE_WIDTH/2 + 1;
@@ -115,21 +182,23 @@ void place_trees() {
 
 	srand(time(NULL));
 	float tree_density = 0.2;
+	for (int i = 0; i < tree_mask_width; i++) {
+		TREE_MASK[i] = 0;
+	}
 
 	for (uint16_t i = 0; i < WORLD_WIDTH; i++) {
-
+		uint16_t coord = i/(TREE_WIDTH / BLOCK_WIDTH);
+		if (TREE_MASK[coord] == 1) continue;
 
 		uint16_t y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
-		uint16_t coord = i/(TREE_WIDTH / BLOCK_WIDTH);
 
-		TREE_MASK[coord] = 0;
 
 		if (rand() % 100 < tree_density) {
 
 			// Trees only on odd numbered blocks (bottom 4 bits)
 			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
 
-			TREE_MASK[i/(TREE_WIDTH / BLOCK_WIDTH)] = 1;
+			TREE_MASK[coord] = 1;
 		}
 	}
 }

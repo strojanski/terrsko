@@ -46,6 +46,7 @@
 
 extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
 extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
+extern uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
 extern uint8_t** CAVE_MAP; 	//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 extern int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
 extern int16_t LVL1_HMAP[WORLD_WIDTH];
@@ -55,6 +56,8 @@ extern uint16_t camera_x;
 extern uint16_t camera_y;
 
 void get_scene();
+
+void get_scene_mask();
 
 void update_camera_center(uint16_t x, uint16_t y);
 
