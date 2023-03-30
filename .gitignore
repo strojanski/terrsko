@@ -2,6 +2,7 @@
 terrsko/.settings/*
 terrsko/Debug/*
 terrsko/Release
+pixel2rgb565
 
 terrsko\.settings
 terrsko\Debug\Core
@@ -10,3 +11,5 @@ terrsko\Debug\Middlewares
 
 terrsko\Release
 terrsko\Debug\USB_Device
+pixel2rgb565
+

@@ -21,6 +21,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32g4xx_it.h"
+#include <stdbool.h>
+#include "action.h"
+
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -186,6 +190,10 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
+volatile	uint8_t	milliseconds 	= 0;
+extern bool cycle;
+extern uint8_t FPS;
+
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
@@ -193,7 +201,12 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  	// Here the frame rate of TERRSKO is set to values of 10 to 100 FPS
+    if (milliseconds >= FPS) {
+    	milliseconds = 0;
+    	cycle = true;
+    }
+    milliseconds++;
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -329,5 +342,38 @@ void I2C1_ER_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
+//extern TIM_HandleTypeDef htim2;
+//void TIM2_IRQHandler () {
+//	if (__HAL_TIM_GET_FLAG(&htim2, TIM_IT_UPDATE)) {
+//		__HAL_TIM_CLEAR_FLAG(&htim2, TIM_IT_UPDATE);
+//	}
+//}
+/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
+
+void EXTI0_IRQHandler() {
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0)) {
+			act_up = true;
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+}
+void EXTI1_IRQHandler() {
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1)) {
+		act_left = true;
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+}
+void EXTI9_5_IRQHandler() {
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6)) {
+		act_down = true;
+	}
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8)) {
+		act_right = true;
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+}
+
 
 /* USER CODE END 1 */

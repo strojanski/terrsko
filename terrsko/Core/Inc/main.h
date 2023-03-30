@@ -23,6 +23,7 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -60,7 +61,6 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -208,6 +208,18 @@ void Error_Handler(void);
 #define TOUCH_CS_Pin GPIO_PIN_1
 #define TOUCH_CS_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
+#define MAX_MOVABLE_CAPACTIY	100
+
+#define FPS_10 	100
+#define FPS_20 	50
+#define FPS_30 	33
+#define FPS_40 	25
+#define FPS_50 	20
+#define FPS_60	16
+#define FPS_70	14
+#define FPS_80 	12
+#define FPS_90 	11
+#define FPS_100 10
 
 /* USER CODE END Private defines */
 
