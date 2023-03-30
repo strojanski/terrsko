@@ -734,6 +734,7 @@ typedef struct
 #define C_WHITE                        0xFFFF
 #endif
 
+/*
 #ifdef USE_COLOR_RGB888
 #define  C_MAROON                     0x800000
 #define  C_DARK_RED                   0x8B0000
@@ -875,6 +876,7 @@ typedef struct
 #define  C_WHITE_SMOKE                0xF5F5F5
 #define  C_WHITE                      0xFFFFFF
 #endif
+*/
 
 /* -------------------------------------------------------------------------------- */
 /* -- PROTOTYPES                                                                 -- */

@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <math.h>
 #include <stdbool.h>
 
 #include "main.h"
@@ -43,9 +44,9 @@
 #include "ugui.h"
 #include "lcd_ugui.h"
 #include "XPT2046_touch.h"
-#include "joystick.h"
-#include "models.h"
-#include "scene.h"
+#include "joystick_level_control.h"
+#include <terrlib.h>
+
 
 #include "guysko.h"
 #include "action.h"
@@ -107,7 +108,6 @@ int main(void)
 	coord_t joystick_new	=	{0,0};
 	joystick_t joystick;
 	//char MSG[100]={0};
-	//uint16_t touch_x = 0, touch_y = 0;
 
 	//char str[50];
 	//float bitrate;
@@ -119,8 +119,8 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
+
 
   /* USER CODE END Init */
 
@@ -160,8 +160,20 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   MX_ADC4_Init();	//bug workaround: https://community.st.com/s/question/0D50X0000BVnBhASQV/bug-report-dma-and-adc-initialization-order-changed-in-stm32f4-hal-v1241-causing-incorrect-adc-operation
-	LCD_Init();
-	LCD_UG_init();
+
+  for (uint8_t i=0;i<3;i++)
+  {
+	  HAL_Delay(100);
+	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_SET);
+	  HAL_Delay(100);
+	  HAL_GPIO_WritePin(GPIOF, LED0_Pin|LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOC, LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin, GPIO_PIN_RESET);
+  }
+
+  LCD_Init();
+  LCD_UG_init();
+
   //LCD_Intro_LogoSlide(140,200);
   //bitrate = DrawColors(0,0,80);
 
@@ -191,6 +203,74 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  init_world();
+
+
+	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ
+	 * TIMER FREQ: 168000000 (168 MHz)
+	 * Prescaler 10000 - 1
+	 * TIM4 intervals: 1 / 16800
+	 * Meaning it "ticks" 16800 times every 1 second
+	 * */
+//	__HAL_RCC_TIM2_CLK_ENABLE();
+//	htim2.Instance = TIM2;
+//	htim2.Init.Prescaler = 10000 - 1;
+//	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+//	htim2.Init.Period = 16800 - 1;
+//	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+//	HAL_TIM_Base_Init(&htim2);
+//
+//	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+//	HAL_TIM_Base_Start(&htim2);
+//
+//	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
+//	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+
+  // initialize guysko
+
+	life_points* lp 					= malloc(sizeof(life_points));
+	lp->life_points = GUYSKO_MAX_LP;
+	acceleration* guysko_acc 	= malloc(sizeof(acceleration));
+	guysko_acc->x = 0;
+	guysko_acc->y = 0;
+	velocity* guysko_vel 			= malloc(sizeof(velocity));
+	guysko_vel->x = 0;
+	guysko_vel->y = 0;
+	move* guysko_mov 					= malloc(sizeof(move));
+	guysko_mov->x = 0;
+	guysko_mov->y = 0;
+	guysko_mov->x_remainder = 0;
+	guysko_mov->y_remainder = 0;
+	position* guysko_pos 			= malloc(sizeof(position));
+	guysko_pos->x = 50;
+	guysko_pos->y = 150;
+	guysko* player = new_guysko(lp, 0, guysko_acc, guysko_vel, guysko_mov, guysko_pos);
+
+
+
+	/*
+	 * Procedure for movable objects:
+	 *
+	 * 1.) The input of player will be read and updated all the time
+	 * 2.) Just before the calculation of movement of guysko, each movement and action will be declared
+	 * 3.) Calculate acc, vel, movement, action and demage of guysko and every other movable object
+	 * 	FOR EVERY MOVABLE OBJECT:
+	 *	3.1) calculate/add acceleration in y direction
+	 *	3.2) calculate velocity in every direction.
+	 *	Depends on : 	a)blocks around moveable object,
+	 *								b)acceleration,
+	 *								c)player input
+	 *	3.2.1) Calculate damage done to movable object based on difference of velocity of guysko
+	 *	3.3) change postion of movable object based on velocity
+	 *	3.4) update move of guysko based on velocity
+	 *	3.5) calculate postion of action based on orientation of move object
+	 *	3.6) action()
+	 *		3.6.1) (POINT DAMAGE CALCULATOR) calculate damage done to another movables
+	 * 4.) Calculate health points based on POINT DAMAGE CALCULATOR
+	 * 5.) Draw all the movable objects in scene
+	 */
+
 
 
 	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ
@@ -288,6 +368,7 @@ int main(void)
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
 /*
+
 	  //LEDs and KEYs
 	 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
 	 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin));
@@ -297,30 +378,57 @@ int main(void)
 	 HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, !HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin));
 	 HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, !HAL_GPIO_ReadPin(JOY_BTN_GPIO_Port, JOY_BTN_Pin));
 
+/*
 	 if (!HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin))
 	 {
 		 UG_FillFrame(200, 0, 319, 120, C_BLACK);
 	 }
+*/
+	 uint8_t left = !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) * CAMERA_SPEED;
+	 uint8_t right = !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) * CAMERA_SPEED;
+	 uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
+	 uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
+
+	 uint16_t new_camera_x = camera_x + right - left;
+	 uint16_t new_camera_y = camera_y + down - up;
+
+	 update_camera_center(new_camera_x, new_camera_y);
+
+
 	 //Joystick
-	 //UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
-	 //UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+	  /*
+	 joystick_get(&joystick_raw, &joystick_new, &joystick);
+	 UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
+	 UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
+
+	 bool left = joystick_new.x - joystick_prev.x < 0;
+	 bool up = joystick_new.y - joystick_prev.y < 0;
+
+	 uint16_t new_camera_x = ((uint16_t) (camera_x + (.05 * (joystick_prev.x - joystick_new.x) * (left ? -1 : 1))) % WORLD_WIDTH);
+	 uint16_t new_camera_y = ((uint16_t) (camera_y + (.05 * (joystick_prev.y - joystick_new.y) * (up ? 1: -1))) % WORLD_HEIGHT);
 
 	 joystick_prev.x = joystick_new.x;
 	 joystick_prev.y = joystick_new.y;
+	   */
+
+/*
 	 //Touch
 	 if(XPT2046_TouchPressed())
 	 {
 		uint16_t x = 0, y = 0;
-		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
+//		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
 		if(XPT2046_TouchGetCoordinates(&x, &y, 0))
 		{
 			touch_x = x;
 			touch_y = y;
+
+		    //update_camera_center(x, y);
 			UG_FillCircle(x, y,2, C_GREEN);
 		}
 	 }
-	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
- 	 */
+	 */
+//	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
+
 	 //UG_DrawCircle(250, 50, 50, C_RED);
 
 	 //USART and USB
@@ -330,8 +438,21 @@ int main(void)
 	//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
 	 //}
 
-	  //int** SCENE = init_scene();
-	  //draw_scene(SCENE);
+
+	  // Draw ground - replace this with "whereisground"
+//	  for (int i = 0; i < 80; i++) {
+//
+//		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, C_GRASS, NULL);
+//		  draw_block(grass->block);
+//		  free_destroyable(grass);
+//
+//		  for (int j = 45; j < 60; j++) {
+//			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, C_DIRT, NULL);
+//			  draw_block(dirt->block);
+//			  free_destroyable(dirt);
+//		  }
+//	  }
+	  draw_scene();
 	 //UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 	 //draw_block(block);
@@ -414,8 +535,10 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
+  volatile int  a = 0;
   while (1)
   {
+	  a++;
   }
   /* USER CODE END Error_Handler_Debug */
 }
