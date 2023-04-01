@@ -3,44 +3,37 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "scene.h"
 
+#define SCREEN_WIDTH 320
+#define SCENE_BLOCKS_X 40
 
-#define MODELS_H
+#define SCREEN_HEIGHT 240
+#define SCENE_BLOCKS_Y 60
 
+#define BLOCK_WIDTH 4
 
-typedef struct _coord {
-	uint16_t x;
-	uint8_t y;
-} coord;
+void rgb565_to_hsl(uint16_t color, float *h, float *s, float *l);
 
-typedef struct _block {
-	coord* pos;
-	uint8_t width;
-} block;
+uint16_t hsl_to_rgb565(float h, float s, float l);
 
+uint16_t* apply_shading(uint16_t colors[4], float illumination);
 
-typedef struct _destructible {
-	char* type;		// dirt, wood ....
-	block* block;
-	void* data;
-} destroyable;
+block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
+destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
+bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
-
-block* create_block(uint16_t x, uint16_t y, uint8_t width);
-
-destroyable* create_destroyable(char* type, uint16_t x, uint16_t y, uint8_t width, void* data);
-
-void draw_dirt(block* block);
+void draw_scene();
 
 void draw_block(block* block);
 
-void draw_grass(block* block);
+void draw_detailed_block(block* block);
 
 void free_destroyable(destroyable* destroyable);
 
-void draw_scene();
+void free_bg_material(bg_material* mat);
 
 void free_block(block* block);
 
