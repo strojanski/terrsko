@@ -55,7 +55,6 @@ void draw_cow(cow* krava) {
 		offset_x = index % (COW_IMG_X / 2);
 		offset_y = index / (COW_IMG_X / 2);
 		index++;
-		// TODO: BEAUTIFY THIS SECTION OF CODE
 		frst_nibble =	(cow_r_0[i] & 0b11110000) >> 4;
 		scnd_nibble =	(cow_r_0[i] & 0b00001111) >> 0;
 		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, cow_colors_0[frst_nibble]);

@@ -21,7 +21,7 @@
 #define COW_IMG_Y			12
 #define COW_IMG_SIZE	(COW_IMG_X * COW_IMG_Y)
 
-#define COW_SPAWN_POS 1
+#define COW_SPAWN_POS 50
 
 extern uint16_t cow_colors_0[];
 extern uint8_t cow_r_0[];

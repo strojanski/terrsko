@@ -94,7 +94,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_80;
+uint8_t FPS = FPS_100;
 /* USER CODE END 0 */
 /**
   * @brief  The application entry point.
@@ -258,28 +258,37 @@ int main(void)
 	 * 5.) Draw all the movable objects in scene
 	 */
 
+	uint16_t beeings_quantity = 0;
+	movable* beeings = new_movable();
 
+	cow* travers = beeings->header_cow;
   while (1)
   {
+//		UG_FillFrame(0, 0, 320, 240, C_BLACK);
   	cycle = false;
 
-  	update_guysko_acceleration(player);
-  	update_guysko_velocity(player);
-  	update_guysko_move(player, FPS);
-  	update_guysko_position(player);
-  	draw_guysko(player);
-
-  	movable* beeings = new_movable();
-
   	//EXAMPLE
-  	if (rand_range(0, 100) < COW_SPAWN_POS) {
-			position* krava_pos = malloc(sizeof(position));
-			krava_pos->x = 200;
-			krava_pos->y = 150;
-			cow* krava = new_cow(lp, guysko_vel, krava_pos);
-			draw_cow(krava);
-			UG_DrawCircle(50, 50, 10, C_BLUE_VIOLET);
-  	}
+  	if (rand_range(0, 100) < COW_SPAWN_POS && beeings_quantity < MAX_MOVABLE_CAPACTIY) {
+
+			position* movable_cow_pos = malloc(sizeof(position));
+			movable_cow_pos->x = rand_range(10, 300);
+			movable_cow_pos->y = 150;
+			cow* krava = new_cow(lp, guysko_vel, movable_cow_pos);
+			insert_cow(beeings, krava);
+			beeings_quantity++;
+		}
+
+		while(travers != beeings->tail_cow) {
+//			draw_cow(travers);
+			draw_movable(cow_r_0, cow_colors_0, travers->pos->x, travers->pos->y, COW_IMG_X, COW_IMG_Y, COW_IMG_SIZE);
+			if (travers->next != NULL) travers = travers->next;
+		}
+
+		travers = beeings->header_cow->next;
+		if (rand_range(0, 100) > 55 && beeings_quantity > 0) {
+			remove_cow(travers);
+			beeings_quantity--;
+		}
 
   	/*
   	 * first guysko and then
@@ -342,6 +351,11 @@ int main(void)
 		 * loop is executeing
 		 * HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
 		 */
+		update_guysko_acceleration(player);
+		update_guysko_velocity(player);
+		update_guysko_move(player, FPS);
+		update_guysko_position(player);
+		draw_guysko(player);
 		action_set(&joystick_raw);
   	while (!cycle) {
   		/*

@@ -19,8 +19,7 @@
 #include "move.h"
 #include "position.h"
 
-
-#define	COW_INDEX		1
+#define MAX_MOVABLE_CAPACTIY	10
 
 // TODO: index movables so that they will be randomly spawned based on index they have
 // TODO: reserve memory only for the specific movable and its properties!
@@ -34,7 +33,9 @@ typedef struct _movable{
 
 } movable;
 
+void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size);
 movable* new_movable();
 void insert_cow (movable* beeings, cow* krava);
+void remove_cow (cow* krava);
 
 #endif /* INC_MOVABLE_H_ */

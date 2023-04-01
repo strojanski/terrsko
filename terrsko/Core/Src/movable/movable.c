@@ -35,27 +35,56 @@
 
 #include "movable.h"
 
-void insert_cow (movable* beeings, cow* krava) {
-	krava->prev = beeings->tail_cow->prev;
-	krava->next = beeings->tail_cow;
+void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size) {
 
-	cow* penultimate_cow = (cow*)malloc(sizeof(cow));
-	penultimate_cow = beeings->tail_cow->prev;
-	penultimate_cow->next = krava;
-	beeings->tail_cow->prev = krava;
-	free(penultimate_cow);
+
+	int index = 0;
+	uint16_t draw_startPoint_x 	= x_pos - (size_x / 2);
+	uint8_t draw_startPoint_y 	= y_pos - size_y;
+	uint8_t offset_x;
+	uint8_t offset_y;
+	int frst_nibble;
+	int scnd_nibble;
+
+	for (int i = 0; i < size / 2; i += 1) {
+		offset_x = index % (size_x / 2);
+		offset_y = index / (size_x / 2);
+		index++;
+		frst_nibble =	(pic[i] & 0b11110000) >> 4;
+		scnd_nibble =	(pic[i] & 0b00001111) >> 0;
+		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, pic_colors[frst_nibble]);
+		UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, pic_colors[scnd_nibble]);
+	}
+}
+
+void insert_cow (movable* beeings, cow* movable_cow) {
+	movable_cow->prev = beeings->tail_cow->prev;
+	movable_cow->next = beeings->tail_cow;
+
+	cow* penultimate_cow = beeings->tail_cow;
+	penultimate_cow = penultimate_cow->prev;
+	penultimate_cow->next = movable_cow;
+	beeings->tail_cow->prev = movable_cow;
+}
+
+void remove_cow (cow* movable_cow) {
+	cow* preceding_movable_cow = movable_cow->prev;
+	cow* following_movable_cow = movable_cow->next;
+	preceding_movable_cow->next = movable_cow->next;
+	following_movable_cow->prev = movable_cow->prev;
+	free(movable_cow);
 }
 
 movable* new_movable() {
 	movable* beeings = (movable*)malloc(sizeof(movable));
 
-	cow* h_cow = (cow*)malloc(sizeof(cow));
-	cow* t_cow = (cow*)malloc(sizeof(cow));
+	beeings->header_cow = (cow*)malloc(sizeof(cow));
+	beeings->tail_cow	 	= (cow*)malloc(sizeof(cow));
 
-	h_cow->next = t_cow;
-	h_cow->prev = NULL;
-	t_cow->next = NULL;
-	t_cow->prev = h_cow;
+	beeings->header_cow->next = beeings->tail_cow;
+	beeings->header_cow->prev = NULL;
+	beeings->tail_cow->next 	= NULL;
+	beeings->tail_cow->prev 	= beeings->header_cow;
 
 	return beeings;
 }
