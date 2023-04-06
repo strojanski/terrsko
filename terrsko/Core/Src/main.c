@@ -292,9 +292,12 @@ int main(void)
 	 */
 	// initialize guysko
 
-
 	guysko *player = new_guysko();
 	movable* beings = new_movables();
+
+	uint16_t new_camera_x = player->pos->x;
+	uint16_t new_camera_y = player->pos->y;
+	update_camera_center(new_camera_x, new_camera_y);
 
   while (1)
   {
@@ -302,8 +305,14 @@ int main(void)
   	cycle = false;
   	//EXAMPLE
 
+		if ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) > player->pos->x / BLOCK_WIDTH) {
+			new_camera_x = (camera_x - ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) - player->pos->x / BLOCK_WIDTH)) % WORLD_WIDTH;
+		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x / BLOCK_WIDTH) {
+			new_camera_x = (camera_x + (player->pos->x / BLOCK_WIDTH - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
+		}
+		update_camera_center(new_camera_x, new_camera_y);
   	get_scene();
-
+  	draw_scene();
 		/*
 		 * first guysko and then
 		 * ITERATE through movable
@@ -332,18 +341,11 @@ int main(void)
 //		uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
 //		uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
 
-		uint16_t new_camera_x = camera_x;
-		uint16_t new_camera_y = camera_y;
-
-		if (camera_x - 100 > player->pos->x) {
-			new_camera_x = camera_x - (camera_x - 100 - player->pos->x);
-		} else if (camera_x + 100 > player->pos->x) {
-			new_camera_x = camera_x + (camera_x + 100 - player->pos->x);
-		}
 
 
-		update_camera_center(new_camera_x, new_camera_y);
-		draw_scene();
+
+
+
 
 		// Joystick
 		/*

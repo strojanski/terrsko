@@ -13,7 +13,7 @@
 #include "guysko.h"
 
 void update_guysko_position (guysko* player) {
-	set_postition(player->pos, player->pos->x + player->mov->x, player->pos->y - player->mov->y);
+	set_postition(player->pos, (player->pos->x + player->mov->x) % (WORLD_WIDTH * 4), player->pos->y - player->mov->y);
 }
 
 void update_guysko_move (guysko* player, int FPS) {

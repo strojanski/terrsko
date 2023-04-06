@@ -11,6 +11,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/*
+ * Max postion in x and y axis should be the world height and width
+ * That for, the position should always be: previsous position % WORLD_SIZE(x/y)
+ */
+
 typedef struct _position {
 	uint16_t	x;
 	uint16_t	y;
