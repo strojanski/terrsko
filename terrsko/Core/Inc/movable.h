@@ -13,16 +13,14 @@
 #include "cow.h"
 #include "librarian.h"
 
+#include "scene.h"
 #include "life_points.h"
 #include "acceleration.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
 
-#define MAX_MOVABLE_CAPACTIY	10
-
-// TODO: index movables so that they will be randomly spawned based on index they have
-// TODO: reserve memory only for the specific movable and its properties!
+#define MAX_MOVABLE_CAPACTIY	5
 
 typedef struct _movable{
 
@@ -31,11 +29,18 @@ typedef struct _movable{
 	librarian* 	header_librarian;
 	librarian* 	tail_librarian;
 
+	uint8_t 		beings_quantity;
+
 } movable;
 
 void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size);
-movable* new_movable();
-void insert_cow (movable* beeings, cow* krava);
+movable* new_movables();
+
+void insert_movables(movable* beings);
+void draw_movables(movable* beings);
+void update_movables(movable* beings);
+
+void insert_cow (movable* beings, cow* krava);
 void remove_cow (cow* krava);
 
 #endif /* INC_MOVABLE_H_ */
