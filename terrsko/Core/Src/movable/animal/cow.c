@@ -42,26 +42,6 @@ uint8_t cow_l_0[] = {
 	34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34
 };
 
-void draw_cow(cow* krava) {
-	int index = 0;
-	uint16_t draw_startPoint_x = krava->pos->x - (COW_IMG_X / 2);
-	uint8_t draw_startPoint_y = krava->pos->y - COW_IMG_Y;
-	uint8_t offset_x;
-	uint8_t offset_y;
-	int frst_nibble;
-	int scnd_nibble;
-
-	for (int i = 0; i < COW_IMG_SIZE / 2; i += 1) {
-		offset_x = index % (COW_IMG_X / 2);
-		offset_y = index / (COW_IMG_X / 2);
-		index++;
-		frst_nibble =	(cow_r_0[i] & 0b11110000) >> 4;
-		scnd_nibble =	(cow_r_0[i] & 0b00001111) >> 0;
-		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, cow_colors_0[frst_nibble]);
-		UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, cow_colors_0[scnd_nibble]);
-	}
-}
-
 cow* new_cow (life_points* lp, velocity* vel, position* pos) {
 	cow* krava = (cow*)malloc(sizeof(cow));
 

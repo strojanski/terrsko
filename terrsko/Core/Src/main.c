@@ -57,6 +57,7 @@
 
 #include "movable.h"
 #include "rand_range.h"
+#include "rand_range.h"
 
 /* USER CODE END Includes */
 
@@ -95,7 +96,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_100;
+uint8_t FPS = FPS_50;
 /* USER CODE END 0 */
 /**
  * @brief  The application entry point.
@@ -223,25 +224,6 @@ int main(void)
 	//	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
 	//	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
-	// initialize guysko
-
-	life_points *lp = malloc(sizeof(life_points));
-	lp->life_points = GUYSKO_MAX_LP;
-	acceleration *guysko_acc = malloc(sizeof(acceleration));
-	guysko_acc->x = 0;
-	guysko_acc->y = 0;
-	velocity *guysko_vel = malloc(sizeof(velocity));
-	guysko_vel->x = 0;
-	guysko_vel->y = 0;
-	move *guysko_mov = malloc(sizeof(move));
-	guysko_mov->x = 0;
-	guysko_mov->y = 0;
-	guysko_mov->x_remainder = 0;
-	guysko_mov->y_remainder = 0;
-	position *guysko_pos = malloc(sizeof(position));
-	guysko_pos->x = 50;
-	guysko_pos->y = 150;
-	guysko *player = new_guysko(lp, 0, guysko_acc, guysko_vel, guysko_mov, guysko_pos);
 
 	/*
 	 * Procedure for movable objects:
@@ -308,37 +290,19 @@ int main(void)
 	 * 4.) Calculate health points based on POINT DAMAGE CALCULATOR
 	 * 5.) Draw all the movable objects in scene
 	 */
-	uint16_t beeings_quantity = 0;
-	movable* beeings = new_movable();
+	// initialize guysko
 
-	cow* travers = beeings->header_cow;
+
+	guysko *player = new_guysko();
+	movable* beings = new_movables();
+
   while (1)
   {
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
   	cycle = false;
-
   	//EXAMPLE
-  	if (rand_range(0, 100) < COW_SPAWN_POS && beeings_quantity < MAX_MOVABLE_CAPACTIY) {
 
-			position* movable_cow_pos = malloc(sizeof(position));
-			movable_cow_pos->x = rand_range(10, 300);
-			movable_cow_pos->y = 150;
-			cow* krava = new_cow(lp, guysko_vel, movable_cow_pos);
-			insert_cow(beeings, krava);
-			beeings_quantity++;
-		}
-
-		while(travers != beeings->tail_cow) {
-//			draw_cow(travers);
-			draw_movable(cow_r_0, cow_colors_0, travers->pos->x, travers->pos->y, COW_IMG_X, COW_IMG_Y, COW_IMG_SIZE);
-			if (travers->next != NULL) travers = travers->next;
-		}
-
-		travers = beeings->header_cow->next;
-		if (rand_range(0, 100) > 55 && beeings_quantity > 0) {
-			remove_cow(travers);
-			beeings_quantity--;
-		}
+  	get_scene();
 
 		/*
 		 * first guysko and then
@@ -363,15 +327,23 @@ int main(void)
 				 UG_FillFrame(200, 0, 319, 120, C_BLACK);
 			 }
 		*/
-		uint8_t left = !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) * CAMERA_SPEED;
-		uint8_t right = !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) * CAMERA_SPEED;
-		uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
-		uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
+//		uint8_t left = !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) * CAMERA_SPEED;
+//		uint8_t right = !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) * CAMERA_SPEED;
+//		uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
+//		uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
 
-		uint16_t new_camera_x = camera_x + right - left;
-		uint16_t new_camera_y = camera_y + down - up;
+		uint16_t new_camera_x = camera_x;
+		uint16_t new_camera_y = camera_y;
+
+		if (camera_x - 100 > player->pos->x) {
+			new_camera_x = camera_x - (camera_x - 100 - player->pos->x);
+		} else if (camera_x + 100 > player->pos->x) {
+			new_camera_x = camera_x + (camera_x + 100 - player->pos->x);
+		}
+
 
 		update_camera_center(new_camera_x, new_camera_y);
+		draw_scene();
 
 		// Joystick
 		/*
@@ -429,22 +401,13 @@ int main(void)
 		//			  free_destroyable(dirt);
 		//		  }
 		//	  }
-		draw_scene();
 		// UG_DrawLine(0, 200, 320, 200, C_BLUE);
 
 		// draw_block(block);
 		// HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 		// CDC_Transmit_FS(MSG, strlen(MSG));
-		/*
-		 * test if the fps is correct and the while
-		 * loop is executeing
-		 * HAL_GPIO_TogglePin(LED0_GPIO_Port, 	LED0_Pin);
-		 */
-		update_guysko_acceleration(player);
-		update_guysko_velocity(player);
-		update_guysko_move(player, FPS);
-		update_guysko_position(player);
-		draw_guysko(player);
+
+		refresh_guysko(player, FPS);
 		action_set(&joystick_raw);
 		while (!cycle)
 		{
