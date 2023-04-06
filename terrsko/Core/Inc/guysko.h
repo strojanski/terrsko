@@ -13,6 +13,7 @@
 
 #include "ugui.h"
 #include "action.h"
+#include "scene.h"
 
 #include "guysko_img.h"
 
@@ -22,6 +23,9 @@
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
+
+#define GUYSKO_SPAWN_X								200
+#define GUYSKO_SPAWN_Y								50
 
 #define GUYSKO_MAX_UP_VELOCITY 				150
 #define GUYSKO_MAX_RIGHT_VELOCITY 		100
@@ -56,7 +60,10 @@ typedef struct _guysko {
 	move* mov;
 	position* pos;
 
+	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
 } guysko;
+
+void refresh_guysko(guysko* player, int FPS);
 
 void draw_guysko (guysko* player);
 void update_guysko_position (guysko* player);
@@ -64,7 +71,7 @@ void update_guysko_move (guysko*, int FPS);
 void update_guysko_velocity(guysko* player);
 void update_guysko_acceleration (guysko* player);
 
-guysko* new_guysko(life_points* lp, uint8_t state, acceleration*acc, velocity* vel, move* mov, position* pos);
+guysko* new_guysko();
 
 
 #endif /* INC_GUYSKO_H_ */

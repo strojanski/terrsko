@@ -35,28 +35,93 @@
 
 #include "movable.h"
 
-void insert_cow (movable* beeings, cow* krava) {
-	krava->prev = beeings->tail_cow->prev;
-	krava->next = beeings->tail_cow;
+void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size) {
 
-	cow* penultimate_cow = (cow*)malloc(sizeof(cow));
-	penultimate_cow = beeings->tail_cow->prev;
-	penultimate_cow->next = krava;
-	beeings->tail_cow->prev = krava;
-	free(penultimate_cow);
+	int index = 0;
+	uint16_t draw_startPoint_x 	= x_pos - (size_x / 2);
+	uint8_t draw_startPoint_y 	= y_pos - size_y;
+	uint8_t offset_x;
+	uint8_t offset_y;
+	int frst_nibble;
+	int scnd_nibble;
+
+	for (int i = 0; i < size / 2; i += 1) {
+		offset_x = index % (size_x / 2);
+		offset_y = index / (size_x / 2);
+		index++;
+		frst_nibble =	(pic[i] & 0b11110000) >> 4;
+		scnd_nibble =	(pic[i] & 0b00001111) >> 0;
+		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, pic_colors[frst_nibble]);
+		UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, pic_colors[scnd_nibble]);
+	}
 }
 
-movable* new_movable() {
-	movable* beeings = (movable*)malloc(sizeof(movable));
+void insert_cow (movable* beings, cow* movable_cow) {
+	cow* new_cow = (cow*) malloc(sizeof(cow));
+	new_cow = movable_cow;
+	new_cow->prev = beings->tail_cow->prev;
+	new_cow->next = beings->tail_cow;
 
-	cow* h_cow = (cow*)malloc(sizeof(cow));
-	cow* t_cow = (cow*)malloc(sizeof(cow));
+	cow* penultimate_cow = beings->tail_cow;
+	penultimate_cow = penultimate_cow->prev;
+	penultimate_cow->next = new_cow;
+	beings->tail_cow->prev = new_cow;
+}
 
-	h_cow->next = t_cow;
-	h_cow->prev = NULL;
-	t_cow->next = NULL;
-	t_cow->prev = h_cow;
+void remove_cow (cow* movable_cow) {
+	cow* preceding_movable_cow = movable_cow->prev;
+	cow* following_movable_cow = movable_cow->next;
+	preceding_movable_cow->next = movable_cow->next;
+	following_movable_cow->prev = movable_cow->prev;
+	free(movable_cow);
+}
 
-	return beeings;
+void insert_movables(movable* beings) {
+	// cows
+	if (20 < COW_SPAWN_PROBABILITY && beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
+		life_points *lp = malloc(sizeof(life_points));
+		lp->life_points = COW_MAX_LP;
+		position* cow_pos = malloc(sizeof(position));
+		cow_pos->x = ((beings->beings_quantity * 40) + 1) % 320;
+		cow_pos->y = 150;
+		velocity *cow_vel = malloc(sizeof(velocity));
+		cow_vel->y = 0;
+		cow_vel->x = 0;
+		cow* generated_cow = (cow*) malloc(sizeof(cow));
+		generated_cow =	new_cow(lp, cow_vel, cow_pos);
+		insert_cow(beings, generated_cow);
+		beings->beings_quantity++;
+	}
+}
+
+void draw_movables(movable* beings) {
+	// cows
+	cow* travers = (cow*) malloc(sizeof(cow));
+	travers = beings->header_cow->next;
+		while(travers != beings->tail_cow && travers != NULL) {
+			draw_movable(cow_r_0, cow_colors_0, travers->pos->x, travers->pos->y, COW_IMG_X, COW_IMG_Y, COW_IMG_SIZE);
+			travers = travers->next;
+		}
+}
+
+void update_movables(movable* beings) {
+
+
+}
+
+movable* new_movables() {
+	movable* beings = (movable*)malloc(sizeof(movable));
+
+	beings->header_cow  = (cow*)malloc(sizeof(cow));
+	beings->tail_cow	 	= (cow*)malloc(sizeof(cow));
+
+	beings->header_cow->next = beings->tail_cow;
+	beings->header_cow->prev = NULL;
+	beings->tail_cow->next 	= NULL;
+	beings->tail_cow->prev 	= beings->header_cow;
+
+	beings->beings_quantity = 0;
+
+	return beings;
 }
 

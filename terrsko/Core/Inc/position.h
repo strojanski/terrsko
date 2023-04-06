@@ -13,7 +13,7 @@
 
 typedef struct _position {
 	uint16_t	x;
-	uint8_t		y;
+	uint16_t	y;
 } position;
 
 void set_postition (position* pos, uint16_t x, uint8_t y);

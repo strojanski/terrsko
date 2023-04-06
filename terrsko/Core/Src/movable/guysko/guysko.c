@@ -43,6 +43,14 @@ void update_guysko_velocity(guysko* player) {
 	 * TODO: it can move right and left if and only if there is a solid
 	 * block underneath
 	 */
+
+//	uint8_t value = SCENE[player->pos->y / 4 ][player->pos->x / 4];
+//	uint8_t l_cell = (value & 0xF0) >> 4;
+//	uint8_t r_cell = (value & 0x0F);
+//	if (l_cell == 0 && r_cell == 0);
+//	else goto landing;
+
+
 	if (move_right) {
 		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
@@ -71,6 +79,11 @@ void update_guysko_velocity(guysko* player) {
 	} else if (player->vel->y > GUYSKO_MAX_UP_VELOCITY) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_UP_VELOCITY);
 	}
+	return;
+
+//	landing:
+//		set_velocity(player->vel, 0, 0);
+//		set_velocity(player->vel, 0, 0);
 
 	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
@@ -142,6 +155,13 @@ void draw_guysko (guysko* player) {
 	if (player->state >= 3) player->state = player->state % 3;
 }
 
+void refresh_guysko(guysko* player, int FPS) {
+	update_guysko_velocity(player);
+	update_guysko_move(player, FPS);
+	update_guysko_position(player);
+	draw_guysko(player);
+}
+
 
 /* function "new_guysko" initializes guysko with its properties
  * @param 							life_points denotes guysko's health points
@@ -151,26 +171,32 @@ void draw_guysko (guysko* player) {
  * @param move					difference of position guysko will make inbetween frame
  * @param position 			guysko's new position
  */
-guysko* new_guysko(life_points* lp, uint8_t state, acceleration*acc, velocity* vel, move* mov, position* pos) {
+guysko* new_guysko() {
 	guysko* player = malloc(sizeof(guysko));
+	life_points *lp = malloc(sizeof(life_points));
+	lp->life_points = GUYSKO_MAX_LP;
+	acceleration *guysko_acc = malloc(sizeof(acceleration));
+	guysko_acc->x = 0;
+	guysko_acc->y = 0;
+	velocity *guysko_vel = malloc(sizeof(velocity));
+	guysko_vel->x = 0;
+	guysko_vel->y = 0;
+	move *guysko_mov = malloc(sizeof(move));
+	guysko_mov->x = 0;
+	guysko_mov->y = 0;
+	guysko_mov->x_remainder = 0;
+	guysko_mov->y_remainder = 0;
+	position *guysko_pos = malloc(sizeof(position));
+	guysko_pos->x = GUYSKO_SPAWN_X;
+	guysko_pos->y = GUYSKO_SPAWN_Y;
 
-	player->lp					= malloc(sizeof(life_points));
 	player->lp->life_points = lp->life_points;
-
-	player->state 			= 0;
-
-	player->acc			 		= malloc(sizeof(acceleration));
-	player->acc					= acc;
-
-	player->vel 				= malloc(sizeof(velocity));
-	player->vel					= vel;
-
-	player->mov 				= malloc(sizeof(move));
-	player->mov 				= mov;
-
-	player->pos 				= malloc(sizeof(position));
-	player->pos		 			= pos;
-
+	player->state 					= 0;
+	player->acc							= guysko_acc;
+	player->vel							= guysko_vel;
+	player->mov 						= guysko_mov;
+	player->pos		 					= guysko_pos;
+	player->standing_bits		= 0b1111111111111111;
 
 	return player;
 }
