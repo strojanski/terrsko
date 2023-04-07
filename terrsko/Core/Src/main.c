@@ -298,17 +298,16 @@ int main(void)
 	uint16_t new_camera_x = camera_x;
 	uint16_t new_camera_y = camera_y;
 
-	player->pos->x = camera_x / 4;
-	player->pos->y = camera_y;
+	// Init guysko to spawn in camera coordinates
+	player->pos->x = camera_x * BLOCK_WIDTH;
+	player->pos->y = camera_y * BLOCK_WIDTH;
+
 	update_camera_center(new_camera_x, new_camera_y);
 
-  while (1)
-  {
+	while (1) {
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
-  	cycle = false;
-  	new_camera_x = player->pos->x;
-  	new_camera_y = player->pos->y;
-  	//EXAMPLE
+		cycle = false;
+	//EXAMPLE
 
 //  		if (abs(camera_x - player->pos->x / BLOCK_WIDTH) < 15) {
 //  			new_camera_x = camera_x;
@@ -321,11 +320,14 @@ int main(void)
 //		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x) {
 //			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
 //		}
-
-		update_camera_center(new_camera_x, new_camera_y);
 		get_scene();
 		draw_scene();
 
+		refresh_guysko(player, FPS);
+		new_camera_x = player->pos->x / BLOCK_WIDTH;
+		new_camera_y = player->pos->y / BLOCK_WIDTH;
+
+		update_camera_center(new_camera_x, new_camera_y);
 		/*
 		 * first guysko and then
 		 * ITERATE through movable
@@ -422,7 +424,7 @@ int main(void)
 		// HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
 		// CDC_Transmit_FS(MSG, strlen(MSG));
 
-		refresh_guysko(player, FPS);
+
 		action_set(&joystick_raw);
 		while (!cycle)
 		{

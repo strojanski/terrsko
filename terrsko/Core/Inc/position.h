@@ -21,7 +21,7 @@ typedef struct _position {
 	uint16_t	y;
 } position;
 
-void set_postition (position* pos, uint16_t x, uint8_t y);
+void set_postition (position* pos, uint16_t x, uint16_t y);
 
 
 #endif /* INC_POSITION_H_ */

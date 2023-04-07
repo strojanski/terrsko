@@ -13,7 +13,7 @@
 #include "guysko.h"
 
 void update_guysko_position (guysko* player) {
-	set_postition(player->pos, (player->pos->x + player->mov->x) % (WORLD_WIDTH * 4), player->pos->y - player->mov->y);
+	set_postition(player->pos, (player->pos->x + player->mov->x) % (WORLD_WIDTH * 4), (player->pos->y - player->mov->y) % (WORLD_HEIGHT * 4));
 }
 
 void update_guysko_move (guysko* player, int FPS) {
@@ -107,9 +107,10 @@ void update_guysko_acceleration (guysko* player) {
 
 void draw_guysko (guysko* player) {
 	int index = 0;
-	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2);
-	uint8_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y;
-
+//	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2);
+//	uint8_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y;
+	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2) - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
 	for (int i = 0; i < GUYSKO_IMG_SIZE / 2; i += 1) {
 		uint8_t offset_x = index % (GUYSKO_IMG_X / 2);
 		uint8_t offset_y = index / (GUYSKO_IMG_X / 2);
@@ -165,7 +166,7 @@ void refresh_guysko(guysko* player, int FPS) {
 
 /* function "new_guysko" initializes guysko with its properties
  * @param 							life_points denotes guysko's health points
- * @param direction 		TRUE RIGHT, FLASE LEFT
+ * @param direction 		TRUE RIGHT, FALSE LEFT
  * @param acceleration	guysko's acceleration
  * @param velocity 			guysko's velocity
  * @param move					difference of position guysko will make inbetween frame

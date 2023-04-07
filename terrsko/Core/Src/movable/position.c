@@ -10,7 +10,7 @@
 
 #include "position.h"
 
-void set_postition (position* pos, uint16_t x, uint8_t y) {
+void set_postition (position* pos, uint16_t x, uint16_t y) {
 	pos->x = x;
 	pos->y = y;
 
