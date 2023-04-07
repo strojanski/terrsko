@@ -160,9 +160,9 @@ void update_camera_center(uint16_t x, uint16_t y) {
 	}
 
 	if (y >= WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1)) {
-		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
-	} else if (y < (SCENE_HEIGHT/2 + 1)) {
 		y = (SCENE_HEIGHT/2 + 1);
+	} else if (y < (SCENE_HEIGHT/2 + 1)) {
+		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
 	}
 
 	camera_x = x;

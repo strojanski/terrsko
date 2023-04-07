@@ -187,7 +187,7 @@ void draw_scene() {
 			// Check for tree
 			coord pos = { x: pos_x2, y: 4*(j+1) };
 			if (l_cell == _tree || r_cell == _tree) {
-//				draw_tree_normal(&pos);
+				draw_tree_normal(&pos);
 			}
 
 			uint16_t global_x = (camera_x - SCENE_WIDTH/2 + i);

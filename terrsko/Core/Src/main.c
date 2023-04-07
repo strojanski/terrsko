@@ -313,12 +313,13 @@ int main(void)
 //  		} else {
 //  			new_camera_x = player->pos->x / BLOCK_WIDTH;
 //  		}
-
+//
 //		if ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) > player->pos->x) {
 //			new_camera_x = (camera_x - ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) - player->pos->x)) % WORLD_WIDTH;
 //		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x) {
 //			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
 //		}
+
 		get_scene();
 		draw_scene();
 
