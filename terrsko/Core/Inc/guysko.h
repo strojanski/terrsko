@@ -26,19 +26,18 @@
 #define GUYSKO_SPAWN_X								WORLD_WIDTH/3
 #define GUYSKO_SPAWN_Y								camera_y
 
-#define GRAVITY								-50
+#define GRAVITY								-5
 #define GUYSKO_JUMP_ACCELERATION			100
-#define GUYSKO_MAX_DOWN_ACC						-200
-#define GUYSKO_MAX_UP_ACC							200
+#define GUYSKO_MAX_DOWN_ACC					-200
+#define GUYSKO_MAX_UP_ACC					200
 
 #define GUYSKO_MAX_UP_VELOCITY 				150
-#define GUYSKO_MAX_RIGHT_VELOCITY 		500
+#define GUYSKO_MAX_RIGHT_VELOCITY 			500
 #define GUYSKO_MAX_DOWN_VELOCITY 			-300
 #define GUYSKO_MAX_LEFT_VELOCITY 			-500
-#define GUYSKO_WALK_VEL_INC						50
-#define GUYSKO_MAX_LP									1000
+#define GUYSKO_WALK_VEL_INC					10
+#define GUYSKO_MAX_LP						1000
 
-#define GUYSKO_X_VISIBLE_WINDOW				115
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second

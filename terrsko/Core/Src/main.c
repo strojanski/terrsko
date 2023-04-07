@@ -95,7 +95,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_50;
+uint8_t FPS = FPS_100;
 /* USER CODE END 0 */
 /**
  * @brief  The application entry point.
@@ -320,7 +320,6 @@ int main(void)
 //			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
 //		}
 
-		get_scene();
 		draw_scene();
 
 		refresh_guysko(player, FPS);
