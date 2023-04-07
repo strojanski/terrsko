@@ -157,6 +157,28 @@ void draw_detailed_block(block* block) {
 	UG_DrawLine(block->pos.x-4, block->pos.y, block->pos.x, block->pos.y, C_BLACK);
 }
 
+void quick_draw() {
+	get_scene();
+	srand(time(NULL));
+
+	uint16_t pos_x1 = 4;
+	uint16_t pos_x2 = 8;
+
+	int16_t move_horizontal = old_camera_x - camera_x;	// + -> left, - -> right
+	int16_t move_vertical = old_camera_y - camera_y;	// + -> up, - -> down
+
+
+	// If we didn't move don't render the scene at all as it is already rendered
+	if (move_horizontal == 0 && move_vertical == 0) {
+		return;
+	}
+
+	// For each block check if it has changed, only draw if it has
+	uint16_t block_x = old_camera_x - SCENE_WIDTH / 2;
+	uint16_t block_y = old_camera_y - SCENE_HEIGHT / 2;
+
+}
+
 void draw_scene() {
 	// update and get scene
 	get_scene();
@@ -175,6 +197,24 @@ void draw_scene() {
 	for (uint16_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
 
+			int16_t move_horizontal = old_camera_x - camera_x;	// + -> left, - -> right
+			int16_t move_vertical = old_camera_y - camera_y;	// + -> up, - -> down
+
+
+			// If we didn't move don't render the scene at all as it is already rendered
+			if (move_horizontal == 0 && move_vertical == 0) {
+				return;
+			}
+
+			// For each block check if it has changed, only draw if it has, firstly get the coordinates
+			uint16_t block_x = old_camera_x - SCENE_WIDTH / 4;
+			uint16_t block_y = old_camera_y - SCENE_HEIGHT / 2;
+
+			// Skip the block(s) if it hasn't changed - TODO check each block separately
+			if (WORLD[block_y + j][block_x + i] == SCENE[j][i]) {
+				continue;
+			}
+
 			uint8_t value = SCENE[j][i]; // SCENE[y][x]
 			uint8_t skip_left = (SCENE_MASK[j][i] & 0xF0) >> 4;
 			uint8_t skip_right = SCENE_MASK[j][i] & 0x0F;
@@ -183,11 +223,10 @@ void draw_scene() {
 			uint8_t r_cell = (value & 0x0F);
 
 			illumination = 1;//compute_illumination(i, j);
-
 			// Check for tree
 			coord pos = { x: pos_x2, y: 4*(j+1) };
 			if (l_cell == _tree || r_cell == _tree) {
-				draw_tree_normal(&pos);
+				//draw_tree_normal(&pos);
 			}
 
 			uint16_t global_x = (camera_x - SCENE_WIDTH/2 + i);
