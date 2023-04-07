@@ -154,15 +154,15 @@ void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint
 // x,y in blocks
 void update_camera_center(uint16_t x, uint16_t y) {
 	if (x >= WORLD_WIDTH - (SCENE_WIDTH/2 + 1)) {
-		x = SCENE_WIDTH/2 + 1;
-	} else if (x < SCENE_WIDTH/2) {
 		x = WORLD_WIDTH - SCENE_WIDTH/2 + 1;
+	} else if (x < SCENE_WIDTH/2) {
+		x = SCENE_WIDTH/2 + 1;
 	}
 
 	if (y >= WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1)) {
-		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
-	} else if (y < (SCENE_HEIGHT/2 + 1)) {
 		y = (SCENE_HEIGHT/2 + 1);
+	} else if (y < (SCENE_HEIGHT/2 + 1)) {
+		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
 	}
 
 	camera_x = x;
