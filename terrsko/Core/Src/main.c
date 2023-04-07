@@ -303,6 +303,9 @@ int main(void)
 
 	update_camera_center(new_camera_x, new_camera_y);
 
+	old_camera_x = camera_x;
+	old_camera_y = camera_y;
+
 	while (1) {
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
 		cycle = false;
@@ -321,6 +324,9 @@ int main(void)
 //		}
 
 		draw_scene();
+
+		old_camera_x = camera_x;
+		old_camera_y = camera_y;
 
 		refresh_guysko(player, FPS);
 		new_camera_x = player->pos->x / BLOCK_WIDTH;

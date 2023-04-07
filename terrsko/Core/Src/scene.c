@@ -36,6 +36,8 @@ uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal 
 uint16_t camera_x = 0;
 uint16_t camera_y = 0;
 uint8_t new_frame = 0;
+uint16_t old_camera_x = 0;
+uint16_t old_camera_y = 0;
 
 float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * 2];	// Inclusive precomputed euclidean distances for all possible distances
 float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];

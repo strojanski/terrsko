@@ -58,6 +58,9 @@ extern uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = 
 extern uint16_t camera_x;
 extern uint16_t camera_y;
 
+extern uint16_t old_camera_x;
+extern uint16_t old_camera_y;
+
 void get_scene();
 
 void get_scene_mask();
