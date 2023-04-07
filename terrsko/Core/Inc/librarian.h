@@ -9,7 +9,6 @@
 #define INC_LIBRARIAN_H_
 
 #include "life_points.h"
-#include "acceleration.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
@@ -19,7 +18,6 @@ typedef struct _librarian {
 	life_points* lp;
 
 	uint8_t state;
-	acceleration* acc;
 	velocity* vel;
 	move* mov;
 	position* pos;

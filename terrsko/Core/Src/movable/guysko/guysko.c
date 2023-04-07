@@ -88,21 +88,6 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
 
-void update_guysko_acceleration (guysko* player) {
-//	set_acceleration(player->acc, player->acc->x, player->acc->y + GRAVITY);
-//	if (true /*pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
-//		if (move_up) {
-//			set_acceleration(player->acc, player->acc->x, player->acc->y + GUYSKO_JUMP_ACCELERATION + GRAVITY);
-//
-//		}
-//	}
-//	// MAX ACCLERATION IN Y DIRECTION
-//	if (player->acc->y < GUYSKO_MAX_DOWN_ACC) {
-//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_DOWN_ACC);
-//	} else if (player->acc->y > GUYSKO_MAX_UP_ACC) {
-//		set_acceleration(player->acc, player->acc->x, GUYSKO_MAX_UP_ACC);
-//	}
-}
 
 
 void draw_guysko (guysko* player) {
@@ -176,10 +161,6 @@ guysko* new_guysko() {
 	guysko* player = malloc(sizeof(guysko));
 	life_points *lp = malloc(sizeof(life_points));
 	lp->life_points = GUYSKO_MAX_LP;
-	acceleration *guysko_acc = malloc(sizeof(acceleration));
-
-	guysko_acc->x = 0;
-	guysko_acc->y = 0;
 	velocity *guysko_vel = malloc(sizeof(velocity));
 	guysko_vel->x = 0;
 	guysko_vel->y = 0;
@@ -194,7 +175,6 @@ guysko* new_guysko() {
 
 	player->lp->life_points = lp->life_points;
 	player->state 					= 0;
-	player->acc							= guysko_acc;
 	player->vel							= guysko_vel;
 	player->mov 						= guysko_mov;
 	player->pos		 					= guysko_pos;

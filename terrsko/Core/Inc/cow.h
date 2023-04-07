@@ -12,7 +12,6 @@
 #include "ugui.h"
 
 #include "life_points.h"
-#include "acceleration.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"

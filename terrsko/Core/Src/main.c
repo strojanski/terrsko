@@ -49,7 +49,6 @@
 
 #include "guysko.h"
 #include "action.h"
-#include "acceleration.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
