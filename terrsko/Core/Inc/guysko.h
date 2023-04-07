@@ -27,6 +27,11 @@
 #define GUYSKO_SPAWN_X								WORLD_WIDTH/3
 #define GUYSKO_SPAWN_Y								camera_y
 
+#define GRAVITY								-50
+#define GUYSKO_JUMP_ACCELERATION			100
+#define GUYSKO_MAX_DOWN_ACC						-200
+#define GUYSKO_MAX_UP_ACC							200
+
 #define GUYSKO_MAX_UP_VELOCITY 				150
 #define GUYSKO_MAX_RIGHT_VELOCITY 		500
 #define GUYSKO_MAX_DOWN_VELOCITY 			-300

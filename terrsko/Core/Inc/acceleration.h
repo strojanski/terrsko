@@ -10,10 +10,7 @@
 
 #include "action.h"
 
-#define GRAVITY												-5
-#define GUYSKO_JUMP_ACCELERATION			100
-#define GUYSKO_MAX_DOWN_ACC						-200
-#define GUYSKO_MAX_UP_ACC							200
+
 
 typedef struct _acceleration {
 	short x;
