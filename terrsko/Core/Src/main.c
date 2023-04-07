@@ -292,27 +292,40 @@ int main(void)
 	 */
 	// initialize guysko
 
-	guysko *player = new_guysko();
+	guysko* player = new_guysko();
 	movable* beings = new_movables();
 
-	uint16_t new_camera_x = player->pos->x;
-	uint16_t new_camera_y = player->pos->y;
+	uint16_t new_camera_x = camera_x;
+	uint16_t new_camera_y = camera_y;
+
+	player->pos->x = camera_x / 4;
+	player->pos->y = camera_y;
 	update_camera_center(new_camera_x, new_camera_y);
 
   while (1)
   {
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
   	cycle = false;
+  	new_camera_x = player->pos->x;
+  	new_camera_y = player->pos->y;
   	//EXAMPLE
 
-		if ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) > player->pos->x / BLOCK_WIDTH) {
-			new_camera_x = (camera_x - ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) - player->pos->x / BLOCK_WIDTH)) % WORLD_WIDTH;
-		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x / BLOCK_WIDTH) {
-			new_camera_x = (camera_x + (player->pos->x / BLOCK_WIDTH - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
-		}
+//  		if (abs(camera_x - player->pos->x / BLOCK_WIDTH) < 15) {
+//  			new_camera_x = camera_x;
+//  		} else {
+//  			new_camera_x = player->pos->x / BLOCK_WIDTH;
+//  		}
+
+//		if ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) > player->pos->x) {
+//			new_camera_x = (camera_x - ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) - player->pos->x)) % WORLD_WIDTH;
+//		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x) {
+//			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
+//		}
+
 		update_camera_center(new_camera_x, new_camera_y);
-  	get_scene();
-  	draw_scene();
+		get_scene();
+		draw_scene();
+
 		/*
 		 * first guysko and then
 		 * ITERATE through movable

@@ -176,6 +176,7 @@ guysko* new_guysko() {
 	life_points *lp = malloc(sizeof(life_points));
 	lp->life_points = GUYSKO_MAX_LP;
 	acceleration *guysko_acc = malloc(sizeof(acceleration));
+
 	guysko_acc->x = 0;
 	guysko_acc->y = 0;
 	velocity *guysko_vel = malloc(sizeof(velocity));

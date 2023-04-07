@@ -14,12 +14,15 @@
 
 #define BLOCK_WIDTH 4
 
+// Number of visible blocks on screen
 #define SCENE_HEIGHT 60
 #define SCENE_WIDTH 80
 
+// Number of blocks in the world
 #define WORLD_HEIGHT ((uint16_t) SCENE_HEIGHT * 4) //120
 #define WORLD_WIDTH ((uint16_t) SCENE_WIDTH * 5) //160
 
+// Dimensions of WORLD_MAP
 #define WORLD_MAP_HEIGHT WORLD_HEIGHT
 #define WORLD_MAP_WIDTH WORLD_WIDTH / 2
 
