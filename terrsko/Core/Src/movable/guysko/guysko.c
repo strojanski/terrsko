@@ -114,8 +114,8 @@ void draw_guysko (guysko* player) {
 		// TODO: BEAUTIFY THIS SECTION OF CODE
 		int frst_nibble =	(guysko_r_0[i] & 0b11110000) >> 4;
 		int scnd_nibble =	(guysko_r_0[i] & 0b00001111) >> 0;
-		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_0[frst_nibble]);
-		UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_0[scnd_nibble]);
+		if (frst_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_0[frst_nibble]);
+		if (scnd_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_0[scnd_nibble]);
 //		if (player->vel->x >= 0) {
 //			if (player->state == 0) {
 //			} else if (player->state == 1) {
