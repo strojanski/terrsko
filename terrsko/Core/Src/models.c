@@ -194,20 +194,21 @@ void draw_scene() {
 	float probability_star = .0;
 	float illumination = 1;
 
-	int16_t move_horizontal = old_camera_x - camera_x;	// + -> left, - -> right
-	int16_t move_vertical = old_camera_y - camera_y;	// + -> up, - -> down
-
-	// If we didn't move don't render the scene at all as it is already rendered
-	if (move_horizontal == 0 && move_vertical == 0) {
-		return;
-	}
-
-	// For each block check if it has changed, only draw if it has, firstly get the coordinates
-	uint16_t block_x = old_camera_x - SCENE_WIDTH / 4;
-	uint16_t block_y = old_camera_y - SCENE_HEIGHT / 2;
 
 	for (uint16_t i = 0; i < SCENE_BLOCKS_X; i++) {
 		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
+
+			int16_t move_horizontal = old_camera_x - camera_x;	// + -> left, - -> right
+			int16_t move_vertical = old_camera_y - camera_y;	// + -> up, - -> down
+
+			// If we didn't move don't render the scene at all as it is already rendered
+			if (move_horizontal == 0 && move_vertical == 0) {
+				return;
+			}
+
+			// For each block check if it has changed, only draw if it has, firstly get the coordinates
+			uint16_t block_x = old_camera_x - SCENE_WIDTH / 4;
+			uint16_t block_y = old_camera_y - SCENE_HEIGHT / 2;
 
 			// Skip the block(s) if it hasn't changed - TODO check each block separately
 			if (WORLD[block_y + j][block_x + i] == SCENE[j][i]) {
