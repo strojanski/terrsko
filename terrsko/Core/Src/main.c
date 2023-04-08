@@ -71,7 +71,7 @@
 #define HEIGHT 240
 #define BLOCK_WIDTH 4
 
-// int SCENE[60][80];
+// int SCENF[60][80];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -95,7 +95,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 TIM_HandleTypeDef htim2;
 bool cycle = false;
-uint8_t FPS = FPS_60;
+uint8_t FPS = FPS_100;
 /* USER CODE END 0 */
 /**
  * @brief  The application entry point.
