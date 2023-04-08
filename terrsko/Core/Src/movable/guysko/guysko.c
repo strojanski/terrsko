@@ -13,13 +13,16 @@
 #include "guysko.h"
 
 void update_guysko_position (guysko* player) {
-	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH * 4);
-	int new_guysko_pos_y = (player->pos->y - player->mov->y) % (WORLD_HEIGHT * 4);
+	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH * BLOCK_WIDTH);
+	int new_guysko_pos_y = (player->pos->y - player->mov->y);
 	if (new_guysko_pos_x < 0) {
-		new_guysko_pos_x = WORLD_WIDTH * 4 + new_guysko_pos_x;
+		new_guysko_pos_x = WORLD_WIDTH * BLOCK_WIDTH + new_guysko_pos_x;
 	}
 	if (new_guysko_pos_y < 0) {
-		new_guysko_pos_y = WORLD_HEIGHT * 4 + new_guysko_pos_y;
+//		new_guysko_pos_y = WORLD_HEIGHT * 4 + new_guysko_pos_y;
+		new_guysko_pos_y = 0;
+	} else if (new_guysko_pos_y > WORLD_HEIGHT * BLOCK_WIDTH) {
+		new_guysko_pos_y = WORLD_HEIGHT * BLOCK_WIDTH;
 	}
 	set_postition(player->pos, new_guysko_pos_x, new_guysko_pos_y);
 }
