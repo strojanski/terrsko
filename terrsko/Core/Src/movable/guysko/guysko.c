@@ -12,6 +12,11 @@
 
 #include "guysko.h"
 
+/*
+ * Simpy calculated the movement guysko makes based on his move. But when he goes outside of range of world in
+ * x axis, he is teleported on the opposite side of the world. This does not apply for the y axis, where he
+ * can be stuck at the botton of the world and of course won't fall down againg from sky.
+ */
 void update_guysko_position (guysko* player) {
 	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH * BLOCK_WIDTH);
 	int new_guysko_pos_y = (player->pos->y - player->mov->y);
@@ -27,6 +32,11 @@ void update_guysko_position (guysko* player) {
 	set_postition(player->pos, new_guysko_pos_x, new_guysko_pos_y);
 }
 
+/*
+ * Because it is posible at slow speed and high FPS for guysko to move less than one pixel in difference of
+ * one frame, the traveled distance that was not displayed in previos frame is at this frame taken into calculation
+ * with respect to value in "player->mov->x_remainder".
+ */
 void update_guysko_move (guysko* player, int FPS) {
 	float mov_x = ((float)1 / ((float) (1000 / FPS) / (float)player->vel->x)) + player->mov->x_remainder;
 	float mov_y = ((float)1 / ((float) (1000 / FPS) / (float)player->vel->y)) + player->mov->y_remainder;
@@ -40,27 +50,14 @@ void update_guysko_move (guysko* player, int FPS) {
 	set_move(player->mov, pix_move_x, pix_move_y);
 }
 
+/*
+ * Guysko's velocity is calculated based on force of gravity and his jump acceleration. When calculating
+ * velocity of each direction, button input is taken into consideration.
+ */
 void update_guysko_velocity(guysko* player) {
-	// TODO:
-	//	if(pos_y > 220 /*Preverba ali se zaleti v solid*/) {
-	//		set_velocity(vel, vel->x, 0);
-	//	} else { ..
-	//			..
-	//	}
 
-
-	// x axis
-	/*
-	 * TODO: it can move right and left if and only if there is a solid
-	 * block underneath
-	 */
-
-//	uint8_t value = SCENE[player->pos->y / 4 ][player->pos->x / 4];
-//	uint8_t l_cell = (value & 0xF0) >> 4;
-//	uint8_t r_cell = (value & 0x0F);
-//	if (l_cell == 0 && r_cell == 0);
-//	else goto landing;
-
+	// TODO: preverba ali se je zaletel v solid levo desno gor, dol?
+	// TODO: update movement based on that
 
 	if (move_right) {
 		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
@@ -92,14 +89,17 @@ void update_guysko_velocity(guysko* player) {
 	}
 	return;
 
-//	landing:
-//		set_velocity(player->vel, 0, 0);
-//		set_velocity(player->vel, 0, 0);
-
 	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
 
 
+/*
+ * Function takes guysko's postion and draws it on screen. The postion of guysko denotes the bottom right
+ * corner of guysko's image. The postion of guysko cannot be taken as the postion of guysko on screen,
+ * because the screen is only a small part of world. So the starting drawing postion is calculated based on
+ * guysko's postion and difference between the START of the left and top corner of the screen and left and
+ * top corner of the world.
+ */
 
 void draw_guysko (guysko* player) {
 	int index = 0;
@@ -116,37 +116,6 @@ void draw_guysko (guysko* player) {
 		int scnd_nibble =	(guysko_r_0[i] & 0b00001111) >> 0;
 		if (frst_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_0[frst_nibble]);
 		if (scnd_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_0[scnd_nibble]);
-//		if (player->vel->x >= 0) {
-//			if (player->state == 0) {
-//			} else if (player->state == 1) {
-//				int frst_nibble =	(guysko_r_1[i] & 0b11110000) >> 4;
-//				int scnd_nibble =	(guysko_r_1[i] & 0b00001111) >> 0;
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_1[frst_nibble]);
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_1[scnd_nibble]);
-//			} else if (player->state == 2) {
-//				int frst_nibble =	(guysko_r_2[i] & 0b11110000) >> 4;
-//				int scnd_nibble =	(guysko_r_2[i] & 0b00001111) >> 0;
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_2[frst_nibble]);
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_2[scnd_nibble]);
-//			}
-//		} else {
-//			if (player->state == 0) {
-//				int frst_nibble =	(guysko_l_0[i] & 0b11110000) >> 4;
-//				int scnd_nibble =	(guysko_l_0[i] & 0b00001111) >> 0;
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_L_0[frst_nibble]);
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_L_0[scnd_nibble]);
-//			} else if (player->state == 1) {
-//				int frst_nibble =	(guysko_l_1[i] & 0b11110000) >> 4;
-//				int scnd_nibble =	(guysko_l_1[i] & 0b00001111) >> 0;
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_L_1[frst_nibble]);
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_L_1[scnd_nibble]);
-//			} else if (player->state == 2) {
-//				int frst_nibble =	(guysko_l_2[i] & 0b11110000) >> 4;
-//				int scnd_nibble =	(guysko_l_2[i] & 0b00001111) >> 0;
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_L_2[frst_nibble]);
-//				UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_L_2[scnd_nibble]);
-//			}
-//		}
 	}
 	player->state++;
 	if (player->state >= 3) player->state = player->state % 3;

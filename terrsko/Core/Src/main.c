@@ -334,38 +334,6 @@ int main(void)
 
 		update_camera_center(new_camera_x, new_camera_y);
 		/*
-		 * first guysko and then
-		 * ITERATE through movable
-		 */
-		/* USER CODE END WHILE */
-		/* USER CODE BEGIN 3 */
-		/*
-
-			  //LEDs and KEYs
-			 HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, !HAL_GPIO_ReadPin(BTN_OK_GPIO_Port, BTN_OK_Pin));
-			 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin));
-			 HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin));
-			 HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin));
-			 HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin));
-			 HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, !HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin));
-			 HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, !HAL_GPIO_ReadPin(JOY_BTN_GPIO_Port, JOY_BTN_Pin));
-
-		/*
-			 if (!HAL_GPIO_ReadPin(BTN_ESC_GPIO_Port, BTN_ESC_Pin))
-			 {
-				 UG_FillFrame(200, 0, 319, 120, C_BLACK);
-			 }
-		*/
-//		uint8_t left = !HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) * CAMERA_SPEED;
-//		uint8_t right = !HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) * CAMERA_SPEED;
-//		uint8_t up = !HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) * CAMERA_SPEED;
-//		uint8_t down = !HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) * CAMERA_SPEED;
-
-
-
-
-
-
 
 		// Joystick
 		/*
@@ -434,7 +402,7 @@ int main(void)
 		while (!cycle)
 		{
 			/*
-			 * if joystick_new is needed:
+			 * if joystick_new will ever be needed:
 			 * joystick_get(&joystick_raw, &joystick_new, &joystick);
 			 */
 			action_set(&joystick_raw);

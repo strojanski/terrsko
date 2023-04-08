@@ -10,18 +10,23 @@
 
 #include "action.h"
 
-bool act_up			=	false;
-bool act_right	=	false;
-bool act_down		=	false;
-bool act_left		=	false;
+bool act_up	= false;
+bool act_right = false;
+bool act_down =	false;
+bool act_left =	false;
 
-bool ok					=	false;
-bool esc				=	false;
+bool ok	= false;
+bool esc = false;
 
-bool move_up		=	false;
-bool move_right	=	false;
-bool move_down	=	false;
-bool move_left	=	false;
+bool move_up = false;
+bool move_right	= false;
+bool move_down	= false;
+bool move_left	= false;
+
+/*
+ * Each guysko's button action is immediatley reset to zero after being taken into consideration, so that is can be known in the
+ * next frame if the action was made once again.
+ */
 
 void action_reset(uint8_t action_index) {
 	if (action_index == 0) {
