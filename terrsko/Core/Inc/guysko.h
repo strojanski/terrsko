@@ -67,12 +67,14 @@ typedef struct _guysko {
 	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
 } guysko;
 
-void refresh_guysko(guysko* player, int FPS);
 
 void draw_guysko (guysko* player);
 void update_guysko_position (guysko* player);
 void update_guysko_move (guysko*, int FPS);
 void update_guysko_velocity(guysko* player);
+
+void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y);
+void refresh_guysko(guysko* player, int FPS);
 
 guysko* new_guysko();
 

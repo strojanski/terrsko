@@ -121,10 +121,44 @@ void draw_guysko (guysko* player) {
 	if (player->state >= 3) player->state = player->state % 3;
 }
 
+void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y) {
+	short x_diff = player->pos->x - prev_guysko_x;
+	short y_diff = player->pos->y - prev_guysko_y;
+
+	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2) - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
+
+	uint16_t right_x = draw_startPoint_x - x_diff;
+	uint16_t right_y = draw_startPoint_y - y_diff;
+	uint16_t right_block_x = right_x / BLOCK_WIDTH;
+	uint16_t right_block_y = right_y / BLOCK_WIDTH;
+
+	for (uint16_t i = 0; i < x_diff; i++) {
+		uint8_t prev_block = WORLD[right_block_x / 2][right_y] & 0x0F;
+		if (right_block_x % 2 == 0) block = (WORLD[right_block_x / 2 + 1][right_block_y + j] & 0xF0;
+		uint16_t prev_draw_x = right_x;
+		uint16_t prev_draw_y = right_y;
+		for (uint16_t j = 0; j < GUYSKO_IMG_Y; j++) {
+			uint8_t block = WORLD[right_block_x / 2][right_y + j] & 0x0F;
+			if (right_block_x % 2 == 0) block = (WORLD[right_block_x / 2 + 1][right_block_y + j] & 0xF0;
+			if (prev_block != block) {
+				UG_DrawFrame(prev_draw_x, prev_draw_y, prev_draw_x + 1, prev_draw_y + j, C_DIRT[0]);
+				prev_draw_y = right_y + j;
+			}
+			prev_block = block;
+		}
+	}
+}
+
 void refresh_guysko(guysko* player, int FPS) {
 	update_guysko_velocity(player);
 	update_guysko_move(player, FPS);
+	uint16_t prev_guysko_x = player->pos->x;
+	uint16_t prev_guysko_y = player->pos->y;
 	update_guysko_position(player);
+
+	camouflage (player, prev_guysko_x, prev_guysko_y);
+
 	draw_guysko(player);
 }
 
