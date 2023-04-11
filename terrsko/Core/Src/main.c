@@ -329,8 +329,13 @@ int main(void)
 		old_camera_y = camera_y;
 
 		refresh_guysko(player, FPS);
-		new_camera_x = player->pos->x / BLOCK_WIDTH;
 		new_camera_y = player->pos->y / BLOCK_WIDTH;
+
+		if (camera_x - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
+			new_camera_x = camera_x - abs(camera_x - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
+		} else if (camera_x - player->pos->x / BLOCK_WIDTH < -GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
+			new_camera_x = camera_x + abs(-camera_x - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
+		}
 
 		update_camera_center(new_camera_x, new_camera_y);
 		/*

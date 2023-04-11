@@ -36,6 +36,8 @@
 #define GUYSKO_WALK_VEL_INC					10
 #define GUYSKO_MAX_LP						1000
 
+#define GUYSKO_WINDOW_SPAN_PIXEL			75
+
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second
