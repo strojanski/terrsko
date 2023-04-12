@@ -949,3 +949,17 @@ void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool
 uint8_t random_int(uint8_t min, uint8_t max) {
     return (uint8_t) rand() % (max - min + 1) + min;
 }
+
+// x and y are postion of pixels on world
+// function used for movables to get what is around them
+uint8_t get_block(uint16_t x, uint16_t y) {
+	if (x % 8 >= 4) return ((WORLD[y / BLOCK_WIDTH][x / BLOCK_WIDTH / 2]) & 0x0F) >> 0;
+	return ((WORLD[y / BLOCK_WIDTH][x / BLOCK_WIDTH / 2]) & 0xF0) >> 4;
+}
+
+bool isSolid (uint8_t block) {
+	if (block == _dirt || block == _grass || block == _wood || block == _brick || block == _sand || block == _rock || block == _red_wood || block == _gold || block == _diamond) {
+		return true;
+	}
+	return false;
+}

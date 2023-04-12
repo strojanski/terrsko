@@ -16,7 +16,7 @@
 #include "scene.h"
 
 #include "guysko_img.h"
-
+#include "render.h"
 
 #include "life_points.h"
 #include "velocity.h"

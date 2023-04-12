@@ -67,7 +67,6 @@ void insert_cow (movable* beings, cow* movable_cow) {
 	penultimate_cow->next = new_cow;
 	beings->tail_cow->prev = new_cow;
 }
-
 void remove_cow (cow* movable_cow) {
 	cow* preceding_movable_cow = movable_cow->prev;
 	cow* following_movable_cow = movable_cow->next;

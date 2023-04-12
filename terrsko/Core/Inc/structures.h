@@ -8,6 +8,7 @@
 #ifndef INC_STRUCTURES_H_
 #define INC_STRUCTURES_H_
 
+#include <stdint.h>
 // value & 0b11110000
 
 // 4B

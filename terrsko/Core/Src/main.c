@@ -101,6 +101,8 @@ uint8_t FPS = FPS_100;
  * @brief  The application entry point.
  * @retval int
  */
+
+
 int main(void)
 {
 	/* USER CODE BEGIN 1 */
@@ -201,7 +203,6 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	init_world();
-
 	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ
 	 * TIMER FREQ: 168000000 (168 MHz)
 	 * Prescaler 10000 - 1
@@ -329,6 +330,7 @@ int main(void)
 		old_camera_y = camera_y;
 
 		refresh_guysko(player, FPS);
+//		new_camera_x = player->pos->x / BLOCK_WIDTH;
 		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
 		if (camera_x - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {

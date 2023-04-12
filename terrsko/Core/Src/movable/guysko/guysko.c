@@ -59,27 +59,40 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: preverba ali se je zaletel v solid levo desno gor, dol?
 	// TODO: update movement based on that
 
+	uint8_t material_u = get_block(player->pos->x, player->pos->y - GUYSKO_IMG_Y - 1);
+	uint8_t material_r = get_block(player->pos->x + 1, player->pos->y);
+	uint8_t material_d = get_block(player->pos->x, player->pos->y + 1);
+	uint8_t material_l = get_block(player->pos->x - GUYSKO_IMG_X - 1, player->pos->y);
+
+
 	if (move_right) {
 		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
 	// MAX VELOCITY IN X DIRECTION
 		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
 		action_reset(MOVE_RIGHT_INDEX);
+		if (isSolid(material_r)) set_velocity(player->vel, 0, player->vel->y);
 	} else if (move_left) {
 		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
 	// MAX VELOCITY IN X DIRECTION
 		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
 		action_reset(MOVE_LEFT_INDEX);
+		if (isSolid(material_l)) set_velocity(player->vel, 0, player->vel->y);
 	} else {
 		set_velocity(player->vel, 0, player->vel->y);
 	}
 
 	// y axis
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
-	if (move_up /* && pos_y >= 220 ce guysko nima nič "solid" pod seboj*/) {
-		set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
-		action_reset(MOVE_UP_INDEX);
+	if (isSolid(material_d)) {
+		if (move_up) {
+			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
+			action_reset(MOVE_UP_INDEX);
+			if (isSolid(material_u)) set_velocity(player->vel, player->vel->x, 0);
+		} else {
+			set_velocity(player->vel, player->vel->x, 0);
+		}
 	}
 	// MAX VELOCITY IN Y DIRECTION
 	if (player->vel->y < GUYSKO_MAX_DOWN_VELOCITY) {
@@ -103,10 +116,8 @@ void update_guysko_velocity(guysko* player) {
 
 void draw_guysko (guysko* player) {
 	int index = 0;
-//	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2);
-//	uint8_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y;
-	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2) - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - ((SCENE_WIDTH / 2) * BLOCK_WIDTH));
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - ((SCENE_HEIGHT / 2) * BLOCK_WIDTH));
 	for (int i = 0; i < GUYSKO_IMG_SIZE / 2; i += 1) {
 		uint8_t offset_x = index % (GUYSKO_IMG_X / 2);
 		uint8_t offset_y = index / (GUYSKO_IMG_X / 2);
@@ -125,29 +136,22 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 	short x_diff = player->pos->x - prev_guysko_x;
 	short y_diff = player->pos->y - prev_guysko_y;
 
-	uint16_t draw_startPoint_x = player->pos->x - (GUYSKO_IMG_X / 2) - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
+	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
+	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
 	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
 
-	uint16_t right_x = draw_startPoint_x - x_diff;
-	uint16_t right_y = draw_startPoint_y - y_diff;
-	uint16_t right_block_x = right_x / BLOCK_WIDTH;
-	uint16_t right_block_y = right_y / BLOCK_WIDTH;
-
-	for (uint16_t i = 0; i < x_diff; i++) {
-		uint8_t prev_block = WORLD[right_block_x / 2][right_y] & 0x0F;
-		if (right_block_x % 2 == 0) block = (WORLD[right_block_x / 2 + 1][right_block_y + j] & 0xF0;
-		uint16_t prev_draw_x = right_x;
-		uint16_t prev_draw_y = right_y;
-		for (uint16_t j = 0; j < GUYSKO_IMG_Y; j++) {
-			uint8_t block = WORLD[right_block_x / 2][right_y + j] & 0x0F;
-			if (right_block_x % 2 == 0) block = (WORLD[right_block_x / 2 + 1][right_block_y + j] & 0xF0;
-			if (prev_block != block) {
-				UG_DrawFrame(prev_draw_x, prev_draw_y, prev_draw_x + 1, prev_draw_y + j, C_DIRT[0]);
-				prev_draw_y = right_y + j;
-			}
-			prev_block = block;
-		}
+	if (x_diff > 0) {
+		overdraw_background(draw_startPoint_x, draw_startPoint_y, prev_draw_startPoint_x, prev_draw_startPoint_y + GUYSKO_IMG_Y);
+	} else if (x_diff < 0) {
+		overdraw_background(draw_startPoint_x + GUYSKO_IMG_X, draw_startPoint_y - 3, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y + GUYSKO_IMG_Y);
 	}
+	if (y_diff > 0) {
+		overdraw_background(draw_startPoint_x, draw_startPoint_y, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y);
+	} else if (y_diff < 0) {
+		overdraw_background(draw_startPoint_x, draw_startPoint_y + GUYSKO_IMG_Y, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y + GUYSKO_IMG_Y);
+	}
+
 }
 
 void refresh_guysko(guysko* player, int FPS) {
@@ -157,9 +161,9 @@ void refresh_guysko(guysko* player, int FPS) {
 	uint16_t prev_guysko_y = player->pos->y;
 	update_guysko_position(player);
 
-	camouflage (player, prev_guysko_x, prev_guysko_y);
-
+//	camouflage (player, prev_guysko_x, prev_guysko_y);
 	draw_guysko(player);
+
 }
 
 

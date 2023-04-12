@@ -2,6 +2,7 @@
 #define _SCENE_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "structures.h"
 #include "materials.h"
@@ -120,5 +121,9 @@ void dilation(uint8_t SE[SE_SIZE_DILATION][SE_SIZE_DILATION], uint16_t map_width
 void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool only_sharp_edges);
 
 uint8_t random_int(uint8_t min, uint8_t max);
+
+uint8_t get_block(uint16_t x, uint16_t y);
+
+bool isSolid (uint8_t block);
 
 #endif
