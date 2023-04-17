@@ -8,7 +8,9 @@
 #ifndef INC_UTILS_H_
 #define INC_UTILS_H_
 
+uint8_t upper(uint8_t block);
 
+uint8_t lower(uint8_t block);
 
 
 

@@ -70,10 +70,15 @@ void init_world() {
 }
 
 void get_scene() {
-	uint16_t left = camera_x - (SCENE_WIDTH / 4);
-	uint16_t top = camera_y - (SCENE_HEIGHT / 2);
-	uint16_t right = camera_x + (SCENE_WIDTH / 4);
-	uint16_t bottom = camera_y + (SCENE_HEIGHT / 2);
+	// width / 4 because each cell represents 2 blocks
+	uint8_t offset_width = (SCENE_WIDTH / 4);
+	uint8_t offset_height = (SCENE_HEIGHT / 2);
+
+	// Check if within bounds
+	uint16_t left = camera_x > offset_width ? camera_x - offset_width : 0;
+	uint16_t top = camera_y > offset_height ? camera_y - offset_height : 0;
+	uint16_t right = MIN(camera_x + (SCENE_WIDTH / 4), WORLD_WIDTH);
+	uint16_t bottom = MIN(camera_y + (SCENE_HEIGHT / 2), WORLD_HEIGHT);
 
 
 	uint16_t x = 0;
@@ -96,7 +101,6 @@ void get_scene_mask() {
 	uint16_t right = camera_x + (SCENE_WIDTH / 4);
 	uint16_t bottom = camera_y + (SCENE_HEIGHT / 2);
 	new_frame = 0;
-
 
 	uint16_t x = 0;
 	uint16_t y = 0;
@@ -954,7 +958,7 @@ uint8_t random_int(uint8_t min, uint8_t max) {
 // function used for movables to get what is around them
 uint8_t get_block(uint16_t x, uint16_t y) {
 	if (x % 8 >= 4) return ((WORLD[y / BLOCK_WIDTH][x / BLOCK_WIDTH / 2]) & 0x0F) >> 0;
-	return ((WORLD[y / BLOCK_WIDTH][x / BLOCK_WIDTH / 2]) & 0xF0) >> 4;
+	return ((WORLD[y / BLOCK_WIDTH][x / BLOCK_WIDTH / 2]) & 0xF0); //>> 4;
 }
 
 bool isSolid (uint8_t block) {

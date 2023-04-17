@@ -179,6 +179,7 @@ void quick_draw() {
 
 }
 
+
 void draw_scene() {
 	// update and get scene
 	get_scene();
@@ -238,6 +239,8 @@ void draw_scene() {
 //				continue;
 //			}
 
+	//+ else {
+
 //			if (skip_left == 0) {
 
 				float random = (float) rand() / RAND_MAX;
@@ -279,7 +282,7 @@ void draw_scene() {
 					draw_block(dirt->block);
 					free_bg_material(dirt);
 				} else {
-					if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
+					if (block_y + j < LVL1_HMAP[block_x + i]) {
 
 						uint16_t* color = C_SKY;
 
@@ -341,7 +344,7 @@ void draw_scene() {
 					draw_block(dirt->block);
 					free_bg_material(dirt);
 				} else {
-					if (j < LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i]) {
+					if (block_y + j < LVL1_HMAP[block_x + i]) {
 
 						// SKY
 						bg_material* sky = create_bg_material(pos_x2, 4*(j+1), night ? C_NIGHT_SKY : C_SKY, _empty, illumination);
@@ -354,9 +357,9 @@ void draw_scene() {
 						free_bg_material(dirt);
 					}
 				}
-//			}
+			}
 
-		}
+	//	}
 		// Each cell in x-direction in SCENE = move 2 blocks on screen
 		pos_x1 += 8;
 		pos_x2 += 8;

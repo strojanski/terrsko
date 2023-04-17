@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "guysko.h"
+#include "utils.h"
 
 /*
  * Simpy calculated the movement guysko makes based on his move. But when he goes outside of range of world in
@@ -64,14 +65,26 @@ void update_guysko_velocity(guysko* player) {
 	uint8_t material_d = get_block(player->pos->x, player->pos->y + 1);
 	uint8_t material_l = get_block(player->pos->x - GUYSKO_IMG_X - 1, player->pos->y);
 
+	// down left and down right
+	uint8_t mat_d_l = upper(material_d);
+	uint8_t mat_d_r = lower(material_d);
+
 
 	if (move_right) {
 		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
 	// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) {
+			set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		}
+
 		action_reset(MOVE_RIGHT_INDEX);
-		if (isSolid(material_r)) set_velocity(player->vel, 0, player->vel->y);
+
+		// Collision in right direction
+		if (isSolid(material_r)) {
+			set_velocity(player->vel, 0, player->vel->y);
+		}
+
 	} else if (move_left) {
 		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
@@ -85,7 +98,7 @@ void update_guysko_velocity(guysko* player) {
 
 	// y axis
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
-	if (isSolid(material_d)) {
+	if (isSolid(mat_d_l) || isSolid(mat_d_r) || player->pos->y / 4 > LVL1_HMAP[player->pos->x / 4]) {
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
