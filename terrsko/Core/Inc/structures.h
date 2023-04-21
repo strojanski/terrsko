@@ -11,6 +11,10 @@
 #include <stdint.h>
 // value & 0b11110000
 
+typedef uint16_t block_t;
+typedef uint16_t cell_t;
+typedef uint16_t pixel_t;
+
 // 4B
 typedef struct _coord {
 	uint16_t x;

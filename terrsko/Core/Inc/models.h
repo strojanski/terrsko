@@ -6,7 +6,7 @@
 #include "scene.h"
 
 #define SCREEN_WIDTH 320
-#define SCENE_BLOCKS_X 40
+#define SCENE_BLOCKS_X 80
 
 #define SCREEN_HEIGHT 240
 #define SCENE_BLOCKS_Y 60

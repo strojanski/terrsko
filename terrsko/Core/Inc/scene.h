@@ -14,6 +14,7 @@
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 #define BLOCK_WIDTH 4
+#define CELL_WIDTH BLOCK_WIDTH * 2
 
 // Number of visible blocks on screen
 #define SCENE_HEIGHT 60
