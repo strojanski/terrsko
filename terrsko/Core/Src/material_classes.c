@@ -12,7 +12,8 @@
 uint8_t light_sources[N_LIGHT_SOURCES] = {
 		_lava,
 		_fire,
-		_empty			// currently sky defaults to _empty, we want to see some blocks under ground
+		_sky,
+		_empty		// currently sky defaults to _empty, we want to see some blocks under ground
 };
 
 bool is_light_source(uint8_t material) {

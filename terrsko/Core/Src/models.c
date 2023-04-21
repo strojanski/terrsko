@@ -18,7 +18,7 @@
 #define RGB565_GREEN 0x7E0
 #define RGB565_BLUE 0x1F
 
-// 320x240 pi
+// Computes colors for some illumination factor
 uint16_t* apply_shading(uint16_t colors[4], float illumination) {
 
 	for (uint8_t i = 0; i < 4; i++) {
@@ -54,8 +54,7 @@ uint16_t* apply_shading(uint16_t colors[4], float illumination) {
 }
 
 /* Creates block with given coordinates and width */
-block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type,
-		float illumination) {
+block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination) {
 	block *block = (struct _block*) malloc(sizeof(struct _block));
 	block->pos.x = x;
 	block->pos.y = y;
@@ -66,18 +65,20 @@ block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type,
 		copy[i] = colors[i];
 	}
 
-	uint16_t *new_colors = apply_shading(copy, illumination);
+	// Get appropriate colors
+//	if (illumination != 1.0) {
+//	}
+		uint16_t *new_colors = apply_shading(copy, illumination);
+		for (uint8_t i = 0; i < 4; i++) {
+			block->colors[i] = new_colors[i];
+		}
 
-	for (uint8_t i = 0; i < 4; i++) {
-		block->colors[i] = new_colors[i];
-	}
 
 	return block;
 }
 
 // Create wrapper for block - destroyables
-destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4],
-		uint8_t type, float illumination) {
+destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination) {
 	block *block = create_block(x, y, colors, type, illumination);
 
 	destroyable *destroyable = (struct _destroyable*) malloc(
@@ -86,8 +87,7 @@ destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4],
 	return destroyable;
 }
 
-bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4],
-		uint8_t type, float illumination) {
+bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination) {
 	block *block = create_block(x, y, colors, type, illumination);
 
 	bg_material *bg_material = (struct _bg_material*) malloc(
@@ -98,11 +98,9 @@ bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4],
 
 /* Draws a block with its colors, attempt to draw chunks as big as possible */
 void draw_block(block *block) {
-	if (block->colors[0] == block->colors[1]
-			&& block->colors[1] == block->colors[2]
-			&& block->colors[2] == block->colors[3]) {
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x,
-				block->pos.y, block->colors[0]);
+//	UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
+	if (block->colors[0] == block->colors[1] && block->colors[1] == block->colors[2] && block->colors[2] == block->colors[3]) {
+		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
 	} else if (block->colors[0] == block->colors[1]) {	// Top part
 		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x,
 				block->pos.y - 2, block->colors[0]);
@@ -195,7 +193,6 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 	float probability_star = .0;
 	float random = (float) rand() / RAND_MAX;
 
-
 	if (material == (block_t) _dirt) {
 
 		destroyable *dirt = create_destroyable(pixel_pos_x, pixel_pos_y, C_DIRT, _dirt, illumination);
@@ -232,6 +229,12 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(dirt->block);
 		free_bg_material(dirt);
+	} else if (material == (block_t) _sky) {
+
+		bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, C_SKY, _sky, illumination);
+
+		draw_block(sky->block);
+		free_bg_material(sky);
 	} else {
 		// Above ground = sky, below ground = dirt_bg
 		if (current_height < ground_height) {
@@ -245,14 +248,12 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 			}
 
 			// SKY
-			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y,
-					color, _empty, illumination);
+			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
 			draw_block(sky->block);
 			free_bg_material(sky);
 		} else {
 			// DIRT BG
-			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y,
-					C_BG_DIRT, _dirt_bg, illumination);
+			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
 			draw_block(dirt->block);
 			free_bg_material(dirt);
 		}
@@ -292,7 +293,6 @@ void draw_scene(bool init) {
 	// Iterate i, j in CELL COORDINATES
 	for (cell_c i = 0; i < SCENE_CELLS_X; i++) {
 		for (cell_c j = 0; j < SCENE_CELLS_Y; j++) {
-
 
 			// For indexing cells in SCENE
 			cell_c scene_cell_x = i;
@@ -338,7 +338,15 @@ void draw_scene(bool init) {
 			block_c current_height = world_cell_y;
 
 			// y coordinate of current block
-			pixel_c pos_y = 4 * (j + 1);//block_to_pixel(j);
+			pixel_c pos_y = block_to_pixel(j);
+
+			// Check for tree
+//			coord pos = { x: pos_x2, y: 4*(j+1) };
+//			if (left_block == _tree || right_block == _tree) {
+//				draw_tree_normal(&pos);
+//			}
+
+//			illumination = compute_illumination(scene_cell_x, scene_cell_y);
 
 			// Render left and right blocks
 			if (!skip_left) {

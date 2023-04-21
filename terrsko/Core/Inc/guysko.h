@@ -23,7 +23,7 @@
 #include "move.h"
 #include "position.h"
 
-#define GUYSKO_SPAWN_X								WORLD_WIDTH/3
+#define GUYSKO_SPAWN_X								WORLD_WIDTH_BLOCKS/3
 #define GUYSKO_SPAWN_Y								camera_y
 
 #define GRAVITY								-5

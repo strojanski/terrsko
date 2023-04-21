@@ -19,17 +19,17 @@
 
 // 4 bits define the block at the position
 cell_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 46KB
-cell_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
-uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
+cell_t SCENE[SCENE_HEIGHT_BLOCKS][SCENE_WIDTH_BLOCKS/2];	// 2.3KB
+uint8_t SCENE_MASK[SCENE_HEIGHT_BLOCKS][SCENE_WIDTH_BLOCKS/2];	// Tells which blocks should not be overwritten in the loop
 
-uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
+uint8_t LIGHT_MAP[WORLD_HEIGHT_BLOCKS][WORLD_WIDTH_BLOCKS/8];	// 1 cell = 8 blocks, 1 bit for each
 
 // Only holds bytes
 uint8_t** CAVE_MAP;//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 
 // Height can be > 256, need uint16_t
-int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
-block_c LVL1_HMAP[WORLD_WIDTH];
+int16_t HEIGHT_MAP[WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
+block_c LVL1_HMAP[WORLD_WIDTH_BLOCKS];
 
 uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
 
@@ -45,7 +45,7 @@ float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
-	generate_height_map(-3, 3, 2);
+	generate_height_map(-3, 3, 5);
 	generate_caves();
 
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
@@ -64,27 +64,25 @@ void init_world() {
 	place_trees();
 	init_stage_1();
 
-	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH/2];
-	update_camera_center((uint16_t) floor(WORLD_WIDTH/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
+	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH_BLOCKS/2];
+	update_camera_center((uint16_t) floor(WORLD_WIDTH_BLOCKS/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
 
 }
 
+// DO NOT UNDER ANY CIRCUMSTANCE TOUCH BELOW CODE!
 void get_scene() {
 	// width / 4 because each cell represents 2 blocks
-	block_c block_offset_width = (SCENE_WIDTH / 2);
-	block_c block_offset_height = (SCENE_HEIGHT / 2);
+	block_c block_offset_width = (SCENE_WIDTH_BLOCKS / 2);
+	block_c block_offset_height = (SCENE_HEIGHT_BLOCKS / 2);
 
 	cell_c offset_w = block_to_cell_x(block_offset_width);
 	cell_c offset_h = block_to_cell_y(block_offset_height);
 
-
-	//camera_x = 40; camera_y = 40;
-
 	// Check if within bounds
 	cell_c left = MAX(0, (int16_t) block_to_cell_x(camera_x) - offset_w);
 	cell_c top = MAX(0, (int16_t) block_to_cell_y(camera_y) - offset_h);
-	cell_c right = MIN(block_to_cell_x(camera_x) + offset_w, block_to_cell_x(WORLD_WIDTH));
-	cell_c bottom = MIN(block_to_cell_y(camera_y) + offset_h, block_to_cell_y(WORLD_HEIGHT));
+	cell_c right = MIN(block_to_cell_x(camera_x) + offset_w, block_to_cell_x(WORLD_WIDTH_BLOCKS));
+	cell_c bottom = MIN(block_to_cell_y(camera_y) + offset_h, block_to_cell_y(WORLD_HEIGHT_BLOCKS));
 
 
 	cell_c x = 0;
@@ -102,10 +100,22 @@ void get_scene() {
 void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint16_t width);
 
 void get_scene_mask() {
-	uint16_t left = camera_x - (SCENE_WIDTH / 4);
-	uint16_t top = camera_y - (SCENE_HEIGHT / 2);
-	uint16_t right = camera_x + (SCENE_WIDTH / 4);
-	uint16_t bottom = camera_y + (SCENE_HEIGHT / 2);
+	// width / 4 because each cell represents 2 blocks
+	block_c block_offset_width = (SCENE_WIDTH_BLOCKS / 2);
+	block_c block_offset_height = (SCENE_HEIGHT_BLOCKS / 2);
+
+	cell_c offset_w = block_to_cell_x(block_offset_width);
+	cell_c offset_h = block_to_cell_y(block_offset_height);
+
+
+	//camera_x = 40; camera_y = 40;
+
+	// Check if within bounds
+	cell_c left = MAX(0, (int16_t) block_to_cell_x(camera_x) - offset_w);
+	cell_c top = MAX(0, (int16_t) block_to_cell_y(camera_y) - offset_h);
+	cell_c right = MIN(block_to_cell_x(camera_x) + offset_w, block_to_cell_x(WORLD_WIDTH_BLOCKS));
+	cell_c bottom = MIN(block_to_cell_y(camera_y) + offset_h, block_to_cell_y(WORLD_HEIGHT_BLOCKS));
+
 	new_frame = 0;
 
 	uint16_t x = 0;
@@ -165,16 +175,17 @@ void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint
 
 // x,y in blocks
 void update_camera_center(uint16_t x, uint16_t y) {
-	if (x >= WORLD_WIDTH - (SCENE_WIDTH/2 + 1)) {
-		x = WORLD_WIDTH - SCENE_WIDTH/2 + 1;
-	} else if (x < SCENE_WIDTH/2) {
-		x = SCENE_WIDTH/2 + 1;
+	// Check if we are at least half a screen from a border
+	if (x >= WORLD_WIDTH_BLOCKS - (SCENE_WIDTH_BLOCKS / 2 + 1)) {
+		x = WORLD_WIDTH_BLOCKS - SCENE_WIDTH_BLOCKS / 2 + 1;
+	} else if (x < SCENE_WIDTH_BLOCKS / 2) {
+		x = SCENE_WIDTH_BLOCKS / 2 + 1;
 	}
 
-	if (y >= WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1)) {
-		y = WORLD_HEIGHT - (SCENE_HEIGHT/2 + 1);
-	} else if (y < (SCENE_HEIGHT/2 + 1)) {
-		y = (SCENE_HEIGHT/2 + 1);
+	if (y >= WORLD_HEIGHT_BLOCKS - (SCENE_HEIGHT_BLOCKS / 2 + 1)) {
+		y = WORLD_HEIGHT_BLOCKS - (SCENE_HEIGHT_BLOCKS / 2 + 1);
+	} else if (y < (SCENE_HEIGHT_BLOCKS / 2 + 1)) {
+		y = (SCENE_HEIGHT_BLOCKS / 2 + 1);
 	}
 
 	camera_x = x;
@@ -199,11 +210,11 @@ void place_trees() {
 		TREE_MASK[i] = 0;
 	}
 
-	for (uint16_t i = 0; i < WORLD_WIDTH; i++) {
-		uint16_t coord = i/(TREE_WIDTH / BLOCK_WIDTH);
+	for (block_c i = 0; i < WORLD_WIDTH_BLOCKS; i++) {
+		block_c coord = i / (TREE_WIDTH / BLOCK_WIDTH);
 		if (TREE_MASK[coord] == 1) continue;
 
-		uint16_t y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
+		block_c y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
 
 
 		if (rand() % 100 < tree_density) {
@@ -268,8 +279,8 @@ float compute_illumination(uint16_t x, uint16_t y) {
 	// TODO check if the neighbors are lit as well and interpolate brightness
 	uint16_t global_x, global_y;
 
-	global_x = camera_x - (SCENE_WIDTH / 4) + x;
-	global_y = camera_y - (SCENE_HEIGHT / 2) + y;
+	global_x = block_to_cell_x(camera_x) - (SCENE_WIDTH_BLOCKS / 4) + x;
+	global_y = camera_y - (SCENE_HEIGHT_BLOCKS / 2) + y;
 
 	// Light source is lit
 	if (is_light_source(WORLD[global_y][global_x])) return 1.0;
@@ -442,17 +453,17 @@ float light_intensity(float dist) {
 	}
 }
 
-// Get level with only dirt
+// Get basic landscape - dirt, sky + caves, lava
 void init_stage_0() {
 
 	srand(time(NULL));
 
 	float probability_rock = 0.01;
-	uint8_t cave = ((_dirt_bg << 4) | _dirt_bg);
-	uint8_t lava = ((_lava << 4) | _lava);
+	block_t cave = ((_dirt_bg << 4) | _dirt_bg);
+	block_t lava = ((_lava << 4) | _lava);
 
-	for (uint16_t i = 0; i < WORLD_HEIGHT; i++) {
-		for (uint16_t j = 0; j < WORLD_WIDTH; j+=2) {
+	for (uint16_t i = 0; i < WORLD_HEIGHT_BLOCKS; i++) {
+		for (uint16_t j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {
 			uint8_t l_block; uint8_t r_block;
 
 			// Check for predetermined special values
@@ -475,7 +486,7 @@ void init_stage_0() {
 			} else if (i == LVL1_HMAP[j]) {
 				l_block = _grass;
 			} else {
-				l_block = _empty;
+				l_block = _sky;
 			}
 
 			// left block
@@ -493,7 +504,7 @@ void init_stage_0() {
 			} else if (i == LVL1_HMAP[j+1]) {
 				r_block = _grass;
 			} else {
-				r_block = _empty;
+				r_block = _sky;
 			}
 
 			WORLD[i][j/2] = (l_block << 4) | r_block;
@@ -528,18 +539,18 @@ void place_lava() {
 
 void generate_caves() {
 
-	CAVE_MAP = (uint8_t**) malloc((WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL) * sizeof(uint8_t*));
+	CAVE_MAP = (uint8_t**) malloc((WORLD_HEIGHT_BLOCKS/CAVE_SAMPLES_PER_CELL) * sizeof(uint8_t*));
 
-	for (uint16_t j = 0; j < WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL; j++) {
-		CAVE_MAP[j] = (uint8_t*) malloc((WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)) * sizeof(uint8_t));
+	for (uint16_t j = 0; j < WORLD_HEIGHT_BLOCKS/CAVE_SAMPLES_PER_CELL; j++) {
+		CAVE_MAP[j] = (uint8_t*) malloc((WORLD_WIDTH_BLOCKS/(2*CAVE_SAMPLES_PER_CELL)) * sizeof(uint8_t));
 	}
 
 
 	uint8_t cave_value = (_dirt_bg << 4) | _dirt_bg;
 	uint8_t dirt_value = (_dirt << 4) | _dirt;
 
-	uint16_t map_width = WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL);
-	uint16_t map_height = WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL;
+	uint16_t map_width = WORLD_WIDTH_BLOCKS/(2*CAVE_SAMPLES_PER_CELL);
+	uint16_t map_height = WORLD_HEIGHT_BLOCKS/CAVE_SAMPLES_PER_CELL;
 
 	uint8_t radius = 3;
 	uint8_t blob_probability = 0.1;
@@ -634,7 +645,7 @@ void generate_caves() {
 		}
 	}
 
-	for (uint16_t j = 0; j < WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL; j++) {
+	for (uint16_t j = 0; j < WORLD_HEIGHT_BLOCKS/CAVE_SAMPLES_PER_CELL; j++) {
 		free(CAVE_MAP[j]);
 	}
 	free(CAVE_MAP);
@@ -650,8 +661,8 @@ void draw_blob(uint16_t x, uint16_t y, uint16_t radius, uint8_t value) {
 }
 
 void draw_circle(uint16_t x, uint16_t y, uint8_t radius, uint8_t cave_value) {
-	uint16_t width = WORLD_WIDTH / (2 * CAVE_SAMPLES_PER_CELL);
-	uint16_t height = WORLD_HEIGHT / CAVE_SAMPLES_PER_CELL;
+	uint16_t width = WORLD_WIDTH_BLOCKS / (2 * CAVE_SAMPLES_PER_CELL);
+	uint16_t height = WORLD_HEIGHT_BLOCKS / CAVE_SAMPLES_PER_CELL;
 
 	for (int8_t xx = -radius; xx < radius; xx++) {
 		for (int8_t yy = -radius; yy < radius; yy++) {
@@ -672,7 +683,7 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 	srand(time(NULL));
 
-	uint16_t map_size = WORLD_WIDTH + 1;
+	uint16_t map_size = WORLD_WIDTH_BLOCKS + 1;
 
 	// Initialize heights - height 0 equals WORLD_HEIGHT / 2
 	HEIGHT_MAP[0][0] = 0;			// Elevated on edge
@@ -756,8 +767,8 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 	}
 
 	// EL PARTE MAS IMPORTANTE - fill in the values
-	for (uint16_t i = 0; i < WORLD_WIDTH; i+=HMAP_SAMPLES_PER_CELL) {
-		uint8_t val = HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
+	for (uint16_t i = 0; i < WORLD_WIDTH_BLOCKS; i+=HMAP_SAMPLES_PER_CELL) {
+		uint8_t val = HEIGHT_MAP[WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL][i/HMAP_SAMPLES_PER_CELL] / HMAP_SAMPLES_PER_CELL + GROUND_SKY_RATIO;
 		for (uint8_t j = 0; j < HMAP_SAMPLES_PER_CELL; j++) {
 			LVL1_HMAP[i+j] = val;
 		}
@@ -765,9 +776,9 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 
 
 	// LVL1_HMAP is as wide as the world, smooth the bumps
-	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, false);
-	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
-	filter_level(WORLD_WIDTH, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, false);
+	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
 
 }
 
@@ -819,8 +830,8 @@ void shape_caves_with_morphological_operations(uint8_t dirt, uint8_t foreground)
 		}
 	}
 
-	uint16_t width = WORLD_WIDTH/2;
-	uint16_t height = WORLD_HEIGHT;
+	uint16_t width = WORLD_WIDTH_BLOCKS/2;
+	uint16_t height = WORLD_HEIGHT_BLOCKS;
 	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;
 
 	if (foreground == cave) {
@@ -968,7 +979,7 @@ uint8_t get_block(uint16_t x, uint16_t y) {
 }
 
 bool isSolid (uint8_t block) {
-	if (block == _dirt || block == _grass || block == _wood || block == _brick || block == _sand || block == _rock || block == _red_wood || block == _gold || block == _diamond) {
+	if (block == _dirt || block == _grass || block == _wood || block == _sand || block == _rock || block == _red_wood || block == _gold || block == _diamond) {
 		return true;
 	}
 	return false;

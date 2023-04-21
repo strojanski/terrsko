@@ -17,20 +17,26 @@
 #define CELL_WIDTH BLOCK_WIDTH * 2
 
 // Number of visible blocks on screen
-#define SCENE_HEIGHT 60
-#define SCENE_WIDTH 80
+#define SCENE_HEIGHT_BLOCKS 60
+#define SCENE_WIDTH_BLOCKS 80
+
+#define SCENE_HEIGHT_CELLS SCENE_HEIGHT_BLOCKS
+#define SCENE_WIDTH_CELLS SCENE_WIDTH_BLOCKS / 2
 
 // Number of blocks in the world
-#define WORLD_HEIGHT ((uint16_t) SCENE_HEIGHT * 4) //120
-#define WORLD_WIDTH ((uint16_t) SCENE_WIDTH * 5) //160
+#define WORLD_HEIGHT_BLOCKS ((uint16_t) SCENE_HEIGHT_BLOCKS * 4) //120
+#define WORLD_WIDTH_BLOCKS ((uint16_t) SCENE_WIDTH_BLOCKS * 5) //160
+
+#define WORLD_WIDTH_CELLS WORLD_WIDTH_BLOCKS / 2
+#define WORLD_HEIGHT_CELLS WORLD_HEIGHT_BLOCKS
 
 // Dimensions of WORLD_MAP
-#define WORLD_MAP_HEIGHT WORLD_HEIGHT
-#define WORLD_MAP_WIDTH WORLD_WIDTH / 2
+#define WORLD_MAP_HEIGHT WORLD_HEIGHT_BLOCKS
+#define WORLD_MAP_WIDTH WORLD_WIDTH_BLOCKS / 2
 
 #define N_LEVELS 9
 #define SKY_GROUND_OFFSET 15
-#define GROUND_SKY_RATIO WORLD_HEIGHT / 3	// how much of the world is sky
+#define GROUND_SKY_RATIO WORLD_HEIGHT_BLOCKS / 3	// how much of the world is sky
 #define LEVEL_SMOOTHING_FACTOR 12
 #define KERNEL_WIDTH 32
 #define TERRAIN_STD_THRESH 3
@@ -39,23 +45,23 @@
 #define SE_SIZE_DILATION 3
 #define SE_SIZE_EROSION 5
 
-#define LIGHT_MAP_HEIGHT WORLD_HEIGHT
-#define LIGHT_MAP_WIDTH (WORLD_WIDTH / 8)
+#define LIGHT_MAP_HEIGHT WORLD_HEIGHT_BLOCKS
+#define LIGHT_MAP_WIDTH (WORLD_WIDTH_BLOCKS / 8)
 #define LIGHT_RADIUS 16		// radius of light in blocks
 #define LIGHT_DEGRADATION_RATE 0.95
 
 #define HMAP_SAMPLES_PER_CELL 16	// One hmap cell determines height 16 blocks
 #define CAVE_SAMPLES_PER_CELL 2	// One cave sample determines nxn blocks of cave
 
-#define tree_mask_width WORLD_WIDTH/(TREE_WIDTH/BLOCK_WIDTH)
+#define tree_mask_width WORLD_WIDTH_BLOCKS/(TREE_WIDTH/BLOCK_WIDTH)
 
-extern cell_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
-extern cell_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
-extern uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
+extern cell_t WORLD[WORLD_HEIGHT_BLOCKS][WORLD_WIDTH_BLOCKS/2];
+extern cell_t SCENE[SCENE_HEIGHT_BLOCKS][SCENE_WIDTH_BLOCKS/2];
+extern uint8_t SCENE_MASK[SCENE_HEIGHT_BLOCKS][SCENE_WIDTH_BLOCKS/2];	// Tells which blocks should not be overwritten in the loop
 extern uint8_t** CAVE_MAP; 	//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
-extern int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
-extern block_c LVL1_HMAP[WORLD_WIDTH];
-extern uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
+extern int16_t HEIGHT_MAP[WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL+1];
+extern block_c LVL1_HMAP[WORLD_WIDTH_BLOCKS];
+extern uint8_t LIGHT_MAP[WORLD_HEIGHT_BLOCKS][WORLD_WIDTH_BLOCKS/8];	// 1 cell = 8 blocks, 1 bit for each
 extern uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
 extern block_c camera_x;
 extern block_c camera_y;
