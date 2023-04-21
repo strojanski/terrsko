@@ -453,60 +453,58 @@ float light_intensity(float dist) {
 	}
 }
 
+
+block_t assign_block_material(block_c x, block_c y) {
+	float probability_rock = 0.01;
+	block_t block;
+
+	// right block
+	if (y > LVL1_HMAP[x]) { // Ground
+
+		float random = (float) rand() / (float) (RAND_MAX/100);
+
+		// Add random rocks
+		if (random < probability_rock && abs(LVL1_HMAP[x] - y) > 2) {
+			block = _rock;
+		} else {
+			block = _dirt;
+		}
+
+	} else if (y == LVL1_HMAP[x]) {
+		block = _grass;
+	} else {
+		block = _sky;
+	}
+
+	return block;
+}
+
+
 // Get basic landscape - dirt, sky + caves, lava
 void init_stage_0() {
 
 	srand(time(NULL));
 
-	float probability_rock = 0.01;
+
+	// Values identifying cave and lava materials
 	block_t cave = ((_dirt_bg << 4) | _dirt_bg);
 	block_t lava = ((_lava << 4) | _lava);
 
-	for (uint16_t i = 0; i < WORLD_HEIGHT_BLOCKS; i++) {
-		for (uint16_t j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {
-			uint8_t l_block; uint8_t r_block;
+	for (block_c i = 0; i < WORLD_HEIGHT_BLOCKS; i++) {
+		for (block_c j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {
+			block_t l_block; block_t r_block;
 
-			// Check for predetermined special values
+			// Check for predetermined special values and don't overwrite, because they are already put in
 			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
 				continue;
 			}
 
-			// Only change the empty cells
-			// Ground
-			if (i > LVL1_HMAP[j]) {
-				float random = (float) rand() / RAND_MAX;
+			// Assign materials
+			l_block = assign_block_material(j, i);
+			r_block = assign_block_material(j+1, i);
 
-				// Add random rocks
-				if (random < probability_rock && abs(LVL1_HMAP[j] - i) > 2) {	// Rocks at least 2 dirt deep
-					l_block = _rock;
-				} else {
-					l_block = _dirt;
-				}
 
-			} else if (i == LVL1_HMAP[j]) {
-				l_block = _grass;
-			} else {
-				l_block = _sky;
-			}
-
-			// left block
-			if (i > LVL1_HMAP[j+1]) { // Ground
-
-				float random = (float)rand()/(float)(RAND_MAX/100);
-
-				// Add random rocks
-				if (random < probability_rock && abs(LVL1_HMAP[j+1] - i) > 2) {
-					r_block = _rock;
-				} else {
-					r_block = _dirt;
-				}
-
-			} else if (i == LVL1_HMAP[j+1]) {
-				r_block = _grass;
-			} else {
-				r_block = _sky;
-			}
-
+			// Store into WORLD
 			WORLD[i][j/2] = (l_block << 4) | r_block;
 		}
 	}
