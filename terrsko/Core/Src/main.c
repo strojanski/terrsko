@@ -294,6 +294,8 @@ int main(void)
 
 	guysko* player = new_guysko();
 	movable* beings = new_movables();
+	camera_x = 50;
+	camera_y = 50;
 
 	uint16_t new_camera_x = camera_x;
 	uint16_t new_camera_y = camera_y;

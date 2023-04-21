@@ -27,29 +27,29 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  0003044c  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00054e14  00000000  00000000  0003047c  2**0
+ 12 .debug_info   00054e1a  00000000  00000000  0003047c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00009c8f  00000000  00000000  00085290  2**0
+ 13 .debug_abbrev 00009c8f  00000000  00000000  00085296  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 000030c0  00000000  00000000  0008ef20  2**3
+ 14 .debug_aranges 000030c0  00000000  00000000  0008ef28  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 00003b68  00000000  00000000  00091fe0  2**3
+ 15 .debug_ranges 00003b68  00000000  00000000  00091fe8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000388a4  00000000  00000000  00095b48  2**0
+ 16 .debug_macro  000388a4  00000000  00000000  00095b50  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0005916b  00000000  00000000  000ce3ec  2**0
+ 17 .debug_line   0005916e  00000000  00000000  000ce3f4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    001414f8  00000000  00000000  00127557  2**0
+ 18 .debug_str    001414f8  00000000  00000000  00127562  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  00268a4f  2**0
+ 19 .comment      00000050  00000000  00000000  00268a5a  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00009d44  00000000  00000000  00268aa0  2**2
+ 20 .debug_frame  00009d44  00000000  00000000  00268aac  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_loc    000399b9  00000000  00000000  002727e4  2**0
+ 21 .debug_loc    000399ca  00000000  00000000  002727f0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .stab         00000024  00000000  00000000  002ac1a0  2**2
+ 22 .stab         00000024  00000000  00000000  002ac1bc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 23 .stabstr      0000004e  00000000  00000000  002ac1c4  2**0
+ 23 .stabstr      0000004e  00000000  00000000  002ac1e0  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -4179,13 +4179,13 @@ __STATIC_FORCEINLINE void __disable_irq(void)
  800207a:	2064      	movs	r0, #100	; 0x64
  800207c:	f003 f91a 	bl	80052b4 <HAL_Delay>
 		HAL_GPIO_WritePin(GPIOF, LED0_Pin | LED1_Pin | LED2_Pin | LED3_Pin, GPIO_PIN_SET);
- 8002080:	4e4d      	ldr	r6, [pc, #308]	; (80021b8 <main+0x1bc>)
+ 8002080:	4e4e      	ldr	r6, [pc, #312]	; (80021bc <main+0x1c0>)
  8002082:	2201      	movs	r2, #1
  8002084:	213c      	movs	r1, #60	; 0x3c
  8002086:	4630      	mov	r0, r6
  8002088:	f004 fd62 	bl	8006b50 <HAL_GPIO_WritePin>
 		HAL_GPIO_WritePin(GPIOC, LED4_Pin | LED5_Pin | LED6_Pin | LED7_Pin, GPIO_PIN_SET);
- 800208c:	4d4b      	ldr	r5, [pc, #300]	; (80021bc <main+0x1c0>)
+ 800208c:	4d4c      	ldr	r5, [pc, #304]	; (80021c0 <main+0x1c4>)
  800208e:	2201      	movs	r2, #1
  8002090:	210f      	movs	r1, #15
  8002092:	4628      	mov	r0, r5
@@ -4217,7 +4217,7 @@ __STATIC_FORCEINLINE void __disable_irq(void)
 	HAL_ADC_Start_DMA(&hadc4, &joystick_raw, 2);
  80020c6:	2202      	movs	r2, #2
  80020c8:	a90c      	add	r1, sp, #48	; 0x30
- 80020ca:	483d      	ldr	r0, [pc, #244]	; (80021c0 <main+0x1c4>)
+ 80020ca:	483e      	ldr	r0, [pc, #248]	; (80021c4 <main+0x1c8>)
  80020cc:	f003 fd9c 	bl	8005c08 <HAL_ADC_Start_DMA>
 	HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 2);
  80020d0:	2202      	movs	r2, #2
@@ -4250,159 +4250,160 @@ __STATIC_FORCEINLINE void __disable_irq(void)
  8002108:	4605      	mov	r5, r0
 	movable* beings = new_movables();
  800210a:	f003 f83b 	bl	8005184 <new_movables>
-	uint16_t new_camera_x = camera_x;
- 800210e:	4f2d      	ldr	r7, [pc, #180]	; (80021c4 <main+0x1c8>)
- 8002110:	883c      	ldrh	r4, [r7, #0]
-	uint16_t new_camera_y = camera_y;
- 8002112:	4e2d      	ldr	r6, [pc, #180]	; (80021c8 <main+0x1cc>)
- 8002114:	8831      	ldrh	r1, [r6, #0]
+	camera_x = 50;
+ 800210e:	4f2e      	ldr	r7, [pc, #184]	; (80021c8 <main+0x1cc>)
+ 8002110:	2432      	movs	r4, #50	; 0x32
+ 8002112:	803c      	strh	r4, [r7, #0]
+	camera_y = 50;
+ 8002114:	4e2d      	ldr	r6, [pc, #180]	; (80021cc <main+0x1d0>)
+ 8002116:	8034      	strh	r4, [r6, #0]
 	player->pos->x = camera_x * BLOCK_WIDTH;
- 8002116:	692b      	ldr	r3, [r5, #16]
- 8002118:	00a2      	lsls	r2, r4, #2
- 800211a:	801a      	strh	r2, [r3, #0]
+ 8002118:	692b      	ldr	r3, [r5, #16]
+ 800211a:	22c8      	movs	r2, #200	; 0xc8
+ 800211c:	801a      	strh	r2, [r3, #0]
 	player->pos->y = camera_y * BLOCK_WIDTH;
- 800211c:	692a      	ldr	r2, [r5, #16]
- 800211e:	8833      	ldrh	r3, [r6, #0]
- 8002120:	009b      	lsls	r3, r3, #2
- 8002122:	8053      	strh	r3, [r2, #2]
+ 800211e:	692a      	ldr	r2, [r5, #16]
+ 8002120:	8833      	ldrh	r3, [r6, #0]
+ 8002122:	009b      	lsls	r3, r3, #2
+ 8002124:	8053      	strh	r3, [r2, #2]
 	update_camera_center(new_camera_x, new_camera_y);
- 8002124:	4620      	mov	r0, r4
- 8002126:	f000 fda3 	bl	8002c70 <update_camera_center>
+ 8002126:	4621      	mov	r1, r4
+ 8002128:	4620      	mov	r0, r4
+ 800212a:	f000 fda1 	bl	8002c70 <update_camera_center>
 	old_camera_x = camera_x;
- 800212a:	883a      	ldrh	r2, [r7, #0]
- 800212c:	4b27      	ldr	r3, [pc, #156]	; (80021cc <main+0x1d0>)
- 800212e:	801a      	strh	r2, [r3, #0]
+ 800212e:	883a      	ldrh	r2, [r7, #0]
+ 8002130:	4b27      	ldr	r3, [pc, #156]	; (80021d0 <main+0x1d4>)
+ 8002132:	801a      	strh	r2, [r3, #0]
 	old_camera_y = camera_y;
- 8002130:	8832      	ldrh	r2, [r6, #0]
- 8002132:	4b27      	ldr	r3, [pc, #156]	; (80021d0 <main+0x1d4>)
- 8002134:	801a      	strh	r2, [r3, #0]
- 8002136:	e015      	b.n	8002164 <main+0x168>
+ 8002134:	8832      	ldrh	r2, [r6, #0]
+ 8002136:	4b27      	ldr	r3, [pc, #156]	; (80021d4 <main+0x1d8>)
+ 8002138:	801a      	strh	r2, [r3, #0]
+ 800213a:	e015      	b.n	8002168 <main+0x16c>
 		} else if (camera_x - player->pos->x / BLOCK_WIDTH < -GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
- 8002138:	f113 0f12 	cmn.w	r3, #18
- 800213c:	da09      	bge.n	8002152 <main+0x156>
+ 800213c:	f113 0f12 	cmn.w	r3, #18
+ 8002140:	da09      	bge.n	8002156 <main+0x15a>
 			new_camera_x = camera_x + abs(-camera_x - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
- 800213e:	f06f 0411 	mvn.w	r4, #17
- 8002142:	1aa4      	subs	r4, r4, r2
- 8002144:	4404      	add	r4, r0
- 8002146:	2c00      	cmp	r4, #0
- 8002148:	bfb8      	it	lt
- 800214a:	4264      	neglt	r4, r4
- 800214c:	fa12 f484 	uxtah	r4, r2, r4
- 8002150:	b2a4      	uxth	r4, r4
+ 8002142:	f06f 0411 	mvn.w	r4, #17
+ 8002146:	1aa4      	subs	r4, r4, r2
+ 8002148:	4404      	add	r4, r0
+ 800214a:	2c00      	cmp	r4, #0
+ 800214c:	bfb8      	it	lt
+ 800214e:	4264      	neglt	r4, r4
+ 8002150:	fa12 f484 	uxtah	r4, r2, r4
+ 8002154:	b2a4      	uxth	r4, r4
 		update_camera_center(new_camera_x, new_camera_y);
- 8002152:	4620      	mov	r0, r4
- 8002154:	f000 fd8c 	bl	8002c70 <update_camera_center>
+ 8002156:	4620      	mov	r0, r4
+ 8002158:	f000 fd8a 	bl	8002c70 <update_camera_center>
 		action_set(&joystick_raw);
- 8002158:	a80c      	add	r0, sp, #48	; 0x30
- 800215a:	f7fe ffc5 	bl	80010e8 <action_set>
+ 800215c:	a80c      	add	r0, sp, #48	; 0x30
+ 800215e:	f7fe ffc3 	bl	80010e8 <action_set>
 		while (!cycle)
- 800215e:	4b1d      	ldr	r3, [pc, #116]	; (80021d4 <main+0x1d8>)
- 8002160:	781b      	ldrb	r3, [r3, #0]
- 8002162:	b32b      	cbz	r3, 80021b0 <main+0x1b4>
+ 8002162:	4b1d      	ldr	r3, [pc, #116]	; (80021d8 <main+0x1dc>)
+ 8002164:	781b      	ldrb	r3, [r3, #0]
+ 8002166:	b32b      	cbz	r3, 80021b4 <main+0x1b8>
 		cycle = false;
- 8002164:	4b1b      	ldr	r3, [pc, #108]	; (80021d4 <main+0x1d8>)
- 8002166:	2200      	movs	r2, #0
- 8002168:	701a      	strb	r2, [r3, #0]
+ 8002168:	4b1b      	ldr	r3, [pc, #108]	; (80021d8 <main+0x1dc>)
+ 800216a:	2200      	movs	r2, #0
+ 800216c:	701a      	strb	r2, [r3, #0]
 		draw_scene();
- 800216a:	f000 fa3b 	bl	80025e4 <draw_scene>
+ 800216e:	f000 fa39 	bl	80025e4 <draw_scene>
 		old_camera_x = camera_x;
- 800216e:	4e15      	ldr	r6, [pc, #84]	; (80021c4 <main+0x1c8>)
- 8002170:	8832      	ldrh	r2, [r6, #0]
- 8002172:	4b16      	ldr	r3, [pc, #88]	; (80021cc <main+0x1d0>)
- 8002174:	801a      	strh	r2, [r3, #0]
+ 8002172:	4e15      	ldr	r6, [pc, #84]	; (80021c8 <main+0x1cc>)
+ 8002174:	8832      	ldrh	r2, [r6, #0]
+ 8002176:	4b16      	ldr	r3, [pc, #88]	; (80021d0 <main+0x1d4>)
+ 8002178:	801a      	strh	r2, [r3, #0]
 		old_camera_y = camera_y;
- 8002176:	4b14      	ldr	r3, [pc, #80]	; (80021c8 <main+0x1cc>)
- 8002178:	881a      	ldrh	r2, [r3, #0]
- 800217a:	4b15      	ldr	r3, [pc, #84]	; (80021d0 <main+0x1d4>)
- 800217c:	801a      	strh	r2, [r3, #0]
+ 800217a:	4b14      	ldr	r3, [pc, #80]	; (80021cc <main+0x1d0>)
+ 800217c:	881a      	ldrh	r2, [r3, #0]
+ 800217e:	4b15      	ldr	r3, [pc, #84]	; (80021d4 <main+0x1d8>)
+ 8002180:	801a      	strh	r2, [r3, #0]
 		refresh_guysko(player, FPS);
- 800217e:	4b16      	ldr	r3, [pc, #88]	; (80021d8 <main+0x1dc>)
- 8002180:	7819      	ldrb	r1, [r3, #0]
- 8002182:	4628      	mov	r0, r5
- 8002184:	f002 ffb8 	bl	80050f8 <refresh_guysko>
+ 8002182:	4b16      	ldr	r3, [pc, #88]	; (80021dc <main+0x1e0>)
+ 8002184:	7819      	ldrb	r1, [r3, #0]
+ 8002186:	4628      	mov	r0, r5
+ 8002188:	f002 ffb6 	bl	80050f8 <refresh_guysko>
 		new_camera_y = player->pos->y / BLOCK_WIDTH;
- 8002188:	692b      	ldr	r3, [r5, #16]
- 800218a:	8859      	ldrh	r1, [r3, #2]
- 800218c:	0889      	lsrs	r1, r1, #2
+ 800218c:	692b      	ldr	r3, [r5, #16]
+ 800218e:	8859      	ldrh	r1, [r3, #2]
+ 8002190:	0889      	lsrs	r1, r1, #2
 		if (camera_x - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
- 800218e:	8832      	ldrh	r2, [r6, #0]
- 8002190:	881b      	ldrh	r3, [r3, #0]
- 8002192:	0898      	lsrs	r0, r3, #2
- 8002194:	eba2 0393 	sub.w	r3, r2, r3, lsr #2
- 8002198:	2b12      	cmp	r3, #18
- 800219a:	ddcd      	ble.n	8002138 <main+0x13c>
+ 8002192:	8832      	ldrh	r2, [r6, #0]
+ 8002194:	881b      	ldrh	r3, [r3, #0]
+ 8002196:	0898      	lsrs	r0, r3, #2
+ 8002198:	eba2 0393 	sub.w	r3, r2, r3, lsr #2
+ 800219c:	2b12      	cmp	r3, #18
+ 800219e:	ddcd      	ble.n	800213c <main+0x140>
 			new_camera_x = camera_x - abs(camera_x - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
- 800219c:	f1a2 0412 	sub.w	r4, r2, #18
- 80021a0:	1a24      	subs	r4, r4, r0
- 80021a2:	2c00      	cmp	r4, #0
- 80021a4:	bfb8      	it	lt
- 80021a6:	4264      	neglt	r4, r4
- 80021a8:	b2a4      	uxth	r4, r4
- 80021aa:	1b14      	subs	r4, r2, r4
+ 80021a0:	f1a2 0412 	sub.w	r4, r2, #18
+ 80021a4:	1a24      	subs	r4, r4, r0
+ 80021a6:	2c00      	cmp	r4, #0
+ 80021a8:	bfb8      	it	lt
+ 80021aa:	4264      	neglt	r4, r4
  80021ac:	b2a4      	uxth	r4, r4
- 80021ae:	e7d0      	b.n	8002152 <main+0x156>
+ 80021ae:	1b14      	subs	r4, r2, r4
+ 80021b0:	b2a4      	uxth	r4, r4
+ 80021b2:	e7d0      	b.n	8002156 <main+0x15a>
 			action_set(&joystick_raw);
- 80021b0:	a80c      	add	r0, sp, #48	; 0x30
- 80021b2:	f7fe ff99 	bl	80010e8 <action_set>
- 80021b6:	e7d2      	b.n	800215e <main+0x162>
- 80021b8:	48001400 	.word	0x48001400
- 80021bc:	48000800 	.word	0x48000800
- 80021c0:	200005c0 	.word	0x200005c0
- 80021c4:	200110a8 	.word	0x200110a8
- 80021c8:	200110aa 	.word	0x200110aa
- 80021cc:	200110ae 	.word	0x200110ae
- 80021d0:	200110b0 	.word	0x200110b0
- 80021d4:	20000950 	.word	0x20000950
- 80021d8:	20000000 	.word	0x20000000
+ 80021b4:	a80c      	add	r0, sp, #48	; 0x30
+ 80021b6:	f7fe ff97 	bl	80010e8 <action_set>
+ 80021ba:	e7d2      	b.n	8002162 <main+0x166>
+ 80021bc:	48001400 	.word	0x48001400
+ 80021c0:	48000800 	.word	0x48000800
+ 80021c4:	200005c0 	.word	0x200005c0
+ 80021c8:	200110a8 	.word	0x200110a8
+ 80021cc:	200110aa 	.word	0x200110aa
+ 80021d0:	200110ae 	.word	0x200110ae
+ 80021d4:	200110b0 	.word	0x200110b0
+ 80021d8:	20000950 	.word	0x20000950
+ 80021dc:	20000000 	.word	0x20000000
 
-080021dc <is_light_source>:
+080021e0 <is_light_source>:
 		_fire,
 		_empty			// currently sky defaults to _empty, we want to see some blocks under ground
 };
 
 bool is_light_source(uint8_t material) {
 	uint8_t full_cell = material << 4 | material;
- 80021dc:	ea40 1c00 	orr.w	ip, r0, r0, lsl #4
- 80021e0:	fa4f fc8c 	sxtb.w	ip, ip
+ 80021e0:	ea40 1c00 	orr.w	ip, r0, r0, lsl #4
+ 80021e4:	fa4f fc8c 	sxtb.w	ip, ip
 	for (uint8_t i = 0; i < N_LIGHT_SOURCES; i++) {
- 80021e4:	2300      	movs	r3, #0
- 80021e6:	2b02      	cmp	r3, #2
- 80021e8:	d80c      	bhi.n	8002204 <is_light_source+0x28>
+ 80021e8:	2300      	movs	r3, #0
+ 80021ea:	2b02      	cmp	r3, #2
+ 80021ec:	d80c      	bhi.n	8002208 <is_light_source+0x28>
 		if (light_sources[i] == material) {
- 80021ea:	4a09      	ldr	r2, [pc, #36]	; (8002210 <is_light_source+0x34>)
- 80021ec:	5cd1      	ldrb	r1, [r2, r3]
- 80021ee:	4281      	cmp	r1, r0
- 80021f0:	d00a      	beq.n	8002208 <is_light_source+0x2c>
+ 80021ee:	4a09      	ldr	r2, [pc, #36]	; (8002214 <is_light_source+0x34>)
+ 80021f0:	5cd1      	ldrb	r1, [r2, r3]
+ 80021f2:	4281      	cmp	r1, r0
+ 80021f4:	d00a      	beq.n	800220c <is_light_source+0x2c>
 			return true;
 		}
 
 		uint8_t full_source = light_sources[i] << 4 | light_sources[i];
- 80021f2:	b24a      	sxtb	r2, r1
- 80021f4:	ea42 1201 	orr.w	r2, r2, r1, lsl #4
- 80021f8:	b252      	sxtb	r2, r2
+ 80021f6:	b24a      	sxtb	r2, r1
+ 80021f8:	ea42 1201 	orr.w	r2, r2, r1, lsl #4
+ 80021fc:	b252      	sxtb	r2, r2
 		if (full_source == full_cell) {
- 80021fa:	4594      	cmp	ip, r2
- 80021fc:	d006      	beq.n	800220c <is_light_source+0x30>
+ 80021fe:	4594      	cmp	ip, r2
+ 8002200:	d006      	beq.n	8002210 <is_light_source+0x30>
 	for (uint8_t i = 0; i < N_LIGHT_SOURCES; i++) {
- 80021fe:	3301      	adds	r3, #1
- 8002200:	b2db      	uxtb	r3, r3
- 8002202:	e7f0      	b.n	80021e6 <is_light_source+0xa>
+ 8002202:	3301      	adds	r3, #1
+ 8002204:	b2db      	uxtb	r3, r3
+ 8002206:	e7f0      	b.n	80021ea <is_light_source+0xa>
 			return true;
 		}
 
 	}
 	return false;
- 8002204:	2000      	movs	r0, #0
- 8002206:	4770      	bx	lr
-			return true;
- 8002208:	2001      	movs	r0, #1
+ 8002208:	2000      	movs	r0, #0
  800220a:	4770      	bx	lr
 			return true;
  800220c:	2001      	movs	r0, #1
-}
  800220e:	4770      	bx	lr
- 8002210:	20000004 	.word	0x20000004
- 8002214:	00000000 	.word	0x00000000
+			return true;
+ 8002210:	2001      	movs	r0, #1
+}
+ 8002212:	4770      	bx	lr
+ 8002214:	20000004 	.word	0x20000004
 
 08002218 <apply_shading>:
 #define RGB565_RED 0xF800
@@ -5983,7 +5984,7 @@ void init_light_map() {
 
 				if (is_light_source(l_cell)) {
  8002d68:	0900      	lsrs	r0, r0, #4
- 8002d6a:	f7ff fa37 	bl	80021dc <is_light_source>
+ 8002d6a:	f7ff fa39 	bl	80021e0 <is_light_source>
  8002d6e:	b130      	cbz	r0, 8002d7e <init_light_map+0x3a>
 					lighting_byte |= 1 << (8 - (2 * k));
  8002d70:	f1c4 0304 	rsb	r3, r4, #4
@@ -5996,7 +5997,7 @@ void init_light_map() {
 
 				if (is_light_source(r_cell)) {
  8002d7e:	4648      	mov	r0, r9
- 8002d80:	f7ff fa2c 	bl	80021dc <is_light_source>
+ 8002d80:	f7ff fa2e 	bl	80021e0 <is_light_source>
  8002d84:	2800      	cmp	r0, #0
  8002d86:	d0e2      	beq.n	8002d4e <init_light_map+0xa>
 					lighting_byte |= 1 << (8 - (2 * k) - 1);
