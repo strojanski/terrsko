@@ -299,14 +299,14 @@ int main(void)
 	uint16_t new_camera_y = camera_y;
 
 	// Init guysko to spawn in camera coordinates
-	player->pos->x = camera_x * BLOCK_WIDTH;
-	player->pos->y = camera_y * BLOCK_WIDTH;
+	player->pos->x = block_to_pixel(camera_x);
+	player->pos->y = block_to_pixel(camera_y);
 
 	update_camera_center(new_camera_x, new_camera_y);
 
 	old_camera_x = camera_x;
 	old_camera_y = camera_y;
-
+	bool first_render = true;
 	while (1) {
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
 		cycle = false;
@@ -324,7 +324,7 @@ int main(void)
 //			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
 //		}
 
-		draw_scene();
+		draw_scene(first_render);
 
 		old_camera_x = camera_x;
 		old_camera_y = camera_y;
@@ -414,6 +414,7 @@ int main(void)
 			 */
 			action_set(&joystick_raw);
 		}
+		first_render = false;
 	}
 
 	/* USER CODE END 3 */

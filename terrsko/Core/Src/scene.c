@@ -18,8 +18,8 @@
 #define CAVE_DEATH_THRESH 5
 
 // 4 bits define the block at the position
-uint8_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 46KB
-uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
+cell_t WORLD[WORLD_MAP_HEIGHT][WORLD_MAP_WIDTH];		// 46KB
+cell_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];	// 2.3KB
 uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
 
 uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
@@ -29,15 +29,15 @@ uint8_t** CAVE_MAP;//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SA
 
 // Height can be > 256, need uint16_t
 int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];	// Requires size 2^n + 1 in each dimension ie. [9][161]
-int16_t LVL1_HMAP[WORLD_WIDTH];
+block_c LVL1_HMAP[WORLD_WIDTH];
 
 uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
 
-uint16_t camera_x = 0;
-uint16_t camera_y = 0;
+block_c camera_x = 0;
+block_c camera_y = 0;
 uint8_t new_frame = 0;
-uint16_t old_camera_x = 0;
-uint16_t old_camera_y = 0;
+block_c old_camera_x = 0;
+block_c old_camera_y = 0;
 
 float EUCLIDEAN_DISTANCES[LIGHT_RADIUS * 2];	// Inclusive precomputed euclidean distances for all possible distances
 float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
@@ -71,21 +71,27 @@ void init_world() {
 
 void get_scene() {
 	// width / 4 because each cell represents 2 blocks
-	uint8_t offset_width = (SCENE_WIDTH / 4);
-	uint8_t offset_height = (SCENE_HEIGHT / 2);
+	block_c block_offset_width = (SCENE_WIDTH / 2);
+	block_c block_offset_height = (SCENE_HEIGHT / 2);
+
+	cell_c offset_w = block_to_cell_x(block_offset_width);
+	cell_c offset_h = block_to_cell_y(block_offset_height);
+
+
+	//camera_x = 40; camera_y = 40;
 
 	// Check if within bounds
-	uint16_t left = camera_x > offset_width ? camera_x - offset_width : 0;
-	uint16_t top = camera_y > offset_height ? camera_y - offset_height : 0;
-	uint16_t right = MIN(camera_x + (SCENE_WIDTH / 4), WORLD_WIDTH);
-	uint16_t bottom = MIN(camera_y + (SCENE_HEIGHT / 2), WORLD_HEIGHT);
+	cell_c left = MAX(0, (int16_t) block_to_cell_x(camera_x) - offset_w);
+	cell_c top = MAX(0, (int16_t) block_to_cell_y(camera_y) - offset_h);
+	cell_c right = MIN(block_to_cell_x(camera_x) + offset_w, block_to_cell_x(WORLD_WIDTH));
+	cell_c bottom = MIN(block_to_cell_y(camera_y) + offset_h, block_to_cell_y(WORLD_HEIGHT));
 
 
-	uint16_t x = 0;
-	uint16_t y = 0;
-	for (uint16_t i = top; i < bottom; i++) {
-		for (uint16_t j = left; j < right; j++) {
-			SCENE[y][x] = WORLD[i][j];
+	cell_c x = 0;
+	cell_c y = 0;
+	for (cell_c j = top; j <= bottom; j++) {
+		for (cell_c i = left; i <= right; i++) {
+			SCENE[y][x] = WORLD[j][i];
 			x++;
 		}
 		x = 0;

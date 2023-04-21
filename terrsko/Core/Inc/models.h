@@ -3,13 +3,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "scene.h"
 
 #define SCREEN_WIDTH 320
 #define SCENE_BLOCKS_X 80
+#define SCENE_CELLS_X SCENE_BLOCKS_X / 2
 
 #define SCREEN_HEIGHT 240
 #define SCENE_BLOCKS_Y 60
+#define SCENE_CELLS_Y 60
 
 #define BLOCK_WIDTH 4
 
@@ -25,7 +28,7 @@ destroyable* create_destroyable(uint16_t x, uint16_t y, uint16_t colors[4], uint
 
 bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, float illumination);
 
-void draw_scene();
+void draw_scene(bool init);
 
 void draw_block(block* block);
 

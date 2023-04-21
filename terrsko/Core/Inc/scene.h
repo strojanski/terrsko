@@ -49,19 +49,19 @@
 
 #define tree_mask_width WORLD_WIDTH/(TREE_WIDTH/BLOCK_WIDTH)
 
-extern uint8_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
-extern uint8_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
+extern cell_t WORLD[WORLD_HEIGHT][WORLD_WIDTH/2];
+extern cell_t SCENE[SCENE_HEIGHT][SCENE_WIDTH/2];
 extern uint8_t SCENE_MASK[SCENE_HEIGHT][SCENE_WIDTH/2];	// Tells which blocks should not be overwritten in the loop
 extern uint8_t** CAVE_MAP; 	//[WORLD_HEIGHT/CAVE_SAMPLES_PER_CELL][WORLD_WIDTH/(2*CAVE_SAMPLES_PER_CELL)];
 extern int16_t HEIGHT_MAP[WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDTH/HMAP_SAMPLES_PER_CELL+1];
-extern int16_t LVL1_HMAP[WORLD_WIDTH];
+extern block_c LVL1_HMAP[WORLD_WIDTH];
 extern uint8_t LIGHT_MAP[WORLD_HEIGHT][WORLD_WIDTH/8];	// 1 cell = 8 blocks, 1 bit for each
 extern uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
-extern uint16_t camera_x;
-extern uint16_t camera_y;
+extern block_c camera_x;
+extern block_c camera_y;
 
-extern uint16_t old_camera_x;
-extern uint16_t old_camera_y;
+extern block_c old_camera_x;
+extern block_c old_camera_y;
 
 void get_scene();
 

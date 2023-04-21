@@ -7,13 +7,17 @@
 
 #include <stdint.h>
 #include <scene.h>
+#include "structures.h"
 
-// Returns upper 4 bits of uint8_t
-uint8_t upper(uint8_t block) {
+/* Returns upper 4 bits of cell_t
+ * 		@param block_t block
+ * **/
+block_t upper(block_t block) {
 	return (block & 0xF0) >> 4;
 }
 
-uint8_t lower(uint8_t block) {
+/* Returns lower 4 bits of cell_t */
+block_t lower(block_t block) {
 	return block & 0x0F;
 }
 
@@ -33,48 +37,48 @@ uint8_t lower(uint8_t block) {
  */
 
 
-uint16_t pixel_to_block(uint16_t pixel_coord) {
+block_c pixel_to_block(pixel_c pixel_coord) {
 	return pixel_coord / BLOCK_WIDTH;
 }
 
-uint16_t block_to_pixel(uint16_t block_coord) {
+pixel_c block_to_pixel(block_c block_coord) {
 	return BLOCK_WIDTH + block_coord * BLOCK_WIDTH - 1;
 }
 
 // cell represents the
-uint16_t cell_x_to_block_left(uint16_t cell_coord) {
+block_c cell_x_to_block_left(cell_c cell_coord) {
 	return 2 * cell_coord;
 }
 
-uint16_t cell_x_to_block_right(uint16_t cell_coord) {
+block_c cell_x_to_block_right(cell_c cell_coord) {
 	return 2 * cell_coord + 1;
 }
 
-uint16_t cell_y_to_block(uint16_t cell_coord) {
+block_c cell_y_to_block(cell_c cell_coord) {
 	return cell_coord;
 }
 
-uint16_t block_to_cell_x(uint16_t block_coord) {
+cell_c block_to_cell_x(block_c block_coord) {
 	return block_coord / 2;
 }
 
-uint16_t block_to_cell_y(uint16_t block_coord) {
+cell_c block_to_cell_y(block_c block_coord) {
 	return block_coord;
 }
 
-uint16_t pixel_to_cell_x(uint16_t pixel_coord) {
+cell_c pixel_to_cell_x(pixel_c pixel_coord) {
 	return block_to_cell_x(
 			pixel_to_block(pixel_coord));
 }
 
-uint16_t pixel_to_cell_y(uint16_t pixel_coord) {
+cell_c pixel_to_cell_y(pixel_c pixel_coord) {
 	return pixel_to_block(pixel_coord);
 }
 
-uint16_t cell_x_to_pixel(uint16_t cell_coord) {
+pixel_c cell_x_to_pixel(cell_c cell_coord) {
 	return CELL_WIDTH + cell_coord * CELL_WIDTH - 1;
 }
 
-uint16_t cell_y_to_pixel(uint16_t cell_coord) {
+pixel_c cell_y_to_pixel(cell_c cell_coord) {
 	return block_to_pixel(cell_coord);
 }

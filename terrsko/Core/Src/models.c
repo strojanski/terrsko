@@ -183,220 +183,172 @@ void draw_detailed_block(block *block) {
 			C_BLACK);
 }
 
-void quick_draw() {
-	get_scene();
-	srand(time(NULL));
 
-	uint16_t pos_x1 = 4;
-	uint16_t pos_x2 = 8;
+/*
+ * Draws a block accordingly to the enum stored in the SCENE (aka WORLD)
+ * **/
 
-	int16_t move_horizontal = old_camera_x - camera_x;	// + -> left, - -> right
-	int16_t move_vertical = old_camera_y - camera_y;	// + -> up, - -> down
+void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, float illumination, block_c ground_height, block_c current_height) {
 
-	// If we didn't move don't render the scene at all as it is already rendered
-	if (move_horizontal == 0 && move_vertical == 0) {
-		return;
+	// Determines time and probabilities
+	bool night = is_night();
+	float probability_star = .0;
+	float random = (float) rand() / RAND_MAX;
+
+
+	if (material == (block_t) _dirt) {
+
+		destroyable *dirt = create_destroyable(pixel_pos_x, pixel_pos_y, C_DIRT, _dirt, illumination);
+
+		draw_block(dirt->block);
+		free_destroyable(dirt);
+	} else if (material == (block_t) _grass) {
+
+		destroyable *grass = create_destroyable(pixel_pos_x, pixel_pos_y, C_GRASS, _grass, illumination);
+
+		draw_block(grass->block);
+		free_destroyable(grass);
+	} else if (material == (block_t) _lava) {
+
+		destroyable *lava = create_destroyable(pixel_pos_x, pixel_pos_y, C_LAVA, _lava, illumination);
+
+		draw_block(lava->block);
+		free_destroyable(lava);
+	} else if (material == (block_t) _wood) {
+
+		destroyable *wood = create_destroyable(pixel_pos_x, pixel_pos_y, C_WOOD, _wood, illumination);
+
+		draw_block(wood->block);
+		free_destroyable(wood);
+	} else if (material == (block_t) _rock) {
+
+		destroyable *rock = create_destroyable(pixel_pos_x, pixel_pos_y, C_ROCK, _rock, illumination);
+
+		draw_block(rock->block);
+		free_destroyable(rock);
+	} else if (material == (block_t) _dirt_bg) {
+
+		bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
+
+		draw_block(dirt->block);
+		free_bg_material(dirt);
+	} else {
+		// Above ground = sky, below ground = dirt_bg
+		if (current_height < ground_height) {
+
+			uint16_t *color = C_SKY;
+
+			if (random < probability_star && night) {
+				color = C_STAR;
+			} else if (night) {
+				color = C_NIGHT_SKY;
+			}
+
+			// SKY
+			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y,
+					color, _empty, illumination);
+			draw_block(sky->block);
+			free_bg_material(sky);
+		} else {
+			// DIRT BG
+			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y,
+					C_BG_DIRT, _dirt_bg, illumination);
+			draw_block(dirt->block);
+			free_bg_material(dirt);
+		}
 	}
-
-	// For each block check if it has changed, only draw if it has
-	uint16_t block_x = old_camera_x - SCENE_WIDTH / 2;
-	uint16_t block_y = old_camera_y - SCENE_HEIGHT / 2;
-
 }
 
-void draw_scene() {
+void draw_scene(bool init) {
 	// update and get scene
 	get_scene();
 	get_scene_mask();	// 1 - do not overwrite, 0 do overwrite
 
 	srand(time(NULL));
 
-	// Pixel positions for first and second block in x axis
-	uint16_t pos_x1 = 4;
-	uint16_t pos_x2 = 8;
-
-	bool night = is_night();
-
-	float probability_star = .0;
 	float illumination = 1;
 
-	// Scene[0][0] in world coordinates
-	block_t block_x = camera_x - SCENE_WIDTH / 2;
-	block_t block_y = camera_y - SCENE_HEIGHT / 2;
+	// Rendering optimization
+	int8_t move_horizontal = old_camera_x - camera_x; // + -> left, - -> right
+	int8_t move_vertical = old_camera_y - camera_y; // + -> up, - -> down
 
-	// Iterate i, j in BLOCK COORDINATES
-	for (uint16_t i = 0; i < SCENE_BLOCKS_X; i++) {
-		for (uint16_t j = 0; j < SCENE_BLOCKS_Y; j++) {
+	// If we didn't move don't render the scene at all as it is already rendered
+	if (!init && move_horizontal == 0 && move_vertical == 0) {
+		return;
+	}
+	
+	// Scene[0][0] in world coordinates in current frame
+	block_c world_block_x0 = camera_x - SCENE_BLOCKS_X / 2;
+	block_c world_block_y0 = camera_y - SCENE_BLOCKS_Y / 2;
+	
+	// Scene[0][0] in world coordinates in previous frame
+	block_c old_world_block_x0 = old_camera_x - SCENE_BLOCKS_X / 2;
+	block_c old_world_block_y0 = old_camera_y - SCENE_BLOCKS_Y / 2;
 
-			uint16_t scene_cell_x = block_to_cell_x(i);
-			uint16_t scene_cell_y = block_to_cell_y(j);
+	// Pixel positions for first and second block in x axis
+	pixel_c pos_x1 = 4;
+	pixel_c pos_x2 = 8;
+	
+	// Iterate i, j in CELL COORDINATES
+	for (cell_c i = 0; i < SCENE_CELLS_X; i++) {
+		for (cell_c j = 0; j < SCENE_CELLS_Y; j++) {
 
-			int16_t move_horizontal = old_camera_x - camera_x;// + -> left, - -> right
-			int16_t move_vertical = old_camera_y - camera_y;// + -> up, - -> down
 
-			// If we didn't move don't render the scene at all as it is already rendered
-			if (move_horizontal == 0 && move_vertical == 0) {
-				return;
-			}
+			// For indexing cells in SCENE
+			cell_c scene_cell_x = i;
+			cell_c scene_cell_y = j;
+			
+			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in current frame
+			cell_c world_cell_x = block_to_cell_x(world_block_x0) + i;
+			cell_c world_cell_y = block_to_cell_y(world_block_y0) + j;
 
-			uint16_t old_block_x = old_camera_x - SCENE_WIDTH / 4;
-			uint16_t old_block_y = old_camera_y - SCENE_HEIGHT / 2;
+			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in previous frame
+			cell_c old_world_cell_x = block_to_cell_x(old_world_block_x0) + i;
+			cell_c old_world_cell_y = block_to_cell_y(old_world_block_y0) + j;
+
+			// Cell that we are currently drawing
+			cell_t current_scene_cell = SCENE[scene_cell_y][scene_cell_x];
+			//cell_t current_world_cell = WORLD[world_cell_y][world_cell_x];
+
+			cell_t old_world_cell = WORLD[old_world_cell_y][old_world_cell_x];
 
 			// Skip the block(s) if it hasn't changed - TODO check each block separately
-			if (WORLD[old_block_y + j][old_block_x + i] == SCENE[j][i / 2]) {
-				continue;
-			}
+			bool skip_left = false, skip_right = false;
 
-			uint8_t value = SCENE[scene_cell_y][scene_cell_x]; // SCENE[y][x]
 
-			uint8_t l_cell = (value & 0xF0) >> 4;
-			uint8_t r_cell = (value & 0x0F);
-
-			illumination = 1; //compute_illumination(i, j);
-			// Check for tree
-			coord pos = { x: pos_x2, y: 4 * (j + 1) };
-			if (l_cell == _tree || r_cell == _tree) {
-				//draw_tree_normal(&pos);
-			}
-
-			uint16_t global_x = (camera_x - SCENE_WIDTH / 2 + i);
-			uint16_t tree_cell = global_x / (TREE_WIDTH / BLOCK_WIDTH);
-
-			// Above the ground + theres a tree
-//			if (j <= LVL1_HMAP[camera_x - SCENE_WIDTH/2 + i] && TREE_MASK[tree_cell] == 1) {
-//				continue;
-//			}
-
-			//+ else {
-
-			float random = (float) rand() / RAND_MAX;
-			// left (first) cell
-			if (l_cell == (uint8_t) _dirt) {
-
-				destroyable *dirt = create_destroyable(pos_x1, 4 * (j + 1),
-						C_DIRT, _dirt, illumination);
-
-				draw_block(dirt->block);
-				free_destroyable(dirt);
-			} else if (l_cell == (uint8_t) _grass) {
-
-				destroyable *grass = create_destroyable(pos_x1, 4 * (j + 1),
-						C_GRASS, _grass, illumination);
-
-				draw_block(grass->block);
-				free_destroyable(grass);
-			} else if (l_cell == (uint8_t) _lava) {
-
-				destroyable *lava = create_destroyable(pos_x1, 4 * (j + 1),
-						C_LAVA, _lava, illumination);
-
-				draw_block(lava->block);
-				free_destroyable(lava);
-			} else if (l_cell == (uint8_t) _wood) {
-
-				destroyable *wood = create_destroyable(pos_x1, 4 * (j + 1),
-						C_WOOD, _wood, illumination);
-
-				draw_block(wood->block);
-				free_destroyable(wood);
-			} else if (l_cell == (uint8_t) _rock) {
-
-				destroyable *rock = create_destroyable(pos_x1, 4 * (j + 1),
-						C_ROCK, _rock, illumination);
-
-				draw_block(rock->block);
-				free_destroyable(rock);
-			} else if (l_cell == (uint8_t) _dirt_bg) {
-
-				bg_material *dirt = create_bg_material(pos_x1, 4 * (j + 1),
-						C_BG_DIRT, _dirt_bg, illumination);
-
-				draw_block(dirt->block);
-				free_bg_material(dirt);
-			} else {
-				if (block_y + j < LVL1_HMAP[camera_x - SCENE_WIDTH / 2 + i]) {
-
-					uint16_t *color = C_SKY;
-
-					if (random < probability_star && night) {
-						color = C_STAR;
-					} else if (night) {
-						color = C_NIGHT_SKY;
+			if (!init) {
+				if (old_world_cell == current_scene_cell) {
+					continue;
+				} else {
+					if (upper(old_world_cell) == upper(current_scene_cell)) {
+						skip_left = true;
+					} else if (lower(old_world_cell) == lower(current_scene_cell)) {
+						skip_right = true;
 					}
-
-					// SKY
-					bg_material *sky = create_bg_material(pos_x1, 4 * (j + 1),
-							color, _empty, illumination);
-					draw_block(sky->block);
-					free_bg_material(sky);
-				} else {
-					// DIRT BG
-					bg_material *dirt = create_bg_material(pos_x1, 4 * (j + 1),
-							C_BG_DIRT, _dirt_bg, illumination);
-					draw_block(dirt->block);
-					free_bg_material(dirt);
 				}
 			}
-			// right (second) cell
-			if (r_cell == (uint8_t) _dirt) {
 
-				destroyable *dirt = create_destroyable(pos_x2, 4 * (j + 1),
-						C_DIRT, _dirt, illumination);
 
-				draw_block(dirt->block);
-				free_destroyable(dirt);
-			} else if (r_cell == (uint8_t) _grass) {
 
-				destroyable *grass = create_destroyable(pos_x2, 4 * (j + 1),
-						C_GRASS, _grass, illumination);
+			block_t left_block = upper(current_scene_cell);
+			block_t right_block = lower(current_scene_cell);
 
-				draw_block(grass->block);
-				free_destroyable(grass);
-			} else if (r_cell == (uint8_t) _lava) {
+			// Height in blocks determining where ground begins
+			block_c ground_height = LVL1_HMAP[world_cell_x];
+			block_c current_height = world_cell_y;
 
-				destroyable *lava = create_destroyable(pos_x2, 4 * (j + 1),
-						C_LAVA, _lava, illumination);
+			// y coordinate of current block
+			pixel_c pos_y = 4 * (j + 1);//block_to_pixel(j);
 
-				draw_block(lava->block);
-				free_destroyable(lava);
-			} else if (r_cell == (uint8_t) _wood) {
-
-				destroyable *wood = create_destroyable(pos_x2, 4 * (j + 1),
-						C_WOOD, _wood, illumination);
-
-				draw_block(wood->block);
-				free_destroyable(wood);
-			} else if (r_cell == (uint8_t) _rock) {
-
-				destroyable *rock = create_destroyable(pos_x2, 4 * (j + 1),
-						C_ROCK, _rock, illumination);
-
-				draw_block(rock->block);
-				free_destroyable(rock);
-			} else if (r_cell == (uint8_t) _dirt_bg) {
-
-				bg_material *dirt = create_bg_material(pos_x2, 4 * (j + 1),
-						C_BG_DIRT, _dirt_bg, illumination);
-
-				draw_block(dirt->block);
-				free_bg_material(dirt);
-			} else {
-				if (block_y + j
-						< LVL1_HMAP[camera_x - SCENE_WIDTH / 2 + i + 1]) {
-
-					// SKY
-					bg_material *sky = create_bg_material(pos_x2, 4 * (j + 1),
-							night ? C_NIGHT_SKY : C_SKY, _empty, illumination);
-					draw_block(sky->block);
-					free_bg_material(sky);
-				} else {
-					// DIRT BG
-					bg_material *dirt = create_bg_material(pos_x2, 4 * (j + 1),
-							C_BG_DIRT, _dirt_bg, illumination);
-					draw_block(dirt->block);
-					free_bg_material(dirt);
-				}
+			// Render left and right blocks
+			if (!skip_left) {
+				render_block(left_block, pos_x1, pos_y, illumination, ground_height, current_height);
 			}
+
+			if (!skip_right) {
+				render_block(right_block, pos_x2, pos_y, illumination, ground_height, current_height);
+			}
+
 		}
 
 		// Each cell in x-direction in SCENE = move 2 blocks on screen
@@ -405,6 +357,10 @@ void draw_scene() {
 	}
 
 }
+
+
+
+
 
 void free_destroyable(destroyable *destroyable) {
 	free_block(destroyable->block);
