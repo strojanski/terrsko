@@ -25,7 +25,7 @@
 "./Core/Src/system_stm32g4xx.o"
 "./Core/Src/tim.o"
 "./Core/Src/usart.o"
-"./Core/Src/util.o"
+"./Core/Src/utils.o"
 "./Core/Src/movable/animal/cow.o"
 "./Core/Src/movable/guysko/guysko.o"
 "./Core/Src/movable/guysko/guysko_img.o"

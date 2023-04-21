@@ -23,16 +23,17 @@
 #include "move.h"
 #include "position.h"
 
-#define GUYSKO_SPAWN_X								WORLD_WIDTH/3
-#define GUYSKO_SPAWN_Y								camera_y
+#define GUYSKO_SPAWN_X WORLD_WIDTH_BLOCKS/3
+#define GUYSKO_SPAWN_Y camera_y_block
 
 #define GRAVITY								-5
-#define GUYSKO_JUMP_ACCELERATION			100
+#define GUYSKO_JUMP_ACCELERATION			150
 
 #define GUYSKO_MAX_UP_VELOCITY 				200
-#define GUYSKO_MAX_DOWN_VELOCITY 			-300
+#define GUYSKO_MAX_DOWN_VELOCITY 			-500
 #define GUYSKO_MAX_RIGHT_VELOCITY 			200
 #define GUYSKO_MAX_LEFT_VELOCITY 			-200
+
 #define GUYSKO_WALK_VEL_INC					10
 #define GUYSKO_MAX_LP						1000
 
