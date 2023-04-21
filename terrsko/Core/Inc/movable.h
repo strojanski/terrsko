@@ -32,7 +32,7 @@ typedef struct _movable{
 
 } movable;
 
-void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size);
+void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint16_t y_pos, uint16_t size_x, uint16_t size_y, uint16_t size);
 movable* new_movables();
 
 void insert_movables(movable* beings);

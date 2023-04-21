@@ -11,6 +11,15 @@
 #include <stdint.h>
 // value & 0b11110000
 
+// Coordinate data types
+typedef uint16_t block_c;
+typedef uint16_t cell_c;
+typedef uint16_t pixel_c;
+
+// Actual 8 bit integer containing block
+typedef uint8_t block_t;
+typedef uint8_t cell_t;
+
 // 4B
 typedef struct _coord {
 	uint16_t x;

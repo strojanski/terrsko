@@ -14,7 +14,7 @@ typedef enum {
 	_dirt 		= 	0b0001,
 	_grass 		= 	0b0010,
 	_wood 		= 	0b0011,
-	_brick 		= 	0b0100,
+	_sky 		= 	0b0100,
 	_water 		= 	0b0101,
 	_sand 		= 	0b0110,
 	_rock 		= 	0b0111,

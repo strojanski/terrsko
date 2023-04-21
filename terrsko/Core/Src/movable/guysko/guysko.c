@@ -19,16 +19,16 @@
  * can be stuck at the botton of the world and of course won't fall down againg from sky.
  */
 void update_guysko_position (guysko* player) {
-	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH * BLOCK_WIDTH);
+	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH_BLOCKS * BLOCK_WIDTH);
 	int new_guysko_pos_y = (player->pos->y - player->mov->y);
 	if (new_guysko_pos_x < 0) {
-		new_guysko_pos_x = WORLD_WIDTH * BLOCK_WIDTH + new_guysko_pos_x;
+		new_guysko_pos_x = WORLD_WIDTH_BLOCKS * BLOCK_WIDTH + new_guysko_pos_x;
 	}
 	if (new_guysko_pos_y < 0) {
 //		new_guysko_pos_y = WORLD_HEIGHT * 4 + new_guysko_pos_y;
 		new_guysko_pos_y = 0;
-	} else if (new_guysko_pos_y > WORLD_HEIGHT * BLOCK_WIDTH) {
-		new_guysko_pos_y = WORLD_HEIGHT * BLOCK_WIDTH;
+	} else if (new_guysko_pos_y > WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH) {
+		new_guysko_pos_y = WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH;
 	}
 	set_postition(player->pos, new_guysko_pos_x, new_guysko_pos_y);
 }
@@ -129,30 +129,35 @@ void update_guysko_velocity(guysko* player) {
 
 void draw_guysko (guysko* player) {
 	int index = 0;
-	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - ((SCENE_WIDTH / 2) * BLOCK_WIDTH));
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - ((SCENE_HEIGHT / 2) * BLOCK_WIDTH));
+	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - ((SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH));
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - ((SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH));
+
 	for (int i = 0; i < GUYSKO_IMG_SIZE / 2; i += 1) {
 		uint8_t offset_x = index % (GUYSKO_IMG_X / 2);
 		uint8_t offset_y = index / (GUYSKO_IMG_X / 2);
 		index++;
-		// TODO: BEAUTIFY THIS SECTION OF CODE
 		int frst_nibble =	(guysko_r_0[i] & 0b11110000) >> 4;
 		int scnd_nibble =	(guysko_r_0[i] & 0b00001111) >> 0;
 		if (frst_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, GUYSKO_R_0[frst_nibble]);
 		if (scnd_nibble != 0) UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, GUYSKO_R_0[scnd_nibble]);
 	}
+
+	// flip the guysko image if it is moving left
 	player->state++;
 	if (player->state >= 3) player->state = player->state % 3;
 }
 
+/*
+ * TODO: fix
+ */
 void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y) {
 	short x_diff = player->pos->x - prev_guysko_x;
 	short y_diff = player->pos->y - prev_guysko_y;
 
-	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
-	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
-	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x * BLOCK_WIDTH - SCENE_WIDTH * BLOCK_WIDTH / 2);
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y * BLOCK_WIDTH - SCENE_HEIGHT * BLOCK_WIDTH / 2);
+	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2);
+	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2);
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2);
 
 	if (x_diff > 0) {
 		overdraw_background(draw_startPoint_x, draw_startPoint_y, prev_draw_startPoint_x, prev_draw_startPoint_y + GUYSKO_IMG_Y);
@@ -167,11 +172,14 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 
 }
 
+/*
+ * calls functions that update guysko properties
+ */
 void refresh_guysko(guysko* player, int FPS) {
 	update_guysko_velocity(player);
 	update_guysko_move(player, FPS);
-	uint16_t prev_guysko_x = player->pos->x;
-	uint16_t prev_guysko_y = player->pos->y;
+//	uint16_t prev_guysko_x = player->pos->x;
+//	uint16_t prev_guysko_y = player->pos->y;
 	update_guysko_position(player);
 
 //	camouflage (player, prev_guysko_x, prev_guysko_y);
