@@ -35,7 +35,10 @@
 
 #include "movable.h"
 
-void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_pos, uint8_t size_x, uint8_t size_y, uint16_t size) {
+/*
+ * TODO: refactor this function
+ */
+void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint16_t y_pos, uint16_t size_x, uint16_t size_y, uint16_t size) {
 
 	int index = 0;
 	uint16_t draw_startPoint_x 	= x_pos - (size_x / 2);
@@ -49,13 +52,16 @@ void draw_movable(uint8_t* pic, uint16_t* pic_colors, uint16_t x_pos, uint8_t y_
 		offset_x = index % (size_x / 2);
 		offset_y = index / (size_x / 2);
 		index++;
-		frst_nibble =	(pic[i] & 0b11110000) >> 4;
-		scnd_nibble =	(pic[i] & 0b00001111) >> 0;
+		frst_nibble = (pic[i] & 0b11110000) >> 4;
+		scnd_nibble = (pic[i] & 0b00001111) >> 0;
 		UG_DrawPixel(draw_startPoint_x + 2 * offset_x, draw_startPoint_y + offset_y, pic_colors[frst_nibble]);
 		UG_DrawPixel(draw_startPoint_x + 2 * offset_x + 1, draw_startPoint_y + offset_y, pic_colors[scnd_nibble]);
 	}
 }
 
+/*
+ * Insert cow to linked list of movables
+ */
 void insert_cow (movable* beings, cow* movable_cow) {
 	cow* new_cow = (cow*) malloc(sizeof(cow));
 	new_cow = movable_cow;
@@ -67,6 +73,10 @@ void insert_cow (movable* beings, cow* movable_cow) {
 	penultimate_cow->next = new_cow;
 	beings->tail_cow->prev = new_cow;
 }
+
+/*
+ * Remove cow that is given with struct 'movable_cow' from linked list in movable
+ */
 void remove_cow (cow* movable_cow) {
 	cow* preceding_movable_cow = movable_cow->prev;
 	cow* following_movable_cow = movable_cow->next;
@@ -75,6 +85,11 @@ void remove_cow (cow* movable_cow) {
 	free(movable_cow);
 }
 
+/*
+ * Function tries to spawn each of the movables to the world
+ * according to their spawn probabilty and current capacity
+ * of beings
+ */
 void insert_movables(movable* beings) {
 	// cows
 	if (20 < COW_SPAWN_PROBABILITY && beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
@@ -93,14 +108,17 @@ void insert_movables(movable* beings) {
 	}
 }
 
+/*
+ * TODO: comment
+ */
 void draw_movables(movable* beings) {
 	// cows
 	cow* travers = (cow*) malloc(sizeof(cow));
 	travers = beings->header_cow->next;
-		while(travers != beings->tail_cow && travers != NULL) {
-			draw_movable(cow_r_0, cow_colors_0, travers->pos->x, travers->pos->y, COW_IMG_X, COW_IMG_Y, COW_IMG_SIZE);
-			travers = travers->next;
-		}
+	while(travers != beings->tail_cow && travers != NULL) {
+		draw_movable(cow_r_0, cow_colors_0, travers->pos->x, travers->pos->y, COW_IMG_X, COW_IMG_Y, COW_IMG_SIZE);
+		travers = travers->next;
+	}
 }
 
 void update_movables(movable* beings) {
@@ -108,6 +126,9 @@ void update_movables(movable* beings) {
 
 }
 
+/*
+ * Initiate linked list with movables. Every species has their own linked list
+ */
 movable* new_movables() {
 	movable* beings = (movable*)malloc(sizeof(movable));
 

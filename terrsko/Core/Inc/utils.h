@@ -8,6 +8,8 @@
 #ifndef INC_UTILS_H_
 #define INC_UTILS_H_
 
+#include "structures.h"
+
 block_t upper(block_t block);
 
 block_t lower(block_t block);

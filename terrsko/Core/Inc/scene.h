@@ -10,8 +10,13 @@
 #include "ugui.h"
 #include "environment_models.h"
 
+#ifndef MAX
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#endif
+
+#ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#endif
 
 #define BLOCK_WIDTH 4
 #define CELL_WIDTH BLOCK_WIDTH * 2
@@ -29,10 +34,6 @@
 
 #define WORLD_WIDTH_CELLS WORLD_WIDTH_BLOCKS / 2
 #define WORLD_HEIGHT_CELLS WORLD_HEIGHT_BLOCKS
-
-// Dimensions of WORLD_MAP
-#define WORLD_MAP_HEIGHT WORLD_HEIGHT_BLOCKS
-#define WORLD_MAP_WIDTH WORLD_WIDTH_BLOCKS / 2
 
 #define N_LEVELS 9
 #define SKY_GROUND_OFFSET 15
@@ -63,8 +64,8 @@ extern int16_t HEIGHT_MAP[WORLD_WIDTH_BLOCKS/HMAP_SAMPLES_PER_CELL+1][WORLD_WIDT
 extern block_c LVL1_HMAP[WORLD_WIDTH_BLOCKS];
 extern uint8_t LIGHT_MAP[WORLD_HEIGHT_BLOCKS][WORLD_WIDTH_BLOCKS/8];	// 1 cell = 8 blocks, 1 bit for each
 extern uint8_t TREE_MASK[tree_mask_width];	// 2 bits per cell, 0 = no tree, 1 = normal tree, 2 = tree_tall_green 3 = tree_tall_yellow
-extern block_c camera_x;
-extern block_c camera_y;
+extern block_c camera_x_block;
+extern block_c camera_y_block;
 
 extern block_c old_camera_x;
 extern block_c old_camera_y;

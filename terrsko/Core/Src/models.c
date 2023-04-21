@@ -98,40 +98,40 @@ bg_material* create_bg_material(uint16_t x, uint16_t y, uint16_t colors[4], uint
 
 /* Draws a block with its colors, attempt to draw chunks as big as possible */
 void draw_block(block *block) {
-//	UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
+//	_HW_FillFrame_(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
 	if (block->colors[0] == block->colors[1] && block->colors[1] == block->colors[2] && block->colors[2] == block->colors[3]) {
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
+		_HW_FillFrame_(block->pos.x - 4, block->pos.y - 4, block->pos.x, block->pos.y, block->colors[0]);
 	} else if (block->colors[0] == block->colors[1]) {	// Top part
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x,
+		_HW_FillFrame_(block->pos.x - 4, block->pos.y - 4, block->pos.x,
 				block->pos.y - 2, block->colors[0]);
 		if (block->colors[2] == block->colors[3]) {		// Bottom part
-			UG_FillFrame(block->pos.x - 4, block->pos.y - 2, block->pos.x,
+			_HW_FillFrame_(block->pos.x - 4, block->pos.y - 2, block->pos.x,
 					block->pos.y, block->colors[2]);
 		} else {
-			UG_FillFrame(block->pos.x - 4, block->pos.y - 2, block->pos.x - 2,
+			_HW_FillFrame_(block->pos.x - 4, block->pos.y - 2, block->pos.x - 2,
 					block->pos.y, block->colors[2]);
-			UG_FillFrame(block->pos.x - 2, block->pos.y - 2, block->pos.x,
+			_HW_FillFrame_(block->pos.x - 2, block->pos.y - 2, block->pos.x,
 					block->pos.y, block->colors[3]);
 		}
 	} else if (block->colors[0] == block->colors[2]) {	// Left part
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x - 2,
+		_HW_FillFrame_(block->pos.x - 4, block->pos.y - 4, block->pos.x - 2,
 				block->pos.y, block->colors[0]);
 		if (block->colors[1] == block->colors[3]) {		// Right part
-			UG_FillFrame(block->pos.x - 2, block->pos.y - 4, block->pos.x,
+			_HW_FillFrame_(block->pos.x - 2, block->pos.y - 4, block->pos.x,
 					block->pos.y - 2, block->colors[1]);
 		}
-		UG_FillFrame(block->pos.x - 2, block->pos.y - 4, block->pos.x,
+		_HW_FillFrame_(block->pos.x - 2, block->pos.y - 4, block->pos.x,
 				block->pos.y - 2, block->colors[1]);
-		UG_FillFrame(block->pos.x - 2, block->pos.y - 2, block->pos.x,
+		_HW_FillFrame_(block->pos.x - 2, block->pos.y - 2, block->pos.x,
 				block->pos.y, block->colors[3]);
 	} else {
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 4, block->pos.x - 2,
+		_HW_FillFrame_(block->pos.x - 4, block->pos.y - 4, block->pos.x - 2,
 				block->pos.y - 2, block->colors[0]);
-		UG_FillFrame(block->pos.x - 2, block->pos.y - 4, block->pos.x,
+		_HW_FillFrame_(block->pos.x - 2, block->pos.y - 4, block->pos.x,
 				block->pos.y - 2, block->colors[1]);
-		UG_FillFrame(block->pos.x - 4, block->pos.y - 2, block->pos.x - 2,
+		_HW_FillFrame_(block->pos.x - 4, block->pos.y - 2, block->pos.x - 2,
 				block->pos.y, block->colors[2]);
-		UG_FillFrame(block->pos.x - 2, block->pos.y - 2, block->pos.x,
+		_HW_FillFrame_(block->pos.x - 2, block->pos.y - 2, block->pos.x,
 				block->pos.y, block->colors[3]);
 	}
 
@@ -270,8 +270,8 @@ void draw_scene(bool init) {
 	float illumination = 1;
 
 	// Rendering optimization
-	int8_t move_horizontal = old_camera_x - camera_x; // + -> left, - -> right
-	int8_t move_vertical = old_camera_y - camera_y; // + -> up, - -> down
+	int8_t move_horizontal = old_camera_x - camera_x_block; // + -> left, - -> right
+	int8_t move_vertical = old_camera_y - camera_y_block; // + -> up, - -> down
 
 	// If we didn't move don't render the scene at all as it is already rendered
 	if (!init && move_horizontal == 0 && move_vertical == 0) {
@@ -279,8 +279,8 @@ void draw_scene(bool init) {
 	}
 	
 	// Scene[0][0] in world coordinates in current frame
-	block_c world_block_x0 = camera_x - SCENE_BLOCKS_X / 2;
-	block_c world_block_y0 = camera_y - SCENE_BLOCKS_Y / 2;
+	block_c world_block_x0 = camera_x_block - SCENE_BLOCKS_X / 2;
+	block_c world_block_y0 = camera_y_block - SCENE_BLOCKS_Y / 2;
 	
 	// Scene[0][0] in world coordinates in previous frame
 	block_c old_world_block_x0 = old_camera_x - SCENE_BLOCKS_X / 2;
