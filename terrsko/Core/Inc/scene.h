@@ -134,4 +134,8 @@ uint8_t get_block(uint16_t x, uint16_t y);
 
 bool isSolid (uint8_t block);
 
+pixel_c w_pixel_to_scene_pixel_x (pixel_c pos_x);
+
+pixel_c w_pixel_to_scene_pixel_y (pixel_c pos_y);
+
 #endif

@@ -8,8 +8,9 @@
 #ifndef INC_MATERIALS_H_
 #define INC_MATERIALS_H_
 
-#include "ugui.h"
 #include <stdint.h>
+#include "ugui.h"
+#include "structures.h"
 
 #define C_DARK_BROWN 0x5821//0x6000
 
@@ -27,5 +28,7 @@ extern uint16_t C_NIGHT_SKY[4];
 extern uint16_t C_BG_DIRT[4];
 
 extern uint16_t C_STAR[4];
+
+uint16_t* map_name_to_material (block_t block);
 
 #endif /* INC_MATERIALS_H_ */
