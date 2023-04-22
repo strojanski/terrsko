@@ -187,7 +187,9 @@ void draw_detailed_block(block *block) {
  * **/
 
 void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, float illumination, block_c ground_height, block_c current_height) {
-
+	if (material == _empty) {
+		return;
+	}
 	// Determines time and probabilities
 	bool night = is_night();
 	float probability_star = .0;
@@ -341,10 +343,10 @@ void draw_scene(bool init) {
 			pixel_c pos_y = block_to_pixel(j) + 1;
 
 			// Check for tree
-//			coord pos = { x: pos_x2, y: 4*(j+1) };
-//			if (left_block == _tree || right_block == _tree) {
-//				draw_tree_normal(&pos);
-//			}
+			coord pos = { x: pos_x2, y: pos_y };
+			if (left_block == _tree || right_block == _tree) {
+				draw_tree_normal(&pos);
+			}
 
 //			illumination = compute_illumination(scene_cell_x, scene_cell_y);
 
