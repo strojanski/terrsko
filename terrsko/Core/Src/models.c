@@ -281,7 +281,7 @@ void draw_scene(bool init) {
 	// Scene[0][0] in world coordinates in current frame
 	block_c world_block_x0 = camera_x_block - SCENE_BLOCKS_X / 2;
 	block_c world_block_y0 = camera_y_block - SCENE_BLOCKS_Y / 2;
-	
+
 	// Scene[0][0] in world coordinates in previous frame
 	block_c old_world_block_x0 = old_camera_x - SCENE_BLOCKS_X / 2;
 	block_c old_world_block_y0 = old_camera_y - SCENE_BLOCKS_Y / 2;
@@ -338,7 +338,7 @@ void draw_scene(bool init) {
 			block_c current_height = world_cell_y;
 
 			// y coordinate of current block
-			pixel_c pos_y = block_to_pixel(j);
+			pixel_c pos_y = block_to_pixel(j) + 1;
 
 			// Check for tree
 //			coord pos = { x: pos_x2, y: 4*(j+1) };
