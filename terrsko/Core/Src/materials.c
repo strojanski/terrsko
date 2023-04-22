@@ -31,3 +31,57 @@ uint16_t C_STAR[4] = {0xCDA7, 0xCDA7, 0xCDA7, 0xCDA7};
 
 //#define COLOR_DIRT {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN}
 //#define COLOR_GRASS {C_GREEN, C_GREEN, C_DARK_GREEN, C_GREEN}
+
+uint16_t* map_name_to_material (block_t block) {
+
+	//_dirt
+	if (block == 1) {
+		return C_DIRT;
+	}
+	//_grass
+	else if (block == 2) {
+		return C_GRASS;
+	}
+	//_wood
+	else if (block == 3) {
+		return C_WOOD;
+	}
+	//_sky
+	else if (block == 4) {
+		return C_SKY;
+	}
+	//_water
+	else if (block == 5) {
+		return C_WATER;
+	}
+	//_sand
+	else if (block == 6) {
+		return C_GRASS;
+	}
+	//_rock
+	else if (block == 7) {
+		return C_ROCK;
+	}
+	//_lava
+	else if (block == 8) {
+		return C_LAVA;
+	}
+	//_red_wood
+	else if (block == 9) {
+		return C_RED_WOOD;
+	}
+	//_gold
+	else if (block == 10) {
+		return C_GRASS;
+	}
+	//_diamond
+	else if (block == 11) {
+		return C_BG_DIRT;
+	}
+	//_dirt_bg
+	else if (block == 12) {
+		return C_BG_DIRT;
+	}
+	uint16_t BLANK[4] = {0x0, 0x0, 0x0, 0x0};
+	return BLANK;
+}

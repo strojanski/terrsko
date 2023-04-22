@@ -16,25 +16,28 @@
 #include "scene.h"
 
 #include "guysko_img.h"
-
+#include "render.h"
 
 #include "life_points.h"
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
 
-#define GUYSKO_SPAWN_X								WORLD_WIDTH/3
-#define GUYSKO_SPAWN_Y								camera_y
+#define GUYSKO_SPAWN_X WORLD_WIDTH_BLOCKS/3
+#define GUYSKO_SPAWN_Y camera_y_block
 
 #define GRAVITY								-5
-#define GUYSKO_JUMP_ACCELERATION			100
+#define GUYSKO_JUMP_ACCELERATION			150
 
 #define GUYSKO_MAX_UP_VELOCITY 				200
-#define GUYSKO_MAX_DOWN_VELOCITY 			-300
+#define GUYSKO_MAX_DOWN_VELOCITY 			-500
 #define GUYSKO_MAX_RIGHT_VELOCITY 			200
 #define GUYSKO_MAX_LEFT_VELOCITY 			-200
+
 #define GUYSKO_WALK_VEL_INC					10
 #define GUYSKO_MAX_LP						1000
+
+#define GUYSKO_WINDOW_SPAN_PIXEL			75
 
 
 /*
@@ -65,12 +68,14 @@ typedef struct _guysko {
 	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
 } guysko;
 
-void refresh_guysko(guysko* player, int FPS);
 
 void draw_guysko (guysko* player);
 void update_guysko_position (guysko* player);
 void update_guysko_move (guysko*, int FPS);
 void update_guysko_velocity(guysko* player);
+
+void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y);
+void refresh_guysko(guysko* player, int FPS);
 
 guysko* new_guysko();
 

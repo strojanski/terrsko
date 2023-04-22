@@ -101,6 +101,8 @@ uint8_t FPS = FPS_100;
  * @brief  The application entry point.
  * @retval int
  */
+
+
 int main(void)
 {
 	/* USER CODE BEGIN 1 */
@@ -173,6 +175,8 @@ int main(void)
 	LCD_Init();
 	LCD_UG_init();
 
+	UG_DriverRegister(DRIVER_FILL_FRAME, (void *)_HW_FillFrame_);
+
 	// LCD_Intro_LogoSlide(140,200);
 	// bitrate = DrawColors(0,0,80);
 
@@ -197,11 +201,9 @@ int main(void)
 	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 	/* USER CODE END 2 */
-
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	init_world();
-
 	/*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ
 	 * TIMER FREQ: 168000000 (168 MHz)
 	 * Prescaler 10000 - 1
@@ -294,21 +296,26 @@ int main(void)
 	guysko* player = new_guysko();
 	movable* beings = new_movables();
 
-	uint16_t new_camera_x = camera_x;
-	uint16_t new_camera_y = camera_y;
+	uint16_t new_camera_x = camera_x_block;
+	uint16_t new_camera_y = camera_y_block;
 
 	// Init guysko to spawn in camera coordinates
-	player->pos->x = camera_x * BLOCK_WIDTH;
-	player->pos->y = camera_y * BLOCK_WIDTH;
+	player->pos->x = block_to_pixel(camera_x_block);
+	player->pos->y = block_to_pixel(camera_y_block);
 
 	update_camera_center(new_camera_x, new_camera_y);
 
-	old_camera_x = camera_x;
-	old_camera_y = camera_y;
+	old_camera_x = camera_x_block;
+	old_camera_y = camera_y_block;
+	bool first_render = true;
+
 
 	while (1) {
+//		_HW_FillFrame_(100, 100, 120, 120, C_RED);
 //		UG_FillFrame(0, 0, 320, 240, C_BLACK);
 		cycle = false;
+
+
 	//EXAMPLE
 
 //  		if (abs(camera_x - player->pos->x / BLOCK_WIDTH) < 15) {
@@ -323,14 +330,20 @@ int main(void)
 //			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
 //		}
 
-		draw_scene();
+		draw_scene(first_render);
 
-		old_camera_x = camera_x;
-		old_camera_y = camera_y;
+		old_camera_x = camera_x_block;
+		old_camera_y = camera_y_block;
 
 		refresh_guysko(player, FPS);
-		new_camera_x = player->pos->x / BLOCK_WIDTH;
+//		new_camera_x = player->pos->x / BLOCK_WIDTH;
 		new_camera_y = player->pos->y / BLOCK_WIDTH;
+
+		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
+		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < -GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block + abs(-camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
+		}
 
 		update_camera_center(new_camera_x, new_camera_y);
 		/*
@@ -407,6 +420,7 @@ int main(void)
 			 */
 			action_set(&joystick_raw);
 		}
+		first_render = false;
 	}
 
 	/* USER CODE END 3 */
@@ -451,7 +465,7 @@ void SystemClock_Config(void)
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_10) != HAL_OK)
 	{
 		Error_Handler();
 	}
