@@ -151,23 +151,45 @@ void draw_guysko (guysko* player) {
  * TODO: fix
  */
 void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y) {
-	short x_diff = player->pos->x - prev_guysko_x;
-	short y_diff = player->pos->y - prev_guysko_y;
 
-	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2);
-	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2);
-	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2);
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2);
+	pixel_c guysko_x0 = prev_guysko_x;
+	pixel_c guysko_y0 = prev_guysko_y;
+	pixel_c guysko_x1 = player->pos->x;
+	pixel_c guysko_y1 = player->pos->y;
 
+	// calculate the starting points of guysko image starting point
+	// IN SCENE IN PIXELS on previous and current frame
+	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH);
+	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH);
+	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2)* BLOCK_WIDTH);
+	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2)* BLOCK_WIDTH);
+
+	// calculate the difference the guysko has made since the previous frame (his previous drawing)
+	// the difference is in pixels but on screen! Meaning it only checks for the difference it made on
+	// screen, not his global moving in WORLD!
+
+	short x_diff = draw_startPoint_x - prev_draw_startPoint_x;
+	short y_diff = draw_startPoint_y - prev_draw_startPoint_y;
+
+
+	// calculate the starting points of guysko image starting point
+	// IN WORLD IN PIXELS on previous and current frame
+	// make four calls based on which direction the guysko moved in:
+	// right
 	if (x_diff > 0) {
-		overdraw_background(draw_startPoint_x, draw_startPoint_y, prev_draw_startPoint_x, prev_draw_startPoint_y + GUYSKO_IMG_Y);
-	} else if (x_diff < 0) {
-		overdraw_background(draw_startPoint_x + GUYSKO_IMG_X, draw_startPoint_y - 3, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y + GUYSKO_IMG_Y);
+		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0 - GUYSKO_IMG_Y, guysko_x1 - GUYSKO_IMG_X, guysko_y1);
 	}
+	// left
+	else if (x_diff < 0) {
+		overdraw_background(guysko_x0, guysko_y0 - GUYSKO_IMG_Y, guysko_x1, guysko_y1);
+	}
+	// down
 	if (y_diff > 0) {
-		overdraw_background(draw_startPoint_x, draw_startPoint_y, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y);
-	} else if (y_diff < 0) {
-		overdraw_background(draw_startPoint_x, draw_startPoint_y + GUYSKO_IMG_Y, prev_draw_startPoint_x + GUYSKO_IMG_X, prev_draw_startPoint_y + GUYSKO_IMG_Y);
+		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0 - GUYSKO_IMG_Y, guysko_x1, guysko_y1 - GUYSKO_IMG_Y);
+	}
+	// up
+	else if (y_diff < 0) {
+		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0, guysko_x1, guysko_y1);
 	}
 
 }
@@ -178,11 +200,14 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 void refresh_guysko(guysko* player, int FPS) {
 	update_guysko_velocity(player);
 	update_guysko_move(player, FPS);
-//	uint16_t prev_guysko_x = player->pos->x;
-//	uint16_t prev_guysko_y = player->pos->y;
+	uint16_t prev_guysko_x = player->pos->x;
+	uint16_t prev_guysko_y = player->pos->y;
 	update_guysko_position(player);
 
-//	camouflage (player, prev_guysko_x, prev_guysko_y);
+	// TODO:
+	// do the following two if and only if at least on one of the x and y
+	// components of guysko position is different
+	camouflage (player, prev_guysko_x, prev_guysko_y);
 	draw_guysko(player);
 
 }

@@ -990,3 +990,24 @@ bool isSolid (block_t block) {
 	}
 	return false;
 }
+
+/*
+ * returns the pixel that is represented in WORLD position to
+ * position that is represented in SCENE position
+ * for x axis
+ */
+pixel_c w_pixel_to_scene_pixel_x (pixel_c pos_x) {
+	return pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
+//	return pos_x - ((camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH) - (pos_x - camera_x_block * BLOCK_WIDTH));
+}
+
+/*
+ * returns the pixel that is represented in WORLD position to
+ * position that is represented in SCENE position
+ * for y axis
+ */
+pixel_c w_pixel_to_scene_pixel_y (pixel_c pos_y) {
+//	return pos_y - ((pos_y - camera_y_block * BLOCK_WIDTH) - );
+	return pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+}
+
