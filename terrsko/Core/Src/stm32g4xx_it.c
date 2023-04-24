@@ -360,19 +360,33 @@ void EXTI0_IRQHandler() {
 }
 void EXTI1_IRQHandler() {
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1)) {
-		act_left = true;
+		act_down = true;
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
 }
 void EXTI9_5_IRQHandler() {
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6)) {
-		act_down = true;
+		act_left = true;
 	}
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8)) {
 		act_right = true;
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+}
+void EXTI15_10_IRQHandler() {
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13)) {
+		move_enter = true;
+	}
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14)) {
+		 esc = true;
+	}
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_15)) {
+		 ok = true;
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_13);
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
 }
 
 

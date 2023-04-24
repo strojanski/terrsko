@@ -22,7 +22,7 @@ void display_guysko_hp (guysko* player) {
 }
 
 void update_guysko_hp (guysko* player, short y_diff) {
-	set_life_points(player->lp, get_life_points(player->lp) - abs(y_diff) / 50);
+	set_life_points(player->lp, get_life_points(player->lp) + y_diff);
 }
 
 /*
@@ -99,7 +99,7 @@ void update_guysko_velocity(guysko* player) {
 		} else {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
-			update_guysko_hp(player, old_free_fall_speed);
+		if (old_free_fall_speed < - 400) update_guysko_hp(player, -20);
 	}
 
 	// MAX VELOCITY IN Y DIRECTION
@@ -232,9 +232,13 @@ void refresh_guysko(guysko* player, int FPS) {
 		draw_guysko(player);
 	}
 
-	if (old_guysko_hp != get_life_points(player->lp)) {
-		display_guysko_hp(player);
-	}
+//	if (old_guysko_hp != get_life_points(player->lp)) {
+////		display_guysko_hp(player);
+//	}
+		if (esc || old_guysko_hp != get_life_points(player->lp)) {
+			display_guysko_hp(player);
+			action_reset(esc);
+		}
 }
 
 

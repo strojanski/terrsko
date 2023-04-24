@@ -195,10 +195,18 @@ int main(void)
 
 	HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 2);
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
 	HAL_NVIC_SetPriority(EXTI1_IRQn, 1, 2);
 	HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
 	HAL_NVIC_SetPriority(EXTI4_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+	HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 2);
 	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 	/* USER CODE END 2 */
 	/* Infinite loop */

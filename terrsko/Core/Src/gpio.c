@@ -58,13 +58,17 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PCPin PCPin */
   GPIO_InitStruct.Pin = JOY_BTN_Pin|BTN_OK_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  //beforehand:
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = BTN_ESC_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  // before
+//  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BTN_ESC_GPIO_Port, &GPIO_InitStruct);
 

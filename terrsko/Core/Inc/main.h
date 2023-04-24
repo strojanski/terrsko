@@ -160,7 +160,7 @@ void Error_Handler(void);
 #define PWM11_GPIO_Port GPIOC
 #define BTN_UP_Pin GPIO_PIN_0
 #define BTN_UP_GPIO_Port GPIOG
-#define BTN_DOWN_Pin GPIO_PIN_1
+#define BTN_DOWN_Pin GPIO_PIN_1 //WRONG? 5
 #define BTN_DOWN_GPIO_Port GPIOG
 #define PWM12_Pin GPIO_PIN_8
 #define PWM12_GPIO_Port GPIOC
@@ -180,7 +180,7 @@ void Error_Handler(void);
 #define LIN_TX_GPIO_Port GPIOC
 #define LCD_RS_Pin GPIO_PIN_5
 #define LCD_RS_GPIO_Port GPIOG
-#define BTN_LEFT_Pin GPIO_PIN_6
+#define BTN_LEFT_Pin GPIO_PIN_6 // WORNG? 1
 #define BTN_LEFT_GPIO_Port GPIOG
 #define CAN_STBY_Pin GPIO_PIN_7
 #define CAN_STBY_GPIO_Port GPIOG

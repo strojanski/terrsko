@@ -26,6 +26,7 @@
 #define MOVE_RIGHT_INDEX	7
 #define MOVE_DOWN_INDEX 	8
 #define MOVE_LEFT_INDEX 	9
+#define MOVE_ENTER 				10
 
 extern bool act_up;			// 0
 extern bool act_right;	// 1
@@ -39,6 +40,7 @@ extern bool move_up;		// 6
 extern bool move_right;	// 7
 extern bool move_down;	// 8
 extern bool move_left;	// 9
+extern bool move_enter;	// 10
 
 void action_set(coord_t* joystick_raw);
 void action_reset(uint8_t action_index);

@@ -22,6 +22,7 @@ bool move_up = false;
 bool move_right	= false;
 bool move_down	= false;
 bool move_left	= false;
+bool move_enter	= false;
 
 /*
  * Each guysko's button action is immediatley reset to zero after being taken into consideration, so that is can be known in the
@@ -49,6 +50,8 @@ void action_reset(uint8_t action_index) {
 		move_down		= false;
 	} else if (action_index == 9) {
 		move_left		= false;
+	} else if (action_index == 10) {
+		move_enter	= false;
 	}
 }
 
