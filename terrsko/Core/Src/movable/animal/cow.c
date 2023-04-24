@@ -42,21 +42,21 @@ uint8_t cow_l_0[] = {
 	34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34
 };
 
-cow* new_cow (life_points* lp, velocity* vel, position* pos) {
-	cow* krava = (cow*)malloc(sizeof(cow));
+	cow* new_cow (life_points* lp, velocity* vel, position* pos) {
+		cow* krava = (cow*)malloc(sizeof(cow));
 
-	krava->state = 0;
-	krava->lp		= (life_points*)malloc(sizeof(life_points));
-	krava->lp		= lp;
-	krava->vel	= (velocity*)malloc(sizeof(velocity));
-	krava->vel	= vel;
-	krava->pos	= (position*)malloc(sizeof(position));
-	krava->pos  = pos;
+		krava->state = 0;
+		krava->lp		= (life_points*)malloc(sizeof(life_points));
+		krava->lp		= lp;
+		krava->vel	= (velocity*)malloc(sizeof(velocity));
+		krava->vel	= vel;
+		krava->pos	= (position*)malloc(sizeof(position));
+		krava->pos  = pos;
 
-	krava->next = (cow*)malloc(sizeof(cow));
-	krava->next = NULL;
-	krava->prev = (cow*)malloc(sizeof(cow));
-	krava->prev = NULL;
+		krava->next = (cow*)malloc(sizeof(cow));
+		krava->next = NULL;
+		krava->prev = (cow*)malloc(sizeof(cow));
+		krava->prev = NULL;
 
-	return krava;
-}
+		return krava;
+	}

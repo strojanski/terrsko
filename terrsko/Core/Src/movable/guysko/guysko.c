@@ -19,18 +19,19 @@
  * can be stuck at the botton of the world and of course won't fall down againg from sky.
  */
 void update_guysko_position (guysko* player) {
-	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH_BLOCKS * BLOCK_WIDTH);
-	int new_guysko_pos_y = (player->pos->y - player->mov->y);
-	if (new_guysko_pos_x < 0) {
-		new_guysko_pos_x = WORLD_WIDTH_BLOCKS * BLOCK_WIDTH + new_guysko_pos_x;
-	}
-	if (new_guysko_pos_y < 0) {
-//		new_guysko_pos_y = WORLD_HEIGHT * 4 + new_guysko_pos_y;
-		new_guysko_pos_y = 0;
-	} else if (new_guysko_pos_y > WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH) {
-		new_guysko_pos_y = WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH;
-	}
-	set_postition(player->pos, new_guysko_pos_x, new_guysko_pos_y);
+//	int new_guysko_pos_x = (player->pos->x + player->mov->x) % (WORLD_WIDTH_BLOCKS * BLOCK_WIDTH);
+//	int new_guysko_pos_y = (player->pos->y - player->mov->y);
+//	if (new_guysko_pos_x < 0) {
+//		new_guysko_pos_x = WORLD_WIDTH_BLOCKS * BLOCK_WIDTH + new_guysko_pos_x;
+//	}
+//	if (new_guysko_pos_y < 0) {
+//		new_guysko_pos_y = 0;
+//	} else if (new_guysko_pos_y > WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH) {
+//		new_guysko_pos_y = WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH;
+//	}
+//	set_position(player->pos, new_guysko_pos_x, new_guysko_pos_y);
+	update_position_x(player->pos, player->pos->x, player->mov->x);
+	update_position_y(player->pos, player->pos->y, (-1) * player->mov->y);
 }
 
 /*
@@ -39,14 +40,14 @@ void update_guysko_position (guysko* player) {
  * with respect to value in "player->mov->x_remainder".
  */
 void update_guysko_move (guysko* player, int FPS) {
-	float mov_x = ((float)1 / ((float) (1000 / FPS) / (float)player->vel->x)) + player->mov->x_remainder;
-	float mov_y = ((float)1 / ((float) (1000 / FPS) / (float)player->vel->y)) + player->mov->y_remainder;
+	float mov_x = ((float) 1 / ((float) (1000 / FPS) / (float) player->vel->x)) + player->mov->x_remainder;
+	float mov_y = ((float) 1 / ((float) (1000 / FPS) / (float) player->vel->y)) + player->mov->y_remainder;
 
 	short pix_move_x = (short) mov_x % 100;
 	short pix_move_y = (short) mov_y % 100;
 
-	player->mov->x_remainder = mov_x - (float)pix_move_x;
-	player->mov->y_remainder = mov_y - (float)pix_move_y;
+	player->mov->x_remainder = mov_x - (float) pix_move_x;
+	player->mov->y_remainder = mov_y - (float) pix_move_y;
 
 	set_move(player->mov, pix_move_x, pix_move_y);
 }
@@ -60,35 +61,23 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: preverba ali se je zaletel v solid levo desno gor, dol?
 	// TODO: update movement based on that
 
-	uint8_t material_u = get_block(player->pos->x, player->pos->y - GUYSKO_IMG_Y - 1);
-	uint8_t material_r = get_block(player->pos->x + 1, player->pos->y);
-	uint8_t material_d = get_block(player->pos->x, player->pos->y + 1);
-	uint8_t material_l = get_block(player->pos->x - GUYSKO_IMG_X - 1, player->pos->y);
-
-	// down left and down right
-	uint8_t mat_d_l = upper(material_d);
-	uint8_t mat_d_r = lower(material_d);
+//	uint8_t material_u = get_block_with_pixels_from_WORLD(player->pos->x, player->pos->y - GUYSKO_IMG_Y - 1);
+	uint8_t material_r = get_block_with_pixels_from_WORLD(player->pos->x + 1, player->pos->y);
+	uint8_t material_d = get_block_with_pixels_from_WORLD(player->pos->x, player->pos->y + 1);
+	uint8_t material_l = get_block_with_pixels_from_WORLD(player->pos->x - GUYSKO_IMG_X - 1, player->pos->y);
 
 
 	if (move_right) {
 		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
-	// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) {
-			set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
-		}
-
+		// MAX VELOCITY IN X DIRECTION
+		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
 		action_reset(MOVE_RIGHT_INDEX);
-
-		// Collision in right direction
-		if (isSolid(material_r)) {
-			set_velocity(player->vel, 0, player->vel->y);
-		}
-
+		if (isSolid(material_r)) set_velocity(player->vel, 0, player->vel->y);
 	} else if (move_left) {
 		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
 		else set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
-	// MAX VELOCITY IN X DIRECTION
+		// MAX VELOCITY IN X DIRECTION
 		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
 		action_reset(MOVE_LEFT_INDEX);
 		if (isSolid(material_l)) set_velocity(player->vel, 0, player->vel->y);
@@ -96,13 +85,13 @@ void update_guysko_velocity(guysko* player) {
 		set_velocity(player->vel, 0, player->vel->y);
 	}
 
-	// y axis
+			// y axis
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
-	if (isSolid(mat_d_l) || isSolid(mat_d_r) || player->pos->y / 4 > LVL1_HMAP[player->pos->x / 4]) {
+	if (isSolid(material_d)) {
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
-			if (isSolid(material_u)) set_velocity(player->vel, player->vel->x, 0);
+			// if (isSolid(material_u)) set_velocity(player->vel, player->vel->x, 0);
 		} else {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
@@ -118,20 +107,18 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
 
-
 /*
- * Function takes guysko's postion and draws it on screen. The postion of guysko denotes the bottom right
+ * Function draw_guysko takes guysko's postion and draws it on screen. The postion of guysko denotes the bottom right
  * corner of guysko's image. The postion of guysko cannot be taken as the postion of guysko on screen,
  * because the screen is only a small part of world. So the starting drawing postion is calculated based on
  * guysko's postion and difference between the START of the left and top corner of the screen and left and
  * top corner of the world.
  */
-
 void draw_guysko (guysko* player) {
 	int index = 0;
-	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - ((SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH));
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - ((SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH));
-
+	posx_pixel draw_startPoint_x = world_pixel_to_scene_pixel_x_band(player->pos->x - GUYSKO_IMG_X);
+	posy_pixel draw_startPoint_y = world_pixel_to_scene_pixel_y_band(player->pos->y - GUYSKO_IMG_Y);
+	// TODO: if guysko is on the edge of world, do not draw the whole guysko!
 	for (int i = 0; i < GUYSKO_IMG_SIZE / 2; i += 1) {
 		uint8_t offset_x = index % (GUYSKO_IMG_X / 2);
 		uint8_t offset_y = index / (GUYSKO_IMG_X / 2);
@@ -159,10 +146,10 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 
 	// calculate the starting points of guysko image starting point
 	// IN SCENE IN PIXELS on previous and current frame
-	uint16_t prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH);
-	uint16_t prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH);
-	uint16_t draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2)* BLOCK_WIDTH);
-	uint16_t draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2)* BLOCK_WIDTH);
+	int prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH);
+	int prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH);
+	int draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2)* BLOCK_WIDTH);
+	int draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2)* BLOCK_WIDTH);
 
 	// calculate the difference the guysko has made since the previous frame (his previous drawing)
 	// the difference is in pixels but on screen! Meaning it only checks for the difference it made on
@@ -171,25 +158,28 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 	short x_diff = draw_startPoint_x - prev_draw_startPoint_x;
 	short y_diff = draw_startPoint_y - prev_draw_startPoint_y;
 
-
 	// calculate the starting points of guysko image starting point
 	// IN WORLD IN PIXELS on previous and current frame
 	// make four calls based on which direction the guysko moved in:
 	// right
 	if (x_diff > 0) {
-		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0 - GUYSKO_IMG_Y, guysko_x1 - GUYSKO_IMG_X, guysko_y1);
+		overdraw_background(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, (-1) * GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
 	}
 	// left
 	else if (x_diff < 0) {
-		overdraw_background(guysko_x0, guysko_y0 - GUYSKO_IMG_Y, guysko_x1, guysko_y1);
+		overdraw_background(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
 	}
 	// down
 	if (y_diff > 0) {
-		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0 - GUYSKO_IMG_Y, guysko_x1, guysko_y1 - GUYSKO_IMG_Y);
+		overdraw_background(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, (-1) * GUYSKO_IMG_Y));
 	}
 	// up
 	else if (y_diff < 0) {
-		overdraw_background(guysko_x0 - GUYSKO_IMG_X, guysko_y0, guysko_x1, guysko_y1);
+		overdraw_background(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, 0),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
 	}
 
 }
@@ -204,11 +194,13 @@ void refresh_guysko(guysko* player, int FPS) {
 	uint16_t prev_guysko_y = player->pos->y;
 	update_guysko_position(player);
 
-	// TODO:
 	// do the following two if and only if at least on one of the x and y
 	// components of guysko position is different
-	camouflage (player, prev_guysko_x, prev_guysko_y);
-	draw_guysko(player);
+	if (!(prev_guysko_x == player->pos->x && prev_guysko_y == player->pos->y)) {
+		// NOT WORKING, TODO: fix black lines
+		// camouflage (player, prev_guysko_x, prev_guysko_y);
+		draw_guysko(player);
+	}
 
 }
 

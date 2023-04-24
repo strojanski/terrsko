@@ -10,10 +10,14 @@
 
 #include <stdint.h>
 
+typedef short HP;
+
 typedef struct _life_points {
-	uint32_t life_points;
+	HP life_points;
 } life_points;
 
-void set_life_points(life_points* lp, uint32_t points);
-uint32_t get_life_points(life_points* lp);
+void update_life_points(life_points* lp, HP damage, HP heal);
+void set_life_points(life_points* lp, HP points);
+HP get_life_points(life_points* lp);
+
 #endif /* INC_LIFE_POINTS_H_ */

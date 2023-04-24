@@ -11,7 +11,7 @@
 #include "scene.h"
 #include "materials.h"
 
-void overdraw_background (uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+void overdraw_background (posx_pixel x1, posx_pixel y1, posy_pixel x2, posy_pixel y2);
 
 
 #endif /* INC_RENDER_H_ */
