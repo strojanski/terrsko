@@ -213,7 +213,9 @@ void place_trees() {
 
 	for (block_c i = 0; i < WORLD_WIDTH_BLOCKS; i++) {
 		block_c coord = i / (TREE_WIDTH / BLOCK_WIDTH);
-		if (TREE_MASK[coord] == 1) continue;
+//		if (TREE_MASK[coord] == 1) {
+//			WORLD[y][i/2] = _empty;
+//		}
 
 		block_c y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
 
@@ -222,7 +224,13 @@ void place_trees() {
 
 			// Trees only on odd numbered blocks (bottom 4 bits)
 			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
-
+			for (int j = 1; j < TREE_WIDTH; j++) {
+				for (int i = 0; i < TREE_HEIGHT; i++) {
+					if (tree[i][j] > 0) {
+						WORLD[y+i][i/2+j] = _empty;
+					}
+				}
+			}
 			TREE_MASK[coord] = 1;
 		}
 	}
@@ -975,7 +983,7 @@ uint8_t random_int(uint8_t min, uint8_t max) {
 
 // x and y are postion of pixels on world
 // function used for movables to get what is around them
-uint8_t get_block(pixel_c x, pixel_c y) {
+block_t get_block_with_pixels_from_WORLD(pixel_c x, pixel_c y) {
 	// Same as x % 2 but for pixel coordinates
 	if (x % 8 >= 4) {
 		return lower(WORLD[pixel_to_cell_y(y)][pixel_to_cell_x(x)]);
@@ -994,20 +1002,69 @@ bool isSolid (block_t block) {
 /*
  * returns the pixel that is represented in WORLD position to
  * position that is represented in SCENE position
- * for x axis
+ * for x axis and down under y axis
+ *
  */
-pixel_c w_pixel_to_scene_pixel_x (pixel_c pos_x) {
-	return pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
-//	return pos_x - ((camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH) - (pos_x - camera_x_block * BLOCK_WIDTH));
+posx_pixel world_pixel_to_scene_pixel_x_no_band (posx_pixel pos_x) {
+	posx_pixel mapped_pos = pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_PIXELS / 2));
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= SCENE_WIDTH_PIXELS) mapped_pos = SCENE_WIDTH_PIXELS - 1;
+
+	return mapped_pos;
+}
+posy_pixel world_pixel_to_scene_pixel_y_no_band (posy_pixel pos_y) {
+	posx_pixel mapped_pos = pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_PIXELS / 2));
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= SCENE_HEIGHT_PIXELS) mapped_pos = SCENE_HEIGHT_PIXELS - 1;
+	return mapped_pos;
 }
 
-/*
- * returns the pixel that is represented in WORLD position to
- * position that is represented in SCENE position
- * for y axis
- */
-pixel_c w_pixel_to_scene_pixel_y (pixel_c pos_y) {
-//	return pos_y - ((pos_y - camera_y_block * BLOCK_WIDTH) - );
-	return pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+posx_pixel world_pixel_to_scene_pixel_x_band (posx_pixel pos_x) {
+	posx_pixel mapped_pos = pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
+
+	return mapped_pos;
 }
+posy_pixel world_pixel_to_scene_pixel_y_band (posy_pixel pos_y) {
+	posx_pixel mapped_pos = pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+
+	return mapped_pos;
+}
+
+posx_pixel world_pixel_to_scene_pixel_x_no_band_param (posx_pixel pos_x, posx_pixel x_diff) {
+	posx_pixel mapped_pos = pos_x - x_diff - ((camera_y_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= SCENE_WIDTH_BLOCKS * BLOCK_WIDTH) mapped_pos = SCENE_WIDTH_BLOCKS * BLOCK_WIDTH - 1;
+	return mapped_pos;
+}
+
+posy_pixel world_pixel_to_scene_pixel_y_no_band_param (posy_pixel pos_y, posy_pixel y_diff) {
+	posx_pixel mapped_pos = pos_y - y_diff - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH) mapped_pos = SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH - 1;
+	return mapped_pos;
+}
+
+posx_pixel world_pixel_to_world_pixel_x_no_band_param (posx_pixel pos_x, posx_pixel x_diff) {
+	posx_pixel mapped_pos = pos_x + x_diff;
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= WORLD_WIDTH_PIXELS) mapped_pos = WORLD_WIDTH_PIXELS - 1;
+	return mapped_pos;
+
+}
+
+posy_pixel world_pixel_to_world_pixel_y_no_band_param (posy_pixel pos_y, posy_pixel y_diff) {
+	posx_pixel mapped_pos = pos_y + y_diff;
+
+	if (mapped_pos < 0) mapped_pos = 0;
+	if (mapped_pos >= WORLD_HEIGHT_PIXELS) mapped_pos = WORLD_HEIGHT_PIXELS - 1;
+	return mapped_pos;
+}
+
+
+
 

@@ -9,6 +9,7 @@
 #include "enums.h"
 #include "ugui.h"
 #include "environment_models.h"
+#include "position.h"
 
 #ifndef MAX
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -28,12 +29,18 @@
 #define SCENE_HEIGHT_CELLS SCENE_HEIGHT_BLOCKS
 #define SCENE_WIDTH_CELLS SCENE_WIDTH_BLOCKS / 2
 
+#define SCENE_HEIGHT_PIXELS SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH
+#define SCENE_WIDTH_PIXELS SCENE_WIDTH_BLOCKS * BLOCK_WIDTH
+
 // Number of blocks in the world
 #define WORLD_HEIGHT_BLOCKS ((uint16_t) SCENE_HEIGHT_BLOCKS * 4) //120
 #define WORLD_WIDTH_BLOCKS ((uint16_t) SCENE_WIDTH_BLOCKS * 5) //160
 
 #define WORLD_WIDTH_CELLS WORLD_WIDTH_BLOCKS / 2
 #define WORLD_HEIGHT_CELLS WORLD_HEIGHT_BLOCKS
+
+#define WORLD_HEIGHT_PIXELS WORLD_HEIGHT_BLOCKS * BLOCK_WIDTH
+#define WORLD_WIDTH_PIXELS WORLD_WIDTH_BLOCKS * BLOCK_WIDTH
 
 #define N_LEVELS 9
 #define SKY_GROUND_OFFSET 15
@@ -130,12 +137,20 @@ void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool
 
 uint8_t random_int(uint8_t min, uint8_t max);
 
-uint8_t get_block(uint16_t x, uint16_t y);
+uint8_t get_block_with_pixels_from_WORLD(uint16_t x, uint16_t y);
 
 bool isSolid (uint8_t block);
 
-pixel_c w_pixel_to_scene_pixel_x (pixel_c pos_x);
+posx_pixel world_pixel_to_scene_pixel_x_no_band (posx_pixel pos_x);
+posy_pixel world_pixel_to_scene_pixel_y_no_band (posy_pixel pos_y);
 
-pixel_c w_pixel_to_scene_pixel_y (pixel_c pos_y);
+posx_pixel world_pixel_to_scene_pixel_x_band (posx_pixel pos_x);
+posy_pixel world_pixel_to_scene_pixel_y_band (posy_pixel pos_y);
+
+posx_pixel world_pixel_to_scene_pixel_x_no_band_param (posx_pixel pos_x, posx_pixel x_diff);
+posy_pixel world_pixel_to_scene_pixel_y_no_band_param (posy_pixel pos_y, posy_pixel y_diff);
+
+posx_pixel world_pixel_to_world_pixel_x_no_band_param (posx_pixel pos_x, posx_pixel x_diff);
+posy_pixel world_pixel_to_world_pixel_y_no_band_param (posy_pixel pos_y, posy_pixel y_diff);
 
 #endif

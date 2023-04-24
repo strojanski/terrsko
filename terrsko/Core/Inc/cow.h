@@ -27,7 +27,7 @@ extern uint16_t cow_colors_0[];
 extern uint8_t cow_r_0[];
 extern uint8_t cow_l_0[];
 
-typedef struct _cow {
+typedef struct cow {
 	life_points* lp;
 
 	uint8_t state;

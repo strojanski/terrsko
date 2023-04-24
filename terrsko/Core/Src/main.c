@@ -296,8 +296,8 @@ int main(void)
 	guysko* player = new_guysko();
 	movable* beings = new_movables();
 
-	uint16_t new_camera_x = camera_x_block;
-	uint16_t new_camera_y = camera_y_block;
+	block_c new_camera_x = camera_x_block;
+	block_c new_camera_y = camera_y_block;
 
 	// Init guysko to spawn in camera coordinates
 	player->pos->x = block_to_pixel(camera_x_block);
@@ -307,38 +307,21 @@ int main(void)
 
 	old_camera_x = camera_x_block;
 	old_camera_y = camera_y_block;
-	bool first_render = true;
-
+	draw_scene(true);
 
 	while (1) {
-//		_HW_FillFrame_(100, 100, 120, 120, C_RED);
-//		UG_FillFrame(0, 0, 320, 240, C_BLACK);
 		cycle = false;
+		draw_scene(false);
 
-
-	//EXAMPLE
-
-//  		if (abs(camera_x - player->pos->x / BLOCK_WIDTH) < 15) {
-//  			new_camera_x = camera_x;
-//  		} else {
-//  			new_camera_x = player->pos->x / BLOCK_WIDTH;
-//  		}
-//
-//		if ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) > player->pos->x) {
-//			new_camera_x = (camera_x - ((camera_x - GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) - player->pos->x)) % WORLD_WIDTH;
-//		} else if ((camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH) < player->pos->x) {
-//			new_camera_x = (camera_x + (player->pos->x - (camera_x + GUYSKO_X_VISIBLE_WINDOW / BLOCK_WIDTH))) % WORLD_WIDTH;
-//		}
-
-		draw_scene(first_render);
 
 		old_camera_x = camera_x_block;
 		old_camera_y = camera_y_block;
 
 		refresh_guysko(player, FPS);
-//		new_camera_x = player->pos->x / BLOCK_WIDTH;
 		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
+		// When guysko is at postition x=0, it will be drawn nearly fully off the screen, becouse of this two if sentences. Fix it to
+		// roll the camera smoothly
 		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
 			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
 		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < -GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
@@ -346,69 +329,7 @@ int main(void)
 		}
 
 		update_camera_center(new_camera_x, new_camera_y);
-		/*
 
-		// Joystick
-		/*
-	   joystick_get(&joystick_raw, &joystick_new, &joystick);
-	   UG_DrawCircle(joystick_prev.x+250, joystick_prev.y+50,3, C_BLACK);
-	   UG_DrawCircle(joystick_new.x+250, joystick_new.y+50,3, C_BLUE);
-
-	   bool left = joystick_new.x - joystick_prev.x < 0;
-	   bool up = joystick_new.y - joystick_prev.y < 0;
-
-	   uint16_t new_camera_x = ((uint16_t) (camera_x + (.05 * (joystick_prev.x - joystick_new.x) * (left ? -1 : 1))) % WORLD_WIDTH);
-	   uint16_t new_camera_y = ((uint16_t) (camera_y + (.05 * (joystick_prev.y - joystick_new.y) * (up ? 1: -1))) % WORLD_HEIGHT);
-
-	   joystick_prev.x = joystick_new.x;
-	   joystick_prev.y = joystick_new.y;
-		 */
-
-		/*
-			 //Touch
-			 if(XPT2046_TouchPressed())
-			 {
-				uint16_t x = 0, y = 0;
-		//		HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 1);
-				if(XPT2046_TouchGetCoordinates(&x, &y, 0))
-				{
-					touch_x = x;
-					touch_y = y;
-
-					//update_camera_center(x, y);
-					UG_FillCircle(x, y,2, C_GREEN);
-				}
-			 }
-			 */
-		//	 else HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, 0);
-
-		// UG_DrawCircle(250, 50, 50, C_RED);
-
-		// USART and USB
-		// sprintf(MSG, "Joystick X:%05d, Y:%05d, Touch: X:%05d, Y:%05d    \r",joystick_raw.x,joystick_raw.y, touch_x, touch_y);
-
-		// for (uint16_t i = 0; i < WIDTH; i++) {
-		//	 UG_DrawPixel(floor->adjacent_pixels[i]->x, floor->adjacent_pixels[i]->y, C_GREEN);
-		//}
-
-		// Draw ground - replace this with "whereisground"
-		//	  for (int i = 0; i < 80; i++) {
-		//
-		//		  destroyable* grass = create_destroyable("grass", 4*i, 4*44, BLOCK_WIDTH, C_GRASS, NULL);
-		//		  draw_block(grass->block);
-		//		  free_destroyable(grass);
-		//
-		//		  for (int j = 45; j < 60; j++) {
-		//			  destroyable* dirt = create_destroyable("dirt", 4*i, 4*j, BLOCK_WIDTH, C_DIRT, NULL);
-		//			  draw_block(dirt->block);
-		//			  free_destroyable(dirt);
-		//		  }
-		//	  }
-		// UG_DrawLine(0, 200, 320, 200, C_BLUE);
-
-		// draw_block(block);
-		// HAL_UART_Transmit(&huart3, MSG, strlen(MSG), 100);
-		// CDC_Transmit_FS(MSG, strlen(MSG));
 
 
 		action_set(&joystick_raw);
@@ -420,7 +341,6 @@ int main(void)
 			 */
 			action_set(&joystick_raw);
 		}
-		first_render = false;
 	}
 
 	/* USER CODE END 3 */

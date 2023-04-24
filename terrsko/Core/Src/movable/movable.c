@@ -5,14 +5,11 @@
  *      Author: gabrijel
  */
 
-
-
-
 /*
  * kako se med seboj razlikujejo npc-ji (drugače):
  * se premikajo:
- * 	speed
- * 	algoritem
+ * speed
+ * algoritem
  * zgledajo
  * demage
  * passive / active
@@ -109,7 +106,7 @@ void insert_movables(movable* beings) {
 }
 
 /*
- * TODO: comment
+ * Function iterates through linked lists of different species and call function draw_movable to draw every single being that exists
  */
 void draw_movables(movable* beings) {
 	// cows
