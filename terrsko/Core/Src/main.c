@@ -313,19 +313,24 @@ int main(void)
 		cycle = false;
 		draw_scene(false);
 
-
 		old_camera_x = camera_x_block;
 		old_camera_y = camera_y_block;
 
 		refresh_guysko(player, FPS);
-		new_camera_y = player->pos->y / BLOCK_WIDTH;
+//		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
 		// When guysko is at postition x=0, it will be drawn nearly fully off the screen, becouse of this two if sentences. Fix it to
 		// roll the camera smoothly
-		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
-			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
-		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < -GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH) {
-			new_camera_x = camera_x_block + abs(-camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
+		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
+		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block + abs(-camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
+		}
+
+		if (camera_y_block * BLOCK_WIDTH - player->pos->y > GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = (camera_y_block * BLOCK_WIDTH - abs(camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y - player->pos->y)) / BLOCK_WIDTH;
+		} else if (camera_y_block * BLOCK_WIDTH - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = (camera_y_block * BLOCK_WIDTH + abs((-1) * camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y)) / BLOCK_WIDTH;
 		}
 
 		update_camera_center(new_camera_x, new_camera_y);

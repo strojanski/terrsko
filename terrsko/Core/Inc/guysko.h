@@ -14,6 +14,7 @@
 #include "ugui.h"
 #include "action.h"
 #include "scene.h"
+#include "movable.h"
 
 #include "guysko_img.h"
 #include "render.h"
@@ -23,21 +24,24 @@
 #include "move.h"
 #include "position.h"
 
-#define GUYSKO_SPAWN_X WORLD_WIDTH_BLOCKS/3
-#define GUYSKO_SPAWN_Y camera_y_block
+#define GUYSKO_SPAWN_X 100
+#define GUYSKO_SPAWN_Y 10
 
-#define GRAVITY								-5
-#define GUYSKO_JUMP_ACCELERATION			200
+#define GUYSKO_JUMP_ACCELERATION 150
 
-#define GUYSKO_MAX_UP_VELOCITY 				300
-#define GUYSKO_MAX_DOWN_VELOCITY 			-500
-#define GUYSKO_MAX_RIGHT_VELOCITY 			200
-#define GUYSKO_MAX_LEFT_VELOCITY 			-200
+#define GUYSKO_MAX_UP_VELOCITY 300
+#define GUYSKO_MAX_DOWN_VELOCITY -500
+#define GUYSKO_MAX_RIGHT_VELOCITY	200
+#define GUYSKO_MAX_LEFT_VELOCITY -200
 
-#define GUYSKO_WALK_VEL_INC					10
-#define GUYSKO_MAX_LP						1000
+#define GUYSKO_WALK_VEL_INC 10
 
-#define GUYSKO_WINDOW_SPAN_PIXEL			75
+#define GUYSKO_MAX_LP	1000
+#define GUYSKO_HP_BAR_PIXEL_X	50
+#define GUYSKO_HP_BAR_PIXEL_Y	8
+
+#define GUYSKO_WINDOW_SPAN_PIXEL_X 75
+#define GUYSKO_WINDOW_SPAN_PIXEL_Y 20
 
 
 /*
@@ -66,8 +70,12 @@ typedef struct _guysko {
 	position* pos;
 
 	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
+	bool orientation;	// right -> true
 } guysko;
 
+
+void display_guysko_hp (guysko* player);
+void update_guysko_hp (guysko* player, short y_diff);
 
 void draw_guysko (guysko* player);
 void update_guysko_position (guysko* player);

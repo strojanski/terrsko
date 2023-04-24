@@ -8,8 +8,8 @@
 #ifndef INC_GUYSKO_IMG_H_
 #define INC_GUYSKO_IMG_H_
 
-#define GUYSKO_IMG_X    12
-#define GUYSKO_IMG_Y    23
+#define GUYSKO_IMG_X    16
+#define GUYSKO_IMG_Y    24
 #define GUYSKO_IMG_SIZE (GUYSKO_IMG_X * GUYSKO_IMG_Y)
 
 #include <stdint.h>

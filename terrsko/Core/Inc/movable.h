@@ -19,6 +19,8 @@
 #include "move.h"
 #include "position.h"
 
+#define GRAVITY -5
+
 #define MAX_MOVABLE_CAPACTIY	5
 
 typedef struct _movable{
