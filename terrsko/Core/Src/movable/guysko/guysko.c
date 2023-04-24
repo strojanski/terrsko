@@ -237,7 +237,7 @@ void refresh_guysko(guysko* player, int FPS) {
 //	}
 		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			display_guysko_hp(player);
-			action_reset(esc);
+			action_reset(ESC_INDEX);
 		}
 }
 
