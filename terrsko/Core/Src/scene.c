@@ -213,7 +213,9 @@ void place_trees() {
 
 	for (block_c i = 0; i < WORLD_WIDTH_BLOCKS; i++) {
 		block_c coord = i / (TREE_WIDTH / BLOCK_WIDTH);
-		if (TREE_MASK[coord] == 1) continue;
+//		if (TREE_MASK[coord] == 1) {
+//			WORLD[y][i/2] = _empty;
+//		}
 
 		block_c y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
 
@@ -222,7 +224,13 @@ void place_trees() {
 
 			// Trees only on odd numbered blocks (bottom 4 bits)
 			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
-
+			for (int j = 1; j < TREE_WIDTH; j++) {
+				for (int i = 0; i < TREE_HEIGHT; i++) {
+					if (tree[i][j] > 0) {
+						WORLD[y+i][i/2+j] = _empty;
+					}
+				}
+			}
 			TREE_MASK[coord] = 1;
 		}
 	}

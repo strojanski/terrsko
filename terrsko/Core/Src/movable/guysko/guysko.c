@@ -198,7 +198,7 @@ void refresh_guysko(guysko* player, int FPS) {
 	// components of guysko position is different
 	if (!(prev_guysko_x == player->pos->x && prev_guysko_y == player->pos->y)) {
 		// NOT WORKING, TODO: fix black lines
-		// camouflage (player, prev_guysko_x, prev_guysko_y);
+//		camouflage (player, prev_guysko_x, prev_guysko_y);
 		draw_guysko(player);
 	}
 

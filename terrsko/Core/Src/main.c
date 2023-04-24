@@ -175,6 +175,8 @@ int main(void)
 	LCD_Init();
 	LCD_UG_init();
 
+	UG_DriverRegister(DRIVER_FILL_FRAME, (void *)_HW_FillFrame_);
+
 	// LCD_Intro_LogoSlide(140,200);
 	// bitrate = DrawColors(0,0,80);
 
@@ -199,7 +201,6 @@ int main(void)
 	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 	/* USER CODE END 2 */
-
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	init_world();
@@ -312,6 +313,7 @@ int main(void)
 		cycle = false;
 		draw_scene(false);
 
+
 		old_camera_x = camera_x_block;
 		old_camera_y = camera_y_block;
 
@@ -383,7 +385,7 @@ void SystemClock_Config(void)
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_10) != HAL_OK)
 	{
 		Error_Handler();
 	}
