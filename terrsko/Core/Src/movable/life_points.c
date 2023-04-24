@@ -22,6 +22,9 @@ void update_life_points(life_points* lp, HP damage, HP heal) {
  */
 void set_life_points(life_points* lp, HP points) {
 	lp->life_points = points;
+	if (get_life_points(lp->life_points) < 0) {
+		lp->life_points = 0;
+	}
 }
 
 /*
