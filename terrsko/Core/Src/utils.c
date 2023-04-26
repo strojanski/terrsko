@@ -21,6 +21,14 @@ block_t lower(block_t block) {
 	return block & 0x0F;
 }
 
+void breakpoint () {
+	uint8_t ustau_se = 0;
+	if (ustau_se > 5) {
+		ustau_se--;
+	}
+	ustau_se++;
+	return;
+}
 /*
  * PIXEL COORDINATES:
  * 		- global : Start with world, 1 block = 4x4 pixels

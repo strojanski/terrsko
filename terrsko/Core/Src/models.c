@@ -138,13 +138,40 @@ void draw_block(block *block) {
 }
 
 void draw_tree_normal(coord *pos) {
-	// 0,0 in top left corner
-	for (int j = 0; j < TREE_WIDTH; j++) {
-		for (int i = 0; i < TREE_HEIGHT; i++) {
-			if (tree[i][j] == 0)
-				continue;
-			UG_DrawPixel(j + pos->x, i + pos->y, tree[i][j]);
-		}
+//	// 0,0 in top left corner
+//	for (int j = 0; j < TREE_WIDTH; j++) {
+//		for (int i = 0; i < TREE_HEIGHT; i++) {
+//			if (tree_r[i][j] == 0)
+//				continue;
+//			UG_DrawPixel(j + pos->x, i + pos->y, tree_r[i][j]);
+//		}
+//	}
+		int index = 0;
+		posx_pixel draw_startPoint_x = world_pixel_to_scene_pixel_x_band(pos->x - TREE_WIDTH);
+		posy_pixel draw_startPoint_y = world_pixel_to_scene_pixel_y_band(pos->y - TREE_HEIGHT);
+		// TODO: if guysko is on the edge of world, do not draw the whole guysko!
+
+		uint8_t* picture_pointer = tree_r;
+		uint16_t* pallete_pointer = tree_pallete;
+
+		for (int i = 0; i < TREE_SIZE / 2; i += 1) {
+			uint8_t offset_x = index % (TREE_WIDTH / 2);
+			uint8_t offset_y = index / (TREE_WIDTH / 2);
+			index++;
+	//		int frst_nibble =	(guysko_r_0[i] & 0b11110000) >> 4;
+	//		int scnd_nibble =	(guysko_r_0[i] & 0b00001111) >> 0;
+			int frst_nibble =	(picture_pointer[i] & 0b11110000) >> 4;
+			int scnd_nibble =	(picture_pointer[i] & 0b00001111) >> 0;
+			pixel_c draw_on_screen_x = world_pixel_to_world_pixel_x_no_band_param(draw_startPoint_x, 2 * offset_x);
+			pixel_c draw_on_screen_y = world_pixel_to_world_pixel_y_no_band_param(draw_startPoint_y, offset_y);
+
+			if (frst_nibble != 0) {
+				UG_DrawPixel(draw_on_screen_x, draw_on_screen_y, pallete_pointer[frst_nibble]);
+			}
+
+			if (scnd_nibble != 0) {
+				UG_DrawPixel(draw_on_screen_x + 1, draw_on_screen_y, pallete_pointer[scnd_nibble]);
+			}
 	}
 }
 
@@ -187,15 +214,15 @@ void draw_detailed_block(block *block) {
  * **/
 
 void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, float illumination, block_c ground_height, block_c current_height) {
-	if (material == _empty) {
-		return;
-	}
+//	if (material == _empty) {
+//		return;
+//	}
 	// Determines time and probabilities
 	bool night = is_night();
 	float probability_star = .0;
 	float random = (float) rand() / RAND_MAX;
 
-	if (material == (block_t) _dirt) {
+	if (material == (block_t) _dirt || material == (block_t) _empty) {
 
 		destroyable *dirt = create_destroyable(pixel_pos_x, pixel_pos_y, C_DIRT, _dirt, illumination);
 

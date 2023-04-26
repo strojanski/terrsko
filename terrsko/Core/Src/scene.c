@@ -46,6 +46,7 @@ float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 // Initialize world, spawn in height/2, width/2, measured in blocks of 4x4, only call once per level, use enums to mark materials
 void init_world() {
 
+	world_zero_fill();
 	generate_height_map(-3, 3, 5);
 	generate_caves();
 
@@ -62,12 +63,20 @@ void init_world() {
 	init_stage_0();
 
 	init_light_map();
-	place_trees();
-	init_stage_1();
+//	place_trees();
+//	init_stage_1();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH_BLOCKS/2];
 	update_camera_center((uint16_t) floor(WORLD_WIDTH_BLOCKS/3), zero_height - SKY_GROUND_OFFSET);	// zero level height should be at 1/3 of the screen
 
+}
+
+void world_zero_fill() {
+	for (cell_c y = 0; y < WORLD_HEIGHT_CELLS; y++) {
+		for (cell_c x = 0; x < WORLD_WIDTH_CELLS; x++) {
+			WORLD[y][x] = build_cell(_empty, _empty);
+		}
+	}
 }
 
 // DO NOT UNDER ANY CIRCUMSTANCE TOUCH BELOW CODE!
@@ -217,20 +226,20 @@ void place_trees() {
 //			WORLD[y][i/2] = _empty;
 //		}
 
-		block_c y = LVL1_HMAP[i] - TREE_HEIGHT / BLOCK_WIDTH;
+		block_c y = LVL1_HMAP[i]; //- TREE_HEIGHT / BLOCK_WIDTH;
 
 
 		if (rand() % 100 < tree_density) {
 
 			// Trees only on odd numbered blocks (bottom 4 bits)
 			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
-			for (int j = 1; j < TREE_WIDTH; j++) {
-				for (int i = 0; i < TREE_HEIGHT; i++) {
-					if (tree[i][j] > 0) {
-						WORLD[y+i][i/2+j] = _empty;
-					}
-				}
-			}
+//			for (int j = 1; j < TREE_WIDTH; j++) {
+//				for (int i = 0; i < TREE_HEIGHT; i++) {
+//					if (tree_r[i][j] > 0) {
+//						WORLD[y+i][i/2+j] = _empty;
+//					}
+//				}
+//			}
 			TREE_MASK[coord] = 1;
 		}
 	}
@@ -473,7 +482,7 @@ block_t assign_block_material(block_c x, block_c y) {
 		float random = (float) rand() / (float) (RAND_MAX/100);
 
 		// Add random rocks
-		if (random < probability_rock && abs(LVL1_HMAP[x] - y) > 2) {
+		if (random < probability_rock && abs(LVL1_HMAP[x]) < y) {
 			block = _rock;
 		} else {
 			block = _dirt;
@@ -494,29 +503,40 @@ void init_stage_0() {
 
 	srand(time(NULL));
 
-
 	// Values identifying cave and lava materials
 	block_t cave = ((_dirt_bg << 4) | _dirt_bg);
 	block_t lava = ((_lava << 4) | _lava);
 
 	for (block_c i = 0; i < WORLD_HEIGHT_BLOCKS; i++) {
 		for (block_c j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {
-			block_t l_block; block_t r_block;
+			block_t l_block = _dirt; block_t r_block = _dirt;
 
-			// Check for predetermined special values and don't overwrite, because they are already put in
-			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
-				continue;
-			}
+//			// Check for predetermined special values and don't overwrite, because they are already put in
+//			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
+//				continue;
+//			}
 
 			// Assign materials
 			l_block = assign_block_material(j, i);
+
+			if (j == 42 && i == 90) {
+				breakpoint();
+			}
 			r_block = assign_block_material(j+1, i);
 
-
 			// Store into WORLD
-			WORLD[i][j/2] = (l_block << 4) | r_block;
+			WORLD[i][j/2] = build_cell(l_block, r_block);
+
+			if (WORLD[i][j/2] == 0) {
+					WORLD[i][j/2] = build_cell(_dirt, _dirt);
+			}
 		}
 	}
+}
+
+// first parameter is left block, second right
+cell_t build_cell(block_t mat1, block_t mat2) {
+	return (mat1 << 4) | mat2;
 }
 
 void place_lava() {

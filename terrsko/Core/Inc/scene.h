@@ -109,6 +109,10 @@ void precompute_light_intensity();
 
 float get_light_intensity(uint8_t manhattan_dist);
 
+cell_t build_cell(block_t mat1, block_t mat2);
+
+void world_zero_fill();
+
 void init_stage_0();
 
 void init_stage_1();

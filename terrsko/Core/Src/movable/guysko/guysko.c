@@ -252,25 +252,29 @@ void refresh_guysko(guysko* player, int FPS) {
  */
 guysko* new_guysko() {
 	guysko* player = malloc(sizeof(guysko));
-	life_points *lp = malloc(sizeof(life_points));
-	lp->life_points = GUYSKO_MAX_LP;
+
 	velocity *guysko_vel = malloc(sizeof(velocity));
 	guysko_vel->x = 0;
 	guysko_vel->y = 0;
+
 	move *guysko_mov = malloc(sizeof(move));
 	guysko_mov->x = 0;
 	guysko_mov->y = 0;
 	guysko_mov->x_remainder = 0;
 	guysko_mov->y_remainder = 0;
+
 	position *guysko_pos = malloc(sizeof(position));
 	guysko_pos->x = GUYSKO_SPAWN_X;
 	guysko_pos->y = GUYSKO_SPAWN_Y;
 
-	player->lp->life_points = lp->life_points;
+	life_points *lp = malloc(sizeof(life_points));
+	lp->life_points = GUYSKO_MAX_LP;
+
 	player->state 					= 0;
 	player->vel							= guysko_vel;
 	player->mov 						= guysko_mov;
 	player->pos		 					= guysko_pos;
+	player->lp 							= lp;
 	player->standing_bits		= 0b1111111111111111;
 
 	player->orientation = true;

@@ -14,6 +14,8 @@ block_t upper(block_t block);
 
 block_t lower(block_t block);
 
+void breakpoint ();
+
 block_c pixel_to_block(pixel_c pixel_coord);
 
 pixel_c block_to_pixel(block_c block_coord);
