@@ -106,6 +106,7 @@ bool collision(uint8_t property, uint8_t direction, pixel_position* pos, uint8_t
 
 
 		for (int i = 0; i < offset; i++) {
+
 			cell_t cell = WORLD[block_to_cell_y(block_position.y)][block_to_cell_x(block_position.x)];
 			block_t material;
 

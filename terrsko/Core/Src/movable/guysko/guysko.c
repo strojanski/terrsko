@@ -62,29 +62,54 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: preverba ali se je zaletel v solid levo desno gor, dol?
 	// TODO: update movement based on that
 
-	uint8_t material_u = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, (-1) * GUYSKO_IMG_Y - 1));
-	uint8_t material_r = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 1), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 0));
-	uint8_t material_d = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 1));
-	uint8_t material_l = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, (-1) * GUYSKO_IMG_X - 1), world_pixel_to_world_pixel_x_no_band_param(player->pos->y, 0));
-
 	short old_free_fall_speed = player->vel->y;
+
+	bool collision_up = collision(_solid, _up, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_right = collision(_solid, _right, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_left = collision(_solid, _left, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 
 	if (move_right) {
 		player->orientation = true;
-		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
-		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
+		if (player->vel->x < 0) {
+			set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
+		} else {
+			set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
+		}
+		// Single step collision
+		if (collision_right) {
+			update_position_y(player->pos, player->pos->y, -(BLOCK_WIDTH + 1));
+		}
+
 		// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) {
+			set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		}
+
 		action_reset(MOVE_RIGHT_INDEX);
-		if (is_solid(material_r)) set_velocity(player->vel, 0, player->vel->y);
+		if (collision_right) {
+			set_velocity(player->vel, 0, player->vel->y);
+		}
 	} else if (move_left) {
 		player->orientation = false;
-		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
-		else set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
+		if (player->vel->x > 0) {
+			set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
+		} else {
+			set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
+		}
+		// Single step
+		if (collision_left) {
+			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+		}
+
 		// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
+		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) {
+			set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
+		}
 		action_reset(MOVE_LEFT_INDEX);
-		if (is_solid(material_l)) set_velocity(player->vel, 0, player->vel->y);
+		if (collision_left) {
+			set_velocity(player->vel, 0, player->vel->y);
+		}
 	} else {
 		set_velocity(player->vel, 0, player->vel->y);
 	}
@@ -92,17 +117,20 @@ void update_guysko_velocity(guysko* player) {
 	// y axis
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
 
-	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 
 	if (collision_down) {
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
-			 if (is_solid(material_u)) set_velocity(player->vel, player->vel->x, 0);
+			if (collision_up) {
+				set_velocity(player->vel, player->vel->x, 0);
+			}
 		} else {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
-		if (old_free_fall_speed < - 400) update_guysko_hp(player, -20);
+		if (old_free_fall_speed < - 400) {
+			update_guysko_hp(player, -20);
+		}
 	}
 
 	// MAX VELOCITY IN Y DIRECTION
