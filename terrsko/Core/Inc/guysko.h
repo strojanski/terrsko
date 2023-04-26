@@ -23,6 +23,7 @@
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
+#include "collision.h"
 
 #define GUYSKO_SPAWN_X 100
 #define GUYSKO_SPAWN_Y 10
@@ -67,7 +68,7 @@ typedef struct _guysko {
 	uint8_t state;
 	velocity* vel;
 	move* mov;
-	position* pos;
+	pixel_position* pos;
 
 	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
 	bool orientation;	// right -> true

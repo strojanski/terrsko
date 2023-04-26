@@ -32,7 +32,7 @@ typedef struct cow {
 
 	uint8_t state;
 	velocity* vel;
-	position* pos;
+	pixel_position* pos;
 //	move* mov
 
 	struct cow* next;
@@ -40,6 +40,6 @@ typedef struct cow {
 } cow;
 
 void draw_cow(cow* krava);
-cow* new_cow (life_points* lp, velocity* vel, position* pos);
+cow* new_cow (life_points* lp, velocity* vel, pixel_position* pos);
 
 #endif /* INC_COW_H_ */

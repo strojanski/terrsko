@@ -76,7 +76,7 @@ void update_guysko_velocity(guysko* player) {
 		// MAX VELOCITY IN X DIRECTION
 		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
 		action_reset(MOVE_RIGHT_INDEX);
-		if (isSolid(material_r)) set_velocity(player->vel, 0, player->vel->y);
+		if (is_solid(material_r)) set_velocity(player->vel, 0, player->vel->y);
 	} else if (move_left) {
 		player->orientation = false;
 		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
@@ -84,18 +84,21 @@ void update_guysko_velocity(guysko* player) {
 		// MAX VELOCITY IN X DIRECTION
 		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
 		action_reset(MOVE_LEFT_INDEX);
-		if (isSolid(material_l)) set_velocity(player->vel, 0, player->vel->y);
+		if (is_solid(material_l)) set_velocity(player->vel, 0, player->vel->y);
 	} else {
 		set_velocity(player->vel, 0, player->vel->y);
 	}
 
 	// y axis
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
-	if (isSolid(material_d)) {
+
+	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+
+	if (collision_down) {
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
-			 if (isSolid(material_u)) set_velocity(player->vel, player->vel->x, 0);
+			 if (is_solid(material_u)) set_velocity(player->vel, player->vel->x, 0);
 		} else {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
@@ -263,7 +266,7 @@ guysko* new_guysko() {
 	guysko_mov->x_remainder = 0;
 	guysko_mov->y_remainder = 0;
 
-	position *guysko_pos = malloc(sizeof(position));
+	pixel_position *guysko_pos = malloc(sizeof(pixel_position));
 	guysko_pos->x = GUYSKO_SPAWN_X;
 	guysko_pos->y = GUYSKO_SPAWN_Y;
 

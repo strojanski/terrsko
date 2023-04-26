@@ -92,7 +92,7 @@ void insert_movables(movable* beings) {
 	if (20 < COW_SPAWN_PROBABILITY && beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
 		life_points *lp = malloc(sizeof(life_points));
 		lp->life_points = COW_MAX_LP;
-		position* cow_pos = malloc(sizeof(position));
+		pixel_position* cow_pos = malloc(sizeof(pixel_position));
 		cow_pos->x = ((beings->beings_quantity * 40) + 1) % 320;
 		cow_pos->y = 150;
 		velocity *cow_vel = malloc(sizeof(velocity));

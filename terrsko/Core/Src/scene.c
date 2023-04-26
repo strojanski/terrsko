@@ -46,7 +46,7 @@ float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 void init_world() {
 
 	world_zero_fill();
-	generate_height_map(-3, 3, 10);
+	generate_height_map(-3, 3, 5);
 	generate_caves();
 
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
@@ -800,11 +800,13 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 		}
 	}
 
+	LVL1_HMAP[0] += 5;
+	LVL1_HMAP[WORLD_WIDTH_BLOCKS] += 5;
 
 	// LVL1_HMAP is as wide as the world, smooth the bumps
 	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, false);
-	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
-	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+//	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+//	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
 
 }
 
@@ -1009,12 +1011,6 @@ block_t get_block_with_pixels_from_WORLD(pixel_c x, pixel_c y) {
 	return upper(WORLD[pixel_to_cell_y(y)][pixel_to_cell_x(x)]);
 }
 
-bool isSolid (block_t block) {
-	if (block == _dirt || block == _grass || block == _wood || block == _sand || block == _rock || block == _red_wood || block == _gold || block == _diamond) {
-		return true;
-	}
-	return false;
-}
 
 /*
  * returns the pixel that is represented in WORLD position to
