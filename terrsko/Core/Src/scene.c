@@ -518,10 +518,6 @@ void init_stage_0() {
 
 			// Assign materials
 			l_block = assign_block_material(j, i);
-
-			if (j == 390 && i == 6) {
-				breakpoint();
-			}
 			r_block = assign_block_material(j+1, i);
 
 			// Store into WORLD

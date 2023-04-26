@@ -53,6 +53,7 @@
 #include "move.h"
 #include "position.h"
 #include "scene.h"
+#include "interactions.h"
 
 #include "movable.h"
 #include "rand_range.h"
@@ -342,7 +343,11 @@ int main(void)
 		}
 		update_camera_center(new_camera_x, new_camera_y);
 
-
+		// Buttons for digging
+		if (act_down) {
+			dig_down(player->pos);
+			action_reset(ACT_DOWN_INDEX);
+		}
 
 		action_set(&joystick_raw);
 		while (!cycle)

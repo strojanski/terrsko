@@ -78,7 +78,7 @@ void update_guysko_velocity(guysko* player) {
 		}
 		// Single step collision
 		if (collision_right) {
-			update_position_y(player->pos, player->pos->y, -(BLOCK_WIDTH + 1));
+//			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
 		// MAX VELOCITY IN X DIRECTION
@@ -99,7 +99,7 @@ void update_guysko_velocity(guysko* player) {
 		}
 		// Single step
 		if (collision_left) {
-			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+//			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
 		// MAX VELOCITY IN X DIRECTION

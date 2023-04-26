@@ -355,8 +355,6 @@ void draw_scene(bool init) {
 				}
 			}
 
-
-
 			block_t left_block = upper(current_scene_cell);
 			block_t right_block = lower(current_scene_cell);
 
@@ -383,7 +381,6 @@ void draw_scene(bool init) {
 			if (!skip_right) {
 				render_block(right_block, pos_x2, pos_y, illumination, ground_height, current_height);
 			}
-
 		}
 
 		// Each cell in x-direction in SCENE = move 2 blocks on screen
@@ -392,9 +389,6 @@ void draw_scene(bool init) {
 	}
 
 }
-
-
-
 
 
 void free_destroyable(destroyable *destroyable) {
