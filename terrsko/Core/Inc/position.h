@@ -15,8 +15,8 @@
 #include "structures.h"
 
 // posx_pixel and posy_pixel declare the exect point in pixels where the movables are positioned
-typedef short posx_pixel;
-typedef short posy_pixel;
+typedef pixel_c posx_pixel;
+typedef pixel_c posy_pixel;
 /*
  * Max postion in x and y axis should be the world height and width
  * That for, the position should always be: previsous position % WORLD_SIZE(x/y)

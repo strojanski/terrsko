@@ -275,6 +275,8 @@ guysko* new_guysko() {
 	player->mov 						= guysko_mov;
 	player->pos		 					= guysko_pos;
 	player->lp 							= lp;
+//	player->lp = malloc(sizeof(life_points));
+//	player->lp->life_points = GUYSKO_MAX_LP;
 	player->standing_bits		= 0b1111111111111111;
 
 	player->orientation = true;

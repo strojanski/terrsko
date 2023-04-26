@@ -10,7 +10,6 @@
 #include "material_classes.h"
 #include "environment_models.h"
 #include "utils.h"
-
 // 512kB flash drive, 128kB RAM
 
 #define CAVE_THRESH 12 //40
@@ -47,7 +46,7 @@ float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 void init_world() {
 
 	world_zero_fill();
-	generate_height_map(-3, 3, 5);
+	generate_height_map(-3, 3, 10);
 	generate_caves();
 
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
@@ -185,6 +184,7 @@ void mark_tree(uint16_t y, uint16_t x, uint8_t left_right, uint16_t height, uint
 
 // x,y in blocks
 void update_camera_center(uint16_t x, uint16_t y) {
+
 	// Check if we are at least half a screen from a border
 	if (x >= WORLD_WIDTH_BLOCKS - (SCENE_WIDTH_BLOCKS / 2 + 1)) {
 		x = WORLD_WIDTH_BLOCKS - SCENE_WIDTH_BLOCKS / 2 + 1;
@@ -511,15 +511,15 @@ void init_stage_0() {
 		for (block_c j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {
 			block_t l_block = _dirt; block_t r_block = _dirt;
 
-//			// Check for predetermined special values and don't overwrite, because they are already put in
-//			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
-//				continue;
-//			}
+			// Check for predetermined special values and don't overwrite, because they are already put in
+			if ((WORLD[i][j/2] == cave || WORLD[i][j/2] == lava) && i > LVL1_HMAP[j]) {
+				continue;
+			}
 
 			// Assign materials
 			l_block = assign_block_material(j, i);
 
-			if (j == 42 && i == 90) {
+			if (j == 390 && i == 6) {
 				breakpoint();
 			}
 			r_block = assign_block_material(j+1, i);
@@ -527,9 +527,6 @@ void init_stage_0() {
 			// Store into WORLD
 			WORLD[i][j/2] = build_cell(l_block, r_block);
 
-			if (WORLD[i][j/2] == 0) {
-					WORLD[i][j/2] = build_cell(_dirt, _dirt);
-			}
 		}
 	}
 }

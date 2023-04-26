@@ -214,15 +214,13 @@ void draw_detailed_block(block *block) {
  * **/
 
 void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, float illumination, block_c ground_height, block_c current_height) {
-//	if (material == _empty) {
-//		return;
-//	}
+
 	// Determines time and probabilities
 	bool night = is_night();
 	float probability_star = .0;
 	float random = (float) rand() / RAND_MAX;
 
-	if (material == (block_t) _dirt || material == (block_t) _empty) {
+	if (material == (block_t) _dirt) {
 
 		destroyable *dirt = create_destroyable(pixel_pos_x, pixel_pos_y, C_DIRT, _dirt, illumination);
 
@@ -264,35 +262,35 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(sky->block);
 		free_bg_material(sky);
-	} else {
-		// Above ground = sky, below ground = dirt_bg
-		if (current_height < ground_height) {
-
-			uint16_t *color = C_SKY;
-
-			if (random < probability_star && night) {
-				color = C_STAR;
-			} else if (night) {
-				color = C_NIGHT_SKY;
-			}
-
-			// SKY
-			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
-			draw_block(sky->block);
-			free_bg_material(sky);
-		} else {
-			// DIRT BG
-			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
-			draw_block(dirt->block);
-			free_bg_material(dirt);
-		}
+//	} else {
+//		// Above ground = sky, below ground = dirt_bg
+//		if (current_height < ground_height) {
+//
+//			uint16_t *color = C_SKY;
+//
+//			if (random < probability_star && night) {
+//				color = C_STAR;
+//			} else if (night) {
+//				color = C_NIGHT_SKY;
+//			}
+//
+//			// SKY
+//			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
+//			draw_block(sky->block);
+//			free_bg_material(sky);
+//		} else {
+//			// DIRT BG
+//			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
+//			draw_block(dirt->block);
+//			free_bg_material(dirt);
+//		}
 	}
 }
 
 void draw_scene(bool init) {
 	// update and get scene
 	get_scene();
-	get_scene_mask();	// 1 - do not overwrite, 0 do overwrite
+//	get_scene_mask();	// 1 - do not overwrite, 0 do overwrite
 
 	srand(time(NULL));
 
