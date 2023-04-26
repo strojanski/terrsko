@@ -35,7 +35,7 @@ void update_position_y (pixel_position* pos, posy_pixel y, posy_pixel y_diff) {
 //		final_y = WORLD_HEIGHT_PIXELS - abs(final_y);
 		final_y = 0 + GUYSKO_IMG_Y;
 	} else if (final_y > WORLD_HEIGHT_PIXELS) {
-		final_y = final_y - WORLD_HEIGHT_PIXELS;
+		final_y = WORLD_HEIGHT_PIXELS - 1;
 	}
 
 	set_position(pos, pos->x, final_y);
