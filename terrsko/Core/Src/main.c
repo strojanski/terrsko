@@ -349,6 +349,19 @@ int main(void)
 			action_reset(ACT_DOWN_INDEX);
 		}
 
+		if (act_left) {
+			dig_left(player->pos);
+			action_reset(ACT_LEFT_INDEX);
+
+			// Compensate for guysko movement
+			set_position(player->pos, player->pos->x+5, player->pos->y);
+		}
+
+		if (act_right) {
+			dig_right(player->pos);
+			action_reset(ACT_RIGHT_INDEX);
+		}
+
 		action_set(&joystick_raw);
 		while (!cycle)
 		{

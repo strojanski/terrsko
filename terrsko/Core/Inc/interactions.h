@@ -12,6 +12,9 @@
 
 void dig_down(pixel_position* pos);
 
+void dig_left(pixel_position* pos);
+
+void dig_right(pixel_position* pos);
 
 
 #endif /* INC_INTERACTIONS_H_ */
