@@ -479,7 +479,7 @@ block_t assign_block_material(block_c x, block_c y) {
 	// right block
 	if (y > LVL1_HMAP[x]) { // Ground
 
-		float random = (float) rand() / (float) (RAND_MAX/100);
+		float random = (float) rand() / (float) (RAND_MAX);
 
 		// Add random rocks
 		if (random < probability_rock && abs(LVL1_HMAP[x]) < y) {
@@ -519,6 +519,15 @@ void init_stage_0() {
 			// Assign materials
 			l_block = assign_block_material(j, i);
 			r_block = assign_block_material(j+1, i);
+
+			float random = (float) rand() / (float) (RAND_MAX);
+			// 10% of rocks should be bigger blobs
+			if (random < 0.1) {
+				if (l_block == _rock || r_block == _rock) {
+					int random_radius = random_int(1, 4);
+					draw_blob(j/2, i, random_radius, build_cell(_rock, _rock));
+				}
+			}
 
 			// Store into WORLD
 			WORLD[i][j/2] = build_cell(l_block, r_block);
