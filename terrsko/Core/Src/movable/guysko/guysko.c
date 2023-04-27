@@ -72,12 +72,12 @@ void update_guysko_velocity(guysko* player) {
 	if (move_right) {
 		player->orientation = true;
 		if (player->vel->x < 0) {
-			set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
+			set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);		// Walk right
 		} else {
 			set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
 		}
 		// Single step collision
-		if (collision_right) {
+		if (collision_right && collision_down) { // && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
 //			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
@@ -87,18 +87,24 @@ void update_guysko_velocity(guysko* player) {
 		}
 
 		action_reset(MOVE_RIGHT_INDEX);
+
+		// Stop if collision
 		if (collision_right) {
 			set_velocity(player->vel, 0, player->vel->y);
 		}
+
 	} else if (move_left) {
 		player->orientation = false;
+
+		// Walk left
 		if (player->vel->x > 0) {
 			set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
 		} else {
 			set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
 		}
+
 		// Single step
-		if (collision_left) {
+		if (collision_left && collision_down) {// && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
 //			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
@@ -107,18 +113,22 @@ void update_guysko_velocity(guysko* player) {
 			set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
 		}
 		action_reset(MOVE_LEFT_INDEX);
+
+		// Stop if collision
 		if (collision_left) {
 			set_velocity(player->vel, 0, player->vel->y);
 		}
 	} else {
+		// Stand still
 		set_velocity(player->vel, 0, player->vel->y);
 	}
 
-	// y axis
+	// y axis - gravity
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
 
 
 	if (collision_down) {
+		// jump
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
@@ -131,6 +141,10 @@ void update_guysko_velocity(guysko* player) {
 		if (old_free_fall_speed < - 400) {
 			update_guysko_hp(player, -20);
 		}
+	}
+	// Check for collision upwards regardless of the ground
+	if (collision_up) {
+		set_velocity(player->vel, player->vel->x, 0);
 	}
 
 	// MAX VELOCITY IN Y DIRECTION

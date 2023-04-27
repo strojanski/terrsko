@@ -50,7 +50,7 @@ block_pos get_colliding_block_up(pixel_position* pos, pixel_c movable_height) {
 
 block_pos get_colliding_block_left(pixel_position* pos, pixel_c movable_width) {
 	// Move a pixel in direction, map to block
-	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x, (-1) * (movable_width + 1));
+	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x, (-1) * (movable_width));
 	pixel_c cy = pos->y;
 
 	block_pos result_block_c = {
@@ -83,7 +83,7 @@ bool collision(uint8_t property, uint8_t direction, pixel_position* pos, uint8_t
 		movable_width = pixel_to_block(movable_width);
 		movable_height = pixel_to_block(movable_height);
 
-		uint8_t offset;
+		uint8_t offset = 2;
 
 		switch (direction) {
 			case _up:
@@ -111,9 +111,9 @@ bool collision(uint8_t property, uint8_t direction, pixel_position* pos, uint8_t
 			block_t material;
 
 			if (i % 2 == 0) {
-				material = lower(cell);
-			} else {
 				material = upper(cell);
+			} else {
+				material = lower(cell);
 			}
 
 			switch (property) {

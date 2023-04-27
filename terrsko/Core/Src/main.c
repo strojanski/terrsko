@@ -362,6 +362,10 @@ int main(void)
 			action_reset(ACT_RIGHT_INDEX);
 		}
 
+		if (act_up) {
+			place_block(player->pos, _dirt, 1, 1);
+		}
+
 		action_set(&joystick_raw);
 		while (!cycle)
 		{

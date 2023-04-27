@@ -16,5 +16,6 @@ void dig_left(pixel_position* pos);
 
 void dig_right(pixel_position* pos);
 
+void place_block(pixel_position* pos, block_t material, block_c offset_x, block_c offset_y);
 
 #endif /* INC_INTERACTIONS_H_ */

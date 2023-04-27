@@ -686,7 +686,9 @@ void generate_caves() {
 void draw_blob(cell_c x, cell_c y, uint16_t radius, cell_t value) {
 	for (int8_t i = -radius; i <= radius; i++) {
 		for (int8_t j = -radius; j <= radius; j++) {
-			WORLD[y+i][x+j] = value;
+			if (y+i > LVL1_HMAP[x+j] + 5) {
+				WORLD[y+i][x+j] = value;
+			}
 		}
 	}
 }
