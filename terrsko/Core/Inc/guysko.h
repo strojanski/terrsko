@@ -44,6 +44,8 @@
 #define GUYSKO_WINDOW_SPAN_PIXEL_X 75
 #define GUYSKO_WINDOW_SPAN_PIXEL_Y 20
 
+#define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
+
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second
@@ -87,6 +89,8 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 void refresh_guysko(guysko* player, int FPS);
 
 guysko* new_guysko();
+
+extern bool building_mode;
 
 
 #endif /* INC_GUYSKO_H_ */

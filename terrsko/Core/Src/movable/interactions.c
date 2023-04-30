@@ -127,31 +127,32 @@ void dig_right(pixel_position* pos) {
 // TODO: block manipulation can be implemented in the same way with offset_x offset_y = 1, draw 2x2 blocks, IMPLEMENT WITH THREADS
 void place_block(pixel_position* pos, block_t material, block_c offset_x, block_c offset_y) {
 	// Use buttons to determine position, use OK button to place
-	while (act_up) {
-		// Get position, place material in world, when clicking a button remove it and move it one up/down/left/right
-		pixel_c x = world_pixel_to_world_pixel_x_no_band_param(pos->x, pos->x % 4);	// start one block right to the player
-		pixel_c y = pos->y;
+	// Get position, place material in world, when clicking a button remove it and move it one up/down/left/right
+	pixel_c x = world_pixel_to_world_pixel_x_no_band_param(pos->x, 1);	// start one block right to the player
+	pixel_c y = pos->y;
 
-		// Select the area of 2x2 blocks
-		for (int i = 0; i < 2; i++) {
+	// Place material in 2 vertically stacked cells
+	for (int i = 0; i < 2; i++) {
 
-			cell_c wx = pixel_to_cell_x(x + block_to_pixel(offset_x));
-			cell_c wy = pixel_to_cell_y(y + block_to_pixel(offset_y));
+		cell_c wx = pixel_to_cell_x(x + block_to_pixel(offset_x));
+		cell_c wy = pixel_to_cell_y(y + block_to_pixel(offset_y));
 
-			WORLD[wy][wx] = build_cell(material, material);
+		camera_x_block = cell_x_to_block_left(wx);
+		camera_y_block = cell_y_to_block(wy);
+		update_camera_center(camera_x_block, camera_y_block);
+
+		WORLD[wy][wx] = build_cell(material, material);
 
 
-			y = world_pixel_to_world_pixel_y_no_band_param(y, -BLOCK_WIDTH);
+		y = world_pixel_to_world_pixel_y_no_band_param(y, -BLOCK_WIDTH);
 
-		}
+	}
 
 		// If OK then leave it in, else not
 //		if (!ok) {
 //			WORLD[wy][wx] =
 //		}
 
-		action_reset(ACT_UP_INDEX);
-	}
 }
 
 

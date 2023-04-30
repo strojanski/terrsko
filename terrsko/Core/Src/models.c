@@ -13,6 +13,7 @@
 #include "environment_models.h"
 #include "utils.h"
 #include "structures.h"
+#include "guysko.h"
 
 #define RGB565_RED 0xF800
 #define RGB565_GREEN 0x7E0
@@ -296,6 +297,10 @@ void draw_scene(bool init) {
 
 	float illumination = 1;
 
+	if (building_mode) {
+		illumination = .8;
+	}
+
 	// Rendering optimization
 	int8_t move_horizontal = old_camera_x - camera_x_block; // + -> left, - -> right
 	int8_t move_vertical = old_camera_y - camera_y_block; // + -> up, - -> down
@@ -328,6 +333,8 @@ void draw_scene(bool init) {
 			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in current frame
 			cell_c world_cell_x = block_to_cell_x(world_block_x0) + i;
 			cell_c world_cell_y = block_to_cell_y(world_block_y0) + j;
+
+
 
 			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in previous frame
 			cell_c old_world_cell_x = block_to_cell_x(old_world_block_x0) + i;
@@ -369,6 +376,32 @@ void draw_scene(bool init) {
 			coord pos = { x: pos_x2, y: pos_y };
 			if (left_block == _tree || right_block == _tree) {
 				draw_tree_normal(&pos);
+			}
+
+			// Draw block where we are building
+			if (building_mode && (world_block_x0 + cell_x_to_block_left(i) == camera_x_block + 2 || world_block_x0 + cell_x_to_block_right(i) == camera_x_block + 2) && world_block_y0 + j == camera_y_block + 1) {
+				destroyable *dirt = create_destroyable(pos_x1, pos_y, C_DIRT, _dirt, illumination);
+
+//				_HW_FillFrame_(pos_x - BLOCK_WIDTH, pos_y - BLO, pos_x2, y2, c)
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x2, pos_y, C_DIRT, _dirt, illumination);
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x1, pos_y-BLOCK_WIDTH, C_DIRT, _dirt, illumination);
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x2, pos_y-BLOCK_WIDTH, C_DIRT, _dirt, illumination);
+				draw_block(dirt->block);
+
+//				world_pixel_to_world_pixel_x_no_band_param(dirt->block->pos.x, -BLOCK_WIDTH);
+//				draw_block(dirt->block);
+//				world_pixel_to_world_pixel_y_no_band_param(dirt->block->pos.y, -BLOCK_WIDTH);
+//				draw_block(dirt->block);
+//				world_pixel_to_world_pixel_x_no_band_param(dirt->block->pos.x, BLOCK_WIDTH);
+//				draw_block(dirt->block);
+
+//				_HW_FillFrame_(pos_x1 - 2*BLOCK_WIDTH, pos_y - 3* BLOCK_WIDTH, pos_x2, pos_y- BLOCK_WIDTH, C_BLACK);
+
+				free_destroyable(dirt);
+				continue;
 			}
 
 //			illumination = compute_illumination(scene_cell_x, scene_cell_y);

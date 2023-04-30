@@ -9,14 +9,21 @@
 
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <ugui.h>
 
 #include "guysko.h"
 #include "utils.h"
+
+
+
+bool building_mode = false;
 
 void display_guysko_hp (guysko* player) {
 	float hp_percentage = (float) get_life_points(player->lp) / (float) GUYSKO_MAX_LP;
 	float hp_line_length = hp_percentage * GUYSKO_HP_BAR_PIXEL_X;
 
+	// TODO: change to _HW_FillFrame_
 	UG_FillFrame(1, 1, 2 + GUYSKO_HP_BAR_PIXEL_X + 1, 2 + GUYSKO_HP_BAR_PIXEL_Y + 1, C_BLACK);
 	UG_FillFrame(2, 2, 2 + hp_line_length - 1, 2 + GUYSKO_HP_BAR_PIXEL_Y, C_RED);
 }
@@ -69,6 +76,21 @@ void update_guysko_velocity(guysko* player) {
 	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 	bool collision_left = collision(_solid, _left, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 
+	if (collision_up) {
+		_HW_FillFrame_(20, 20, 30, 30, C_GREEN);
+	}
+
+	if (collision_down) {
+		_HW_FillFrame_(30, 20, 40, 30, C_BLUE);
+	}
+
+	if (collision_left) {
+		_HW_FillFrame_(40, 20, 40, 30, C_RED);
+	}
+
+	if (collision_right) {
+		_HW_FillFrame_(50, 20, 60, 30, C_PURPLE);
+	}
 	if (move_right) {
 		player->orientation = true;
 		if (player->vel->x < 0) {

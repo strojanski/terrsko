@@ -38,7 +38,7 @@ block_pos get_colliding_block_down(pixel_position* pos) {
 block_pos get_colliding_block_up(pixel_position* pos, pixel_c movable_height) {
 	// Move a pixel in direction, map to block
 	pixel_c cx = pos->x;
-	pixel_c cy = world_pixel_to_world_pixel_y_no_band_param(pos->y, -(movable_height + 1));
+	pixel_c cy = world_pixel_to_world_pixel_y_no_band_param(pos->y, -(movable_height + BLOCK_WIDTH));
 
 	block_pos result_block_c = {
 			x: pixel_to_block(cx),
@@ -50,7 +50,7 @@ block_pos get_colliding_block_up(pixel_position* pos, pixel_c movable_height) {
 
 block_pos get_colliding_block_left(pixel_position* pos, pixel_c movable_width) {
 	// Move a pixel in direction, map to block
-	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x, (-1) * (movable_width));
+	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x, (-1) * (movable_width + BLOCK_WIDTH));
 	pixel_c cy = pos->y;
 
 	block_pos result_block_c = {
@@ -88,7 +88,7 @@ bool collision(uint8_t property, uint8_t direction, pixel_position* pos, uint8_t
 		switch (direction) {
 			case _up:
 				block_position = get_colliding_block_up(pos, movable_height);
-				offset = movable_width;
+				offset = movable_width/2;
 				break;
 			case _right:
 				block_position = get_colliding_block_right(pos);
@@ -111,9 +111,9 @@ bool collision(uint8_t property, uint8_t direction, pixel_position* pos, uint8_t
 			block_t material;
 
 			if (i % 2 == 0) {
-				material = upper(cell);
-			} else {
 				material = lower(cell);
+			} else {
+				material = upper(cell);
 			}
 
 			switch (property) {
