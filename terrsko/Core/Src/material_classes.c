@@ -43,6 +43,7 @@ block_t harmuful_materials[] = {
 		_fire
 };
 
+
 bool is_destructible(block_t material) {
 	for (uint8_t i = 0; i < sizeof(destructible_materials) / sizeof(block_t); i++) {
 		if (destructible_materials[i] == material) {
@@ -86,7 +87,6 @@ bool is_light_source(uint8_t material) {
 	}
 	return false;
 }
-
 
 
 //void init_light_sources_array(uint8_t size) {

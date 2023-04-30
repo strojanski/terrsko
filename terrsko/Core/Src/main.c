@@ -317,9 +317,17 @@ int main(void)
 	old_camera_y = camera_y_block;
 	draw_scene(true);
 
+	volatile int count = 0;
 
 	while (1) {
 		cycle = false;
+
+//		if (player->vel->x) {
+//			count = 0;
+//			draw_scene(true);
+//		} else {
+//			draw_scene(false);
+//		}
 		draw_scene(false);
 
 		old_camera_x = camera_x_block;
@@ -375,11 +383,18 @@ int main(void)
 						y: block_to_pixel(new_camera_y)
 				};
 
-				place_block(&pos, _dirt, 0, 0);
+				place_block(&pos, building_material, 0, 0);
 
 				action_reset(OK_INDEX);
 			}
 
+			if (move_enter) {
+				cycle_building_material();
+//				HAL_Delay(100);
+				action_reset(MOVE_ENTER_INDEX);
+			}
+
+			display_material_name();
 
 		}
 
@@ -387,6 +402,11 @@ int main(void)
 
 		if (!building_mode) {
 			// Buttons for digging
+			if (act_down) {
+				dig_down(player->pos);
+				action_reset(ACT_DOWN_INDEX);
+			}
+
 			if (act_down) {
 				dig_down(player->pos);
 				action_reset(ACT_DOWN_INDEX);
@@ -430,6 +450,7 @@ int main(void)
 			 */
 			action_set(&joystick_raw);
 		}
+		count++;
 	}
 
 	/* USER CODE END 3 */

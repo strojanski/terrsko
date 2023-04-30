@@ -245,6 +245,18 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(wood->block);
 		free_destroyable(wood);
+	} else if (material == (block_t) _red_wood) {
+
+			destroyable *wood = create_destroyable(pixel_pos_x, pixel_pos_y, C_RED_WOOD, _red_wood, illumination);
+
+			draw_block(wood->block);
+			free_destroyable(wood);
+	} else if (material == (block_t) _sand) {
+
+		destroyable *sand = create_destroyable(pixel_pos_x, pixel_pos_y, C_SAND, _sand, illumination);
+
+		draw_block(sand->block);
+		free_destroyable(sand);
 	} else if (material == (block_t) _rock) {
 
 		destroyable *rock = create_destroyable(pixel_pos_x, pixel_pos_y, C_ROCK, _rock, illumination);
@@ -257,34 +269,24 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(dirt->block);
 		free_bg_material(dirt);
+	} else if (material == (block_t) _gold) {
+
+		bg_material *gold = create_bg_material(pixel_pos_x, pixel_pos_y, C_GOLDB, _gold, illumination);
+
+		draw_block(gold->block);
+		free_bg_material(gold);
+	}  else if (material == (block_t) _diamond) {
+
+		bg_material *diamond = create_bg_material(pixel_pos_x, pixel_pos_y, C_DIAMOND, _diamond, illumination);
+
+		draw_block(diamond->block);
+		free_bg_material(diamond);
 	} else if (material == (block_t) _sky) {
 
 		bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, C_SKY, _sky, illumination);
 
 		draw_block(sky->block);
 		free_bg_material(sky);
-//	} else {
-//		// Above ground = sky, below ground = dirt_bg
-//		if (current_height < ground_height) {
-//
-//			uint16_t *color = C_SKY;
-//
-//			if (random < probability_star && night) {
-//				color = C_STAR;
-//			} else if (night) {
-//				color = C_NIGHT_SKY;
-//			}
-//
-//			// SKY
-//			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
-//			draw_block(sky->block);
-//			free_bg_material(sky);
-//		} else {
-//			// DIRT BG
-//			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
-//			draw_block(dirt->block);
-//			free_bg_material(dirt);
-//		}
 	}
 }
 
@@ -380,25 +382,16 @@ void draw_scene(bool init) {
 
 			// Draw block where we are building
 			if (building_mode && (world_block_x0 + cell_x_to_block_left(i) == camera_x_block + 2 || world_block_x0 + cell_x_to_block_right(i) == camera_x_block + 2) && world_block_y0 + j == camera_y_block + 1) {
-				destroyable *dirt = create_destroyable(pos_x1, pos_y, C_DIRT, _dirt, illumination);
+				destroyable *dirt = create_destroyable(pos_x1, pos_y, map_name_to_material(building_material), building_material, 1);
 
-//				_HW_FillFrame_(pos_x - BLOCK_WIDTH, pos_y - BLO, pos_x2, y2, c)
+				// Important to draw over already drawn area to not overwrite it in next iterations
 				draw_block(dirt->block);
-				dirt = create_destroyable(pos_x2, pos_y, C_DIRT, _dirt, illumination);
+				dirt = create_destroyable(pos_x2, pos_y, map_name_to_material(building_material), building_material, 1);
 				draw_block(dirt->block);
-				dirt = create_destroyable(pos_x1, pos_y-BLOCK_WIDTH, C_DIRT, _dirt, illumination);
+				dirt = create_destroyable(pos_x1, pos_y-BLOCK_WIDTH, map_name_to_material(building_material), building_material, 1);
 				draw_block(dirt->block);
-				dirt = create_destroyable(pos_x2, pos_y-BLOCK_WIDTH, C_DIRT, _dirt, illumination);
+				dirt = create_destroyable(pos_x2, pos_y-BLOCK_WIDTH, map_name_to_material(building_material), building_material, 1);
 				draw_block(dirt->block);
-
-//				world_pixel_to_world_pixel_x_no_band_param(dirt->block->pos.x, -BLOCK_WIDTH);
-//				draw_block(dirt->block);
-//				world_pixel_to_world_pixel_y_no_band_param(dirt->block->pos.y, -BLOCK_WIDTH);
-//				draw_block(dirt->block);
-//				world_pixel_to_world_pixel_x_no_band_param(dirt->block->pos.x, BLOCK_WIDTH);
-//				draw_block(dirt->block);
-
-//				_HW_FillFrame_(pos_x1 - 2*BLOCK_WIDTH, pos_y - 3* BLOCK_WIDTH, pos_x2, pos_y- BLOCK_WIDTH, C_BLACK);
 
 				free_destroyable(dirt);
 				continue;

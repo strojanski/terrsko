@@ -18,6 +18,7 @@
 
 
 bool building_mode = false;
+block_t building_material = _dirt;
 
 void display_guysko_hp (guysko* player) {
 	float hp_percentage = (float) get_life_points(player->lp) / (float) GUYSKO_MAX_LP;

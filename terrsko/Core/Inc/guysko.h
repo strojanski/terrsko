@@ -91,6 +91,7 @@ void refresh_guysko(guysko* player, int FPS);
 guysko* new_guysko();
 
 extern bool building_mode;
+extern block_t building_material;
 
 
 #endif /* INC_GUYSKO_H_ */
