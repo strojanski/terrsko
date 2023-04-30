@@ -53,6 +53,7 @@
 #include "move.h"
 #include "position.h"
 #include "scene.h"
+#include "interactions.h"
 
 #include "movable.h"
 #include "rand_range.h"
@@ -316,15 +317,25 @@ int main(void)
 	old_camera_y = camera_y_block;
 	draw_scene(true);
 
+	volatile int count = 0;
 
 	while (1) {
 		cycle = false;
-		draw_scene(false);
+
+		// Redraw entire scene
+		if (move_enter && !building_mode) {
+			draw_scene(true);
+			action_reset(MOVE_ENTER_INDEX);
+		} else {
+			draw_scene(false);
+		}
 
 		old_camera_x = camera_x_block;
 		old_camera_y = camera_y_block;
 
-		refresh_guysko(player, FPS);
+		if (!building_mode) {
+			refresh_guysko(player, FPS);
+		}
 //		new_camera_x = player->pos->x / BLOCK_WIDTH;
 //		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
@@ -340,8 +351,94 @@ int main(void)
 		} else if (camera_y_block * BLOCK_WIDTH - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
 			new_camera_y = (camera_y_block * BLOCK_WIDTH + abs((-1) * camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y)) / BLOCK_WIDTH;
 		}
+
+		// Set camera to block position, allow moving it with actions
+		if (building_mode) {
+			// Changed in place_block function
+			new_camera_x = camera_x_block;
+			new_camera_y = camera_y_block;
+
+			// Move with actions
+			if (act_down) {
+				new_camera_y += BUILD_CAMERA_SPEED;
+				action_reset(ACT_DOWN_INDEX);
+			}
+			if (act_left) {
+				new_camera_x -= BUILD_CAMERA_SPEED;
+				action_reset(ACT_LEFT_INDEX);
+			}
+			if (act_up) {
+				new_camera_y -= BUILD_CAMERA_SPEED;
+				action_reset(ACT_UP_INDEX);
+			}
+			if (act_right) {
+				new_camera_x += BUILD_CAMERA_SPEED;
+				action_reset(ACT_RIGHT_INDEX);
+			}
+
+			// Actual building - build with OK
+			if (ok) {
+				pixel_position pos = {
+						x: block_to_pixel(new_camera_x),
+						y: block_to_pixel(new_camera_y)
+				};
+
+				place_block(&pos, building_material, 0, 0);
+
+				action_reset(OK_INDEX);
+			}
+
+			if (move_enter) {
+				cycle_building_material();
+//				HAL_Delay(100);
+				action_reset(MOVE_ENTER_INDEX);
+			}
+
+			display_material_name();
+
+		}
+
 		update_camera_center(new_camera_x, new_camera_y);
 
+		if (!building_mode) {
+			// Buttons for digging
+			if (act_down) {
+				dig_down(player->pos);
+				action_reset(ACT_DOWN_INDEX);
+			}
+
+			if (act_down) {
+				dig_down(player->pos);
+				action_reset(ACT_DOWN_INDEX);
+			}
+
+			if (act_left) {
+				dig_left(player->pos);
+				action_reset(ACT_LEFT_INDEX);
+
+				// Compensate for guysko movement
+				set_position(player->pos, player->pos->x+5, player->pos->y);
+			}
+
+			if (act_right) {
+				dig_right(player->pos);
+				action_reset(ACT_RIGHT_INDEX);
+			}
+		}
+
+		// Trigger building
+		if (ok) {
+			building_mode = true;
+			draw_scene(true);
+			action_reset(OK_INDEX);
+		}
+
+		// Cancel building
+		if (esc) {
+			building_mode = false;
+			draw_scene(true);
+			action_reset(ESC_INDEX);
+		}
 
 
 		action_set(&joystick_raw);
@@ -353,6 +450,7 @@ int main(void)
 			 */
 			action_set(&joystick_raw);
 		}
+		count++;
 	}
 
 	/* USER CODE END 3 */

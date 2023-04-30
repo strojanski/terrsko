@@ -26,7 +26,7 @@
 #define MOVE_RIGHT_INDEX	7
 #define MOVE_DOWN_INDEX 	8
 #define MOVE_LEFT_INDEX 	9
-#define MOVE_ENTER 				10
+#define MOVE_ENTER_INDEX 				10
 
 extern bool act_up;			// 0
 extern bool act_right;	// 1

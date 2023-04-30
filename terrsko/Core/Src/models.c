@@ -13,6 +13,7 @@
 #include "environment_models.h"
 #include "utils.h"
 #include "structures.h"
+#include "guysko.h"
 
 #define RGB565_RED 0xF800
 #define RGB565_GREEN 0x7E0
@@ -244,6 +245,18 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(wood->block);
 		free_destroyable(wood);
+	} else if (material == (block_t) _red_wood) {
+
+			destroyable *wood = create_destroyable(pixel_pos_x, pixel_pos_y, C_RED_WOOD, _red_wood, illumination);
+
+			draw_block(wood->block);
+			free_destroyable(wood);
+	} else if (material == (block_t) _sand) {
+
+		destroyable *sand = create_destroyable(pixel_pos_x, pixel_pos_y, C_SAND, _sand, illumination);
+
+		draw_block(sand->block);
+		free_destroyable(sand);
 	} else if (material == (block_t) _rock) {
 
 		destroyable *rock = create_destroyable(pixel_pos_x, pixel_pos_y, C_ROCK, _rock, illumination);
@@ -256,34 +269,30 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(dirt->block);
 		free_bg_material(dirt);
+	} else if (material == (block_t) _gold) {
+
+		bg_material *gold = create_bg_material(pixel_pos_x, pixel_pos_y, C_GOLDB, _gold, illumination);
+
+		draw_block(gold->block);
+		free_bg_material(gold);
+	}  else if (material == (block_t) _diamond) {
+
+		bg_material *diamond = create_bg_material(pixel_pos_x, pixel_pos_y, C_DIAMOND, _diamond, illumination);
+
+		draw_block(diamond->block);
+		free_bg_material(diamond);
 	} else if (material == (block_t) _sky) {
 
 		bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, C_SKY, _sky, illumination);
 
 		draw_block(sky->block);
 		free_bg_material(sky);
-//	} else {
-//		// Above ground = sky, below ground = dirt_bg
-//		if (current_height < ground_height) {
-//
-//			uint16_t *color = C_SKY;
-//
-//			if (random < probability_star && night) {
-//				color = C_STAR;
-//			} else if (night) {
-//				color = C_NIGHT_SKY;
-//			}
-//
-//			// SKY
-//			bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
-//			draw_block(sky->block);
-//			free_bg_material(sky);
-//		} else {
-//			// DIRT BG
-//			bg_material *dirt = create_bg_material(pixel_pos_x, pixel_pos_y, C_BG_DIRT, _dirt_bg, illumination);
-//			draw_block(dirt->block);
-//			free_bg_material(dirt);
-//		}
+	} else if (material == (block_t) _paint) {
+
+		bg_material *paint = create_bg_material(pixel_pos_x, pixel_pos_y, C_PAINT, _paint, illumination);
+
+		draw_block(paint->block);
+		free_bg_material(paint);
 	}
 }
 
@@ -295,6 +304,10 @@ void draw_scene(bool init) {
 	srand(time(NULL));
 
 	float illumination = 1;
+
+	if (building_mode) {
+		illumination = .7;
+	}
 
 	// Rendering optimization
 	int8_t move_horizontal = old_camera_x - camera_x_block; // + -> left, - -> right
@@ -329,6 +342,8 @@ void draw_scene(bool init) {
 			cell_c world_cell_x = block_to_cell_x(world_block_x0) + i;
 			cell_c world_cell_y = block_to_cell_y(world_block_y0) + j;
 
+
+
 			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in previous frame
 			cell_c old_world_cell_x = block_to_cell_x(old_world_block_x0) + i;
 			cell_c old_world_cell_y = block_to_cell_y(old_world_block_y0) + j;
@@ -355,8 +370,6 @@ void draw_scene(bool init) {
 				}
 			}
 
-
-
 			block_t left_block = upper(current_scene_cell);
 			block_t right_block = lower(current_scene_cell);
 
@@ -373,6 +386,23 @@ void draw_scene(bool init) {
 				draw_tree_normal(&pos);
 			}
 
+			// Draw block where we are building
+			if (building_mode && (world_block_x0 + cell_x_to_block_left(i) == camera_x_block + 2 || world_block_x0 + cell_x_to_block_right(i) == camera_x_block + 2) && world_block_y0 + j == camera_y_block + 1) {
+				destroyable *dirt = create_destroyable(pos_x1, pos_y, map_name_to_material(building_material), building_material, 1);
+
+				// Important to draw over already drawn area to not overwrite it in next iterations
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x2, pos_y, map_name_to_material(building_material), building_material, 1);
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x1, pos_y-BLOCK_WIDTH, map_name_to_material(building_material), building_material, 1);
+				draw_block(dirt->block);
+				dirt = create_destroyable(pos_x2, pos_y-BLOCK_WIDTH, map_name_to_material(building_material), building_material, 1);
+				draw_block(dirt->block);
+
+				free_destroyable(dirt);
+				continue;
+			}
+
 //			illumination = compute_illumination(scene_cell_x, scene_cell_y);
 
 			// Render left and right blocks
@@ -383,7 +413,6 @@ void draw_scene(bool init) {
 			if (!skip_right) {
 				render_block(right_block, pos_x2, pos_y, illumination, ground_height, current_height);
 			}
-
 		}
 
 		// Each cell in x-direction in SCENE = move 2 blocks on screen
@@ -392,9 +421,6 @@ void draw_scene(bool init) {
 	}
 
 }
-
-
-
 
 
 void free_destroyable(destroyable *destroyable) {

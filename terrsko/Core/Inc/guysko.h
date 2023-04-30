@@ -23,6 +23,7 @@
 #include "velocity.h"
 #include "move.h"
 #include "position.h"
+#include "collision.h"
 
 #define GUYSKO_SPAWN_X 100
 #define GUYSKO_SPAWN_Y 10
@@ -42,6 +43,8 @@
 
 #define GUYSKO_WINDOW_SPAN_PIXEL_X 75
 #define GUYSKO_WINDOW_SPAN_PIXEL_Y 20
+
+#define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
 
 
 /*
@@ -67,7 +70,7 @@ typedef struct _guysko {
 	uint8_t state;
 	velocity* vel;
 	move* mov;
-	position* pos;
+	pixel_position* pos;
 
 	uint16_t standing_bits; // the pixels on which the guysko has feet on (where he stands);
 	bool orientation;	// right -> true
@@ -86,6 +89,9 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 void refresh_guysko(guysko* player, int FPS);
 
 guysko* new_guysko();
+
+extern bool building_mode;
+extern block_t building_material;
 
 
 #endif /* INC_GUYSKO_H_ */

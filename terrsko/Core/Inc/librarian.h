@@ -20,7 +20,7 @@ typedef struct _librarian {
 	uint8_t state;
 	velocity* vel;
 	move* mov;
-	position* pos;
+	pixel_position* pos;
 } librarian;
 
 

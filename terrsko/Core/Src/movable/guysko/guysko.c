@@ -9,14 +9,22 @@
 
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <ugui.h>
 
 #include "guysko.h"
 #include "utils.h"
+
+
+
+bool building_mode = false;
+block_t building_material = _dirt;
 
 void display_guysko_hp (guysko* player) {
 	float hp_percentage = (float) get_life_points(player->lp) / (float) GUYSKO_MAX_LP;
 	float hp_line_length = hp_percentage * GUYSKO_HP_BAR_PIXEL_X;
 
+	// TODO: change to _HW_FillFrame_
 	UG_FillFrame(1, 1, 2 + GUYSKO_HP_BAR_PIXEL_X + 1, 2 + GUYSKO_HP_BAR_PIXEL_Y + 1, C_BLACK);
 	UG_FillFrame(2, 2, 2 + hp_line_length - 1, 2 + GUYSKO_HP_BAR_PIXEL_Y, C_RED);
 }
@@ -62,44 +70,104 @@ void update_guysko_velocity(guysko* player) {
 	// TODO: preverba ali se je zaletel v solid levo desno gor, dol?
 	// TODO: update movement based on that
 
-	uint8_t material_u = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, (-1) * GUYSKO_IMG_Y - 1));
-	uint8_t material_r = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 1), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 0));
-	uint8_t material_d = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 1));
-	uint8_t material_l = get_block_with_pixels_from_WORLD(world_pixel_to_world_pixel_x_no_band_param(player->pos->x, (-1) * GUYSKO_IMG_X - 1), world_pixel_to_world_pixel_x_no_band_param(player->pos->y, 0));
-
 	short old_free_fall_speed = player->vel->y;
 
+	bool collision_up = collision(_solid, _up, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_right = collision(_solid, _right, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_left = collision(_solid, _left, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+
+//	if (collision_up) {
+//		_HW_FillFrame_(20, 20, 30, 30, C_GREEN);
+//	}
+//
+//	if (collision_down) {
+//		_HW_FillFrame_(30, 20, 40, 30, C_BLUE);
+//	}
+//
+//	if (collision_left) {
+//		_HW_FillFrame_(40, 20, 40, 30, C_RED);
+//	}
+//
+//	if (collision_right) {
+//		_HW_FillFrame_(50, 20, 60, 30, C_PURPLE);
+//	}
 	if (move_right) {
 		player->orientation = true;
-		if (player->vel->x < 0) set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);
-		else set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
+		if (player->vel->x < 0) {
+			set_velocity(player->vel, 0 + GUYSKO_WALK_VEL_INC, player->vel->y);		// Walk right
+		} else {
+			set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
+		}
+		// Single step collision
+		if (collision_right && collision_down && !collision_up) { // && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
+			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+		}
+
 		// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		if (player->vel->x > GUYSKO_MAX_RIGHT_VELOCITY) {
+			set_velocity(player->vel, GUYSKO_MAX_RIGHT_VELOCITY, player->vel->y);
+		}
+
 		action_reset(MOVE_RIGHT_INDEX);
-		if (isSolid(material_r)) set_velocity(player->vel, 0, player->vel->y);
+
+		// Stop if collision
+		if (collision_right) {
+			set_velocity(player->vel, 0, player->vel->y);
+		}
+
 	} else if (move_left) {
 		player->orientation = false;
-		if (player->vel->x > 0) set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
-		else set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
+
+		// Walk left
+		if (player->vel->x > 0) {
+			set_velocity(player->vel, 0 - GUYSKO_WALK_VEL_INC, player->vel->y);
+		} else {
+			set_velocity(player->vel, player->vel->x - GUYSKO_WALK_VEL_INC, player->vel->y);
+		}
+
+		// Single step
+		if (collision_left && collision_down && !collision_up) {// && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
+			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+		}
+
 		// MAX VELOCITY IN X DIRECTION
-		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
+		if (player->vel->x < GUYSKO_MAX_LEFT_VELOCITY) {
+			set_velocity(player->vel, GUYSKO_MAX_LEFT_VELOCITY, player->vel->y);
+		}
 		action_reset(MOVE_LEFT_INDEX);
-		if (isSolid(material_l)) set_velocity(player->vel, 0, player->vel->y);
+
+		// Stop if collision
+		if (collision_left) {
+			set_velocity(player->vel, 0, player->vel->y);
+		}
 	} else {
+		// Stand still
 		set_velocity(player->vel, 0, player->vel->y);
 	}
 
-	// y axis
+	// y axis - gravity
 	set_velocity(player->vel, player->vel->x, player->vel->y + GRAVITY);
-	if (isSolid(material_d)) {
+
+
+	if (collision_down) {
+		// jump
 		if (move_up) {
 			set_velocity(player->vel, player->vel->x, player->vel->y + GUYSKO_JUMP_ACCELERATION);
 			action_reset(MOVE_UP_INDEX);
-			 if (isSolid(material_u)) set_velocity(player->vel, player->vel->x, 0);
+			if (collision_up) {
+				set_velocity(player->vel, player->vel->x, 0);
+			}
 		} else {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
-		if (old_free_fall_speed < - 400) update_guysko_hp(player, -20);
+		if (old_free_fall_speed < - 400) {
+			update_guysko_hp(player, -2);
+		}
+	}
+	// Check for collision upwards regardless of the ground
+	if (collision_up) {
+		set_velocity(player->vel, player->vel->x, 0);
 	}
 
 	// MAX VELOCITY IN Y DIRECTION
@@ -107,6 +175,13 @@ void update_guysko_velocity(guysko* player) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_DOWN_VELOCITY);
 	} else if (player->vel->y > GUYSKO_MAX_UP_VELOCITY) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_UP_VELOCITY);
+	}
+
+	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	if (collision_lava) {
+		update_guysko_hp(player, -1);
+//		update_position_y(player->pos, player->pos->y, -5*BLOCK_WIDTH);
+		player->vel->y = 200;
 	}
 
 	return;
@@ -263,7 +338,7 @@ guysko* new_guysko() {
 	guysko_mov->x_remainder = 0;
 	guysko_mov->y_remainder = 0;
 
-	position *guysko_pos = malloc(sizeof(position));
+	pixel_position *guysko_pos = malloc(sizeof(pixel_position));
 	guysko_pos->x = GUYSKO_SPAWN_X;
 	guysko_pos->y = GUYSKO_SPAWN_Y;
 

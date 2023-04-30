@@ -46,7 +46,7 @@ float LIGHT_INTENSITIES[LIGHT_RADIUS * 3];
 void init_world() {
 
 	world_zero_fill();
-	generate_height_map(-3, 3, 10);
+	generate_height_map(-3, 3, 5);
 	generate_caves();
 
 	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
@@ -479,7 +479,7 @@ block_t assign_block_material(block_c x, block_c y) {
 	// right block
 	if (y > LVL1_HMAP[x]) { // Ground
 
-		float random = (float) rand() / (float) (RAND_MAX/100);
+		float random = (float) rand() / (float) (RAND_MAX);
 
 		// Add random rocks
 		if (random < probability_rock && abs(LVL1_HMAP[x]) < y) {
@@ -518,11 +518,16 @@ void init_stage_0() {
 
 			// Assign materials
 			l_block = assign_block_material(j, i);
-
-			if (j == 390 && i == 6) {
-				breakpoint();
-			}
 			r_block = assign_block_material(j+1, i);
+
+			float random = (float) rand() / (float) (RAND_MAX);
+			// 10% of rocks should be bigger blobs
+			if (random < 0.1) {
+				if (l_block == _rock || r_block == _rock) {
+					int random_radius = random_int(1, 4);
+					draw_blob(j/2, i, random_radius, build_cell(_rock, _rock));
+				}
+			}
 
 			// Store into WORLD
 			WORLD[i][j/2] = build_cell(l_block, r_block);
@@ -681,7 +686,9 @@ void generate_caves() {
 void draw_blob(cell_c x, cell_c y, uint16_t radius, cell_t value) {
 	for (int8_t i = -radius; i <= radius; i++) {
 		for (int8_t j = -radius; j <= radius; j++) {
-			WORLD[y+i][x+j] = value;
+			if (y+i > LVL1_HMAP[x+j] + 5) {
+				WORLD[y+i][x+j] = value;
+			}
 		}
 	}
 }
@@ -800,11 +807,13 @@ void generate_height_map(uint8_t random_lower, uint8_t random_upper, float rough
 		}
 	}
 
+	LVL1_HMAP[0] += 5;
+	LVL1_HMAP[WORLD_WIDTH_BLOCKS] += 5;
 
 	// LVL1_HMAP is as wide as the world, smooth the bumps
 	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, false);
-	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
-	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+//	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
+//	filter_level(WORLD_WIDTH_BLOCKS, KERNEL_WIDTH, LEVEL_SMOOTHING_FACTOR, true);
 
 }
 
@@ -1009,12 +1018,6 @@ block_t get_block_with_pixels_from_WORLD(pixel_c x, pixel_c y) {
 	return upper(WORLD[pixel_to_cell_y(y)][pixel_to_cell_x(x)]);
 }
 
-bool isSolid (block_t block) {
-	if (block == _dirt || block == _grass || block == _wood || block == _sand || block == _rock || block == _red_wood || block == _gold || block == _diamond) {
-		return true;
-	}
-	return false;
-}
 
 /*
  * returns the pixel that is represented in WORLD position to
