@@ -24,7 +24,8 @@ block_t solid_materials[] = {
 		_rock,
 		_red_wood,
 		_gold,
-		_diamond
+		_diamond,
+		_paint
 };
 
 block_t destructible_materials[] = {
@@ -36,6 +37,7 @@ block_t destructible_materials[] = {
 		_red_wood,
 		_gold,
 		_diamond,
+		_paint
 };
 
 block_t harmuful_materials[] = {

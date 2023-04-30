@@ -287,6 +287,12 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 
 		draw_block(sky->block);
 		free_bg_material(sky);
+	} else if (material == (block_t) _paint) {
+
+		bg_material *paint = create_bg_material(pixel_pos_x, pixel_pos_y, C_PAINT, _paint, illumination);
+
+		draw_block(paint->block);
+		free_bg_material(paint);
 	}
 }
 
@@ -300,7 +306,7 @@ void draw_scene(bool init) {
 	float illumination = 1;
 
 	if (building_mode) {
-		illumination = .8;
+		illumination = .7;
 	}
 
 	// Rendering optimization

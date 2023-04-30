@@ -77,21 +77,21 @@ void update_guysko_velocity(guysko* player) {
 	bool collision_down = collision(_solid, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 	bool collision_left = collision(_solid, _left, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 
-	if (collision_up) {
-		_HW_FillFrame_(20, 20, 30, 30, C_GREEN);
-	}
-
-	if (collision_down) {
-		_HW_FillFrame_(30, 20, 40, 30, C_BLUE);
-	}
-
-	if (collision_left) {
-		_HW_FillFrame_(40, 20, 40, 30, C_RED);
-	}
-
-	if (collision_right) {
-		_HW_FillFrame_(50, 20, 60, 30, C_PURPLE);
-	}
+//	if (collision_up) {
+//		_HW_FillFrame_(20, 20, 30, 30, C_GREEN);
+//	}
+//
+//	if (collision_down) {
+//		_HW_FillFrame_(30, 20, 40, 30, C_BLUE);
+//	}
+//
+//	if (collision_left) {
+//		_HW_FillFrame_(40, 20, 40, 30, C_RED);
+//	}
+//
+//	if (collision_right) {
+//		_HW_FillFrame_(50, 20, 60, 30, C_PURPLE);
+//	}
 	if (move_right) {
 		player->orientation = true;
 		if (player->vel->x < 0) {
@@ -100,8 +100,8 @@ void update_guysko_velocity(guysko* player) {
 			set_velocity(player->vel, player->vel->x + GUYSKO_WALK_VEL_INC, player->vel->y);
 		}
 		// Single step collision
-		if (collision_right && collision_down) { // && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
-//			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+		if (collision_right && collision_down && !collision_up) { // && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
+			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
 		// MAX VELOCITY IN X DIRECTION
@@ -127,8 +127,8 @@ void update_guysko_velocity(guysko* player) {
 		}
 
 		// Single step
-		if (collision_left && collision_down) {// && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
-//			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
+		if (collision_left && collision_down && !collision_up) {// && pixel_to_block(player->pos->y) <= LVL1_HMAP[pixel_to_block(player->pos->x)]) {
+			update_position_y(player->pos, player->pos->y, -BLOCK_WIDTH);
 		}
 
 		// MAX VELOCITY IN X DIRECTION
@@ -162,7 +162,7 @@ void update_guysko_velocity(guysko* player) {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
 		if (old_free_fall_speed < - 400) {
-			update_guysko_hp(player, -20);
+			update_guysko_hp(player, -2);
 		}
 	}
 	// Check for collision upwards regardless of the ground
@@ -175,6 +175,13 @@ void update_guysko_velocity(guysko* player) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_DOWN_VELOCITY);
 	} else if (player->vel->y > GUYSKO_MAX_UP_VELOCITY) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_UP_VELOCITY);
+	}
+
+	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	if (collision_lava) {
+		update_guysko_hp(player, -1);
+//		update_position_y(player->pos, player->pos->y, -5*BLOCK_WIDTH);
+		player->vel->y = 200;
 	}
 
 	return;

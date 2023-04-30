@@ -22,6 +22,6 @@ bool is_harmuful(block_t material);
 bool is_solid(block_t material);
 
 extern block_t destructible_materials[];
-extern block_t solid_materials[8];
+extern block_t solid_materials[9];
 
 #endif /* INC_MATERIAL_CLASSES_H_ */

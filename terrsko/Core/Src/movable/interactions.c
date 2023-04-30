@@ -211,8 +211,8 @@ void overwrite_old_string(pixel_c start_x, pixel_c start_y) {
 void display_material_name() {
 	char* mat = get_material_name(building_material);
 
-	overwrite_old_string(240, 20);
-	UG_PutString(220, 20, mat);
+	overwrite_old_string(235, 20);
+	UG_PutString(240, 20, mat);
 }
 
 

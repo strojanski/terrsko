@@ -322,13 +322,13 @@ int main(void)
 	while (1) {
 		cycle = false;
 
-//		if (player->vel->x) {
-//			count = 0;
-//			draw_scene(true);
-//		} else {
-//			draw_scene(false);
-//		}
-		draw_scene(false);
+		// Redraw entire scene
+		if (move_enter && !building_mode) {
+			draw_scene(true);
+			action_reset(MOVE_ENTER_INDEX);
+		} else {
+			draw_scene(false);
+		}
 
 		old_camera_x = camera_x_block;
 		old_camera_y = camera_y_block;
