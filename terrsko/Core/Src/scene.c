@@ -49,8 +49,8 @@ void init_world() {
 	generate_height_map(-3, 3, 5);
 	generate_caves();
 
-	uint8_t dirt = (_dirt << 4) | _dirt;		// low val
-	uint8_t cave = (_dirt_bg << 4) | _dirt_bg;	// high val
+	block_t dirt = build_cell(_dirt, _dirt);  // low val
+	block_t cave = build_cell(_dirt_bg, _dirt_bg);	// high val
 
 	shape_caves_with_morphological_operations(dirt, cave);
 	place_lava();
@@ -504,8 +504,8 @@ void init_stage_0() {
 	srand(time(NULL));
 
 	// Values identifying cave and lava materials
-	block_t cave = ((_dirt_bg << 4) | _dirt_bg);
-	block_t lava = ((_lava << 4) | _lava);
+	cell_t cave = build_cell(_dirt_bg, _dirt_bg);
+	cell_t lava = build_cell(_lava, _lava);
 
 	for (block_c i = 0; i < WORLD_HEIGHT_BLOCKS; i++) {
 		for (block_c j = 0; j < WORLD_WIDTH_BLOCKS; j+=2) {

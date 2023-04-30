@@ -54,7 +54,7 @@
 #include "position.h"
 #include "scene.h"
 #include "interactions.h"
-
+#include "ui.h"
 #include "movable.h"
 #include "rand_range.h"
 #include "rand_range.h"
@@ -299,8 +299,11 @@ int main(void)
 	 * 4.) Calculate health points based on POINT DAMAGE CALCULATOR
 	 * 5.) Draw all the movable objects in scene
 	 */
-	// initialize guysko
 
+	// main menu
+
+
+	// initialize guysko
 	guysko* player = new_guysko();
 	movable* beings = new_movables();
 
@@ -321,6 +324,8 @@ int main(void)
 
 	while (1) {
 		cycle = false;
+		main_menu();
+
 
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
