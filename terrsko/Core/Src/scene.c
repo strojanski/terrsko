@@ -2,6 +2,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "enums.h"
 #include "materials.h"

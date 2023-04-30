@@ -336,6 +336,29 @@ int main(void)
 		if (!building_mode) {
 			refresh_guysko(player, FPS);
 		}
+
+		if (count % 6000 == 0) {
+			if (count / 6000 == 0) {
+				set_time("morning");
+				draw_scene(true);
+			} else if (count / 6000 == 1) {
+				set_time("noon");
+				draw_scene(true);
+			} else if (count / 6000 == 2) {
+				set_time("afternoon");
+				draw_scene(true);
+			} else if (count / 6000 == 3) {
+				set_time("evening");
+				draw_scene(true);
+			} else {
+				set_time("night");
+				draw_scene(true);
+			}
+			if (count == 30000) {
+				count = 0;
+			}
+		}
+
 //		new_camera_x = player->pos->x / BLOCK_WIDTH;
 //		new_camera_y = player->pos->y / BLOCK_WIDTH;
 

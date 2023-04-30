@@ -27,11 +27,13 @@ extern uint16_t C_GOLDB[4];
 extern uint16_t C_DIAMOND[4];
 extern uint16_t C_PAINT[4];
 
-extern uint16_t C_SKY[4]; //= {C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
+extern uint16_t C_SKY[]; //= {C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
 extern uint16_t C_NIGHT_SKY[4];
 extern uint16_t C_BG_DIRT[4];
 
 extern uint16_t C_STAR[4];
+
+void set_time(char* time);
 
 uint16_t* map_name_to_material (block_t block);
 
