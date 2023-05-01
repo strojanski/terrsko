@@ -63,7 +63,7 @@ void init_world() {
 	init_stage_0();
 
 	init_light_map();
-//	place_trees();
+	place_trees();
 //	init_stage_1();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH_BLOCKS/2];
@@ -214,34 +214,25 @@ void init_stage_1() {
 
 void place_trees() {
 	// TODO - mark every covered pixel as taken
-
 	srand(time(NULL));
-	float tree_density = 0.2;
-	for (int i = 0; i < tree_mask_width; i++) {
-		TREE_MASK[i] = 0;
-	}
+	float tree_density = 20;
 
-	for (block_c i = 0; i < WORLD_WIDTH_BLOCKS; i++) {
-		block_c coord = i / (TREE_WIDTH / BLOCK_WIDTH);
-//		if (TREE_MASK[coord] == 1) {
-//			WORLD[y][i/2] = _empty;
-//		}
-
-		block_c y = LVL1_HMAP[i]; //- TREE_HEIGHT / BLOCK_WIDTH;
+	for (block_c i = 50; i < WORLD_WIDTH_BLOCKS; i++) {
+		block_c yy = LVL1_HMAP[i] + 2 * TREE_HEIGHT / BLOCK_WIDTH;
 
 
 		if (rand() % 100 < tree_density) {
-
+			cell_t y = block_to_cell_y(yy);
+			cell_t x = block_to_cell_x(i);
 			// Trees only on odd numbered blocks (bottom 4 bits)
-			WORLD[y][i/2] = (WORLD[y][i/2] & 0xF0) | _tree;
-//			for (int j = 1; j < TREE_WIDTH; j++) {
-//				for (int i = 0; i < TREE_HEIGHT; i++) {
-//					if (tree_r[i][j] > 0) {
-//						WORLD[y+i][i/2+j] = _empty;
-//					}
+			WORLD[y][x] = build_cell(_empty, _tree);
+
+			// Tag the rest as dont overwrite
+//			for (int j = 1; j < TREE_WIDTH/BLOCK_WIDTH; j++) {
+//				for (block_t i = 1; i < TREE_HEIGHT/BLOCK_WIDTH; i++) {
+//					WORLD[y+i][x+block_to_cell_x(j)] = build_cell(_empty, _empty);
 //				}
 //			}
-			TREE_MASK[coord] = 1;
 		}
 	}
 }
@@ -1007,6 +998,8 @@ void filter_level(uint16_t array_size, uint8_t kernel_width, uint8_t sigma, bool
 uint8_t random_int(uint8_t min, uint8_t max) {
     return (uint8_t) rand() % (max - min + 1) + min;
 }
+
+
 
 // x and y are postion of pixels on world
 // function used for movables to get what is around them

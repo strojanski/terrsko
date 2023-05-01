@@ -317,7 +317,7 @@ int main(void)
 	old_camera_y = camera_y_block;
 	draw_scene(true);
 
-	volatile int count = 0;
+	volatile int count = 6001;
 
 	while (1) {
 		cycle = false;

@@ -139,30 +139,23 @@ void draw_block(block *block) {
 }
 
 void draw_tree_normal(coord *pos) {
-//	// 0,0 in top left corner
-//	for (int j = 0; j < TREE_WIDTH; j++) {
-//		for (int i = 0; i < TREE_HEIGHT; i++) {
-//			if (tree_r[i][j] == 0)
-//				continue;
-//			UG_DrawPixel(j + pos->x, i + pos->y, tree_r[i][j]);
-//		}
-//	}
-		int index = 0;
+		// Get starting point
 		posx_pixel draw_startPoint_x = world_pixel_to_scene_pixel_x_band(pos->x - TREE_WIDTH);
 		posy_pixel draw_startPoint_y = world_pixel_to_scene_pixel_y_band(pos->y - TREE_HEIGHT);
-		// TODO: if guysko is on the edge of world, do not draw the whole guysko!
 
+		// Get values to write
 		uint8_t* picture_pointer = tree_r;
 		uint16_t* pallete_pointer = tree_pallete;
 
+		int index = 0;
 		for (int i = 0; i < TREE_SIZE / 2; i += 1) {
+			// Get x,y from 1D array
 			uint8_t offset_x = index % (TREE_WIDTH / 2);
 			uint8_t offset_y = index / (TREE_WIDTH / 2);
 			index++;
-	//		int frst_nibble =	(guysko_r_0[i] & 0b11110000) >> 4;
-	//		int scnd_nibble =	(guysko_r_0[i] & 0b00001111) >> 0;
-			int frst_nibble =	(picture_pointer[i] & 0b11110000) >> 4;
-			int scnd_nibble =	(picture_pointer[i] & 0b00001111) >> 0;
+
+			int frst_nibble = upper(picture_pointer[i]);
+			int scnd_nibble = lower(picture_pointer[i]);
 			pixel_c draw_on_screen_x = world_pixel_to_world_pixel_x_no_band_param(draw_startPoint_x, 2 * offset_x);
 			pixel_c draw_on_screen_y = world_pixel_to_world_pixel_y_no_band_param(draw_startPoint_y, offset_y);
 
@@ -216,10 +209,9 @@ void draw_detailed_block(block *block) {
 
 void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, float illumination, block_c ground_height, block_c current_height) {
 
-	// Determines time and probabilities
-	bool night = is_night();
-	float probability_star = .0;
-	float random = (float) rand() / RAND_MAX;
+	if (material == _empty) {
+		return;
+	}
 
 	if (material == (block_t) _dirt) {
 
@@ -247,10 +239,10 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 		free_destroyable(wood);
 	} else if (material == (block_t) _red_wood) {
 
-			destroyable *wood = create_destroyable(pixel_pos_x, pixel_pos_y, C_RED_WOOD, _red_wood, illumination);
+		destroyable *wood = create_destroyable(pixel_pos_x, pixel_pos_y, C_RED_WOOD, _red_wood, illumination);
 
-			draw_block(wood->block);
-			free_destroyable(wood);
+		draw_block(wood->block);
+		free_destroyable(wood);
 	} else if (material == (block_t) _sand) {
 
 		destroyable *sand = create_destroyable(pixel_pos_x, pixel_pos_y, C_SAND, _sand, illumination);
@@ -342,8 +334,6 @@ void draw_scene(bool init) {
 			cell_c world_cell_x = block_to_cell_x(world_block_x0) + i;
 			cell_c world_cell_y = block_to_cell_y(world_block_y0) + j;
 
-
-
 			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in previous frame
 			cell_c old_world_cell_x = block_to_cell_x(old_world_block_x0) + i;
 			cell_c old_world_cell_y = block_to_cell_y(old_world_block_y0) + j;
@@ -377,13 +367,14 @@ void draw_scene(bool init) {
 			block_c ground_height = LVL1_HMAP[world_cell_x];
 			block_c current_height = world_cell_y;
 
-			// y coordinate of current block
+			// y pixel coordinate of current block
 			pixel_c pos_y = block_to_pixel(j) + 1;
 
 			// Check for tree
 			coord pos = { x: pos_x2, y: pos_y };
 			if (left_block == _tree || right_block == _tree) {
 				draw_tree_normal(&pos);
+				continue;
 			}
 
 			// Draw block where we are building
