@@ -1019,8 +1019,19 @@ block_t get_block_with_pixels_from_WORLD(pixel_c x, pixel_c y) {
  * for x axis and down under y axis
  *
  */
+posx_pixel world_pixel_to_scene_pixel_x_band (posx_pixel pos_x) {
+	posx_pixel mapped_pos = pos_x - block_to_pixel(camera_x_block) + block_to_pixel(SCENE_WIDTH_BLOCKS) / 2;
+
+	return mapped_pos;
+}
+posy_pixel world_pixel_to_scene_pixel_y_band (posy_pixel pos_y) {
+	posx_pixel mapped_pos = pos_y - block_to_pixel(camera_y_block) + block_to_pixel(SCENE_HEIGHT_BLOCKS) / 2;
+
+	return mapped_pos;
+}
+
 posx_pixel world_pixel_to_scene_pixel_x_no_band (posx_pixel pos_x) {
-	posx_pixel mapped_pos = pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_PIXELS / 2));
+	posx_pixel mapped_pos = world_pixel_to_scene_pixel_x_band(pos_x);
 
 	if (mapped_pos < 0) mapped_pos = 0;
 	if (mapped_pos >= SCENE_WIDTH_PIXELS) mapped_pos = SCENE_WIDTH_PIXELS - 1;
@@ -1028,26 +1039,16 @@ posx_pixel world_pixel_to_scene_pixel_x_no_band (posx_pixel pos_x) {
 	return mapped_pos;
 }
 posy_pixel world_pixel_to_scene_pixel_y_no_band (posy_pixel pos_y) {
-	posx_pixel mapped_pos = pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_PIXELS / 2));
+	posy_pixel mapped_pos = world_pixel_to_scene_pixel_y_band(pos_y);
 
 	if (mapped_pos < 0) mapped_pos = 0;
 	if (mapped_pos >= SCENE_HEIGHT_PIXELS) mapped_pos = SCENE_HEIGHT_PIXELS - 1;
 	return mapped_pos;
 }
 
-posx_pixel world_pixel_to_scene_pixel_x_band (posx_pixel pos_x) {
-	posx_pixel mapped_pos = pos_x - (block_to_pixel(camera_x_block) - block_to_pixel(SCENE_WIDTH_BLOCKS) / 2);
-
-	return mapped_pos;
-}
-posy_pixel world_pixel_to_scene_pixel_y_band (posy_pixel pos_y) {
-	posx_pixel mapped_pos = pos_y - (block_to_pixel(camera_y_block) - block_to_pixel(SCENE_HEIGHT_BLOCKS) / 2);
-
-	return mapped_pos;
-}
 
 posx_pixel world_pixel_to_scene_pixel_x_no_band_param (posx_pixel pos_x, posx_pixel x_diff) {
-	posx_pixel mapped_pos = pos_x - x_diff - ((camera_y_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
+	posx_pixel mapped_pos = world_pixel_to_scene_pixel_x_band(pos_x) - x_diff;
 
 	if (mapped_pos < 0) mapped_pos = 0;
 	if (mapped_pos >= SCENE_WIDTH_BLOCKS * BLOCK_WIDTH) mapped_pos = SCENE_WIDTH_BLOCKS * BLOCK_WIDTH - 1;
@@ -1055,7 +1056,7 @@ posx_pixel world_pixel_to_scene_pixel_x_no_band_param (posx_pixel pos_x, posx_pi
 }
 
 posy_pixel world_pixel_to_scene_pixel_y_no_band_param (posy_pixel pos_y, posy_pixel y_diff) {
-	posx_pixel mapped_pos = pos_y - y_diff - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+	posy_pixel mapped_pos = world_pixel_to_scene_pixel_y_band(pos_y) - y_diff;
 
 	if (mapped_pos < 0) mapped_pos = 0;
 	if (mapped_pos >= SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH) mapped_pos = SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH - 1;
