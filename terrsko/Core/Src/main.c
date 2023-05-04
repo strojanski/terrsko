@@ -303,7 +303,6 @@ int main(void)
 	// initialize guysko
 
 	guysko* player = new_guysko();
-	movable* beings = new_movables();
 
 	block_c new_camera_x = camera_x_block;
 	block_c new_camera_y = camera_y_block;
@@ -318,11 +317,19 @@ int main(void)
 	old_camera_y = camera_y_block;
 	draw_scene(true);
 
+	// initialize movables
+	movable* beings = new_movables();
+
 	volatile int count = 6001;
 
 	while (1) {
 		cycle = false;
 
+		if (beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
+			insert_movables(beings);
+		}
+
+//		draw_movables(beings);
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
 			draw_scene(true);

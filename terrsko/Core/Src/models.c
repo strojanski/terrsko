@@ -140,8 +140,8 @@ void draw_block(block *block) {
 
 void draw_tree_normal(coord *pos) {
 		// Get starting point
-		posx_pixel draw_startPoint_x = world_pixel_to_scene_pixel_x_band(pos->x - TREE_WIDTH);
-		posy_pixel draw_startPoint_y = world_pixel_to_scene_pixel_y_band(pos->y - TREE_HEIGHT);
+		posx_pixel draw_startPoint_x = camera_x_block - SCENE_WIDTH_BLOCKS/2 + pos->x; //world_pixel_to_scene_pixel_x_no_band(pos->x - TREE_WIDTH);
+		posy_pixel draw_startPoint_y = camera_y_block - SCENE_HEIGHT_BLOCKS/2 +  pos->y;//world_pixel_to_scene_pixel_y_no_band(pos->y - TREE_HEIGHT);
 
 		// Get values to write
 		uint8_t* picture_pointer = tree_r;
@@ -371,11 +371,10 @@ void draw_scene(bool init) {
 			pixel_c pos_y = block_to_pixel(j) + 1;
 
 			// Check for tree
-			coord pos = { x: pos_x2, y: pos_y };
-			if (left_block == _tree || right_block == _tree) {
-				draw_tree_normal(&pos);
-				continue;
-			}
+//			coord pos = { x: pos_x2, y: pos_y };
+//			if (world_block_x0 + i == WORLD_WIDTH_BLOCKS / 2 && world_block_y0 + j == LVL1_HMAP[WORLD_WIDTH_BLOCKS/2]) {
+//				draw_tree_normal(&pos);
+//			}
 
 			// Draw block where we are building
 			if (building_mode && (world_block_x0 + cell_x_to_block_left(i) == camera_x_block + 2 || world_block_x0 + cell_x_to_block_right(i) == camera_x_block + 2) && world_block_y0 + j == camera_y_block + 1) {

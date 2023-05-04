@@ -63,7 +63,7 @@ void init_world() {
 	init_stage_0();
 
 	init_light_map();
-	place_trees();
+//	place_trees();
 //	init_stage_1();
 
 	uint16_t zero_height = LVL1_HMAP[WORLD_WIDTH_BLOCKS/2];
@@ -218,7 +218,7 @@ void place_trees() {
 	float tree_density = 20;
 
 	for (block_c i = 50; i < WORLD_WIDTH_BLOCKS; i++) {
-		block_c yy = LVL1_HMAP[i] + 2 * TREE_HEIGHT / BLOCK_WIDTH;
+		block_c yy = LVL1_HMAP[i];// + TREE_HEIGHT / BLOCK_WIDTH;
 
 
 		if (rand() % 100 < tree_density) {
@@ -1036,12 +1036,12 @@ posy_pixel world_pixel_to_scene_pixel_y_no_band (posy_pixel pos_y) {
 }
 
 posx_pixel world_pixel_to_scene_pixel_x_band (posx_pixel pos_x) {
-	posx_pixel mapped_pos = pos_x - ((camera_x_block * BLOCK_WIDTH) - (SCENE_WIDTH_BLOCKS * BLOCK_WIDTH / 2));
+	posx_pixel mapped_pos = pos_x - (block_to_pixel(camera_x_block) - block_to_pixel(SCENE_WIDTH_BLOCKS) / 2);
 
 	return mapped_pos;
 }
 posy_pixel world_pixel_to_scene_pixel_y_band (posy_pixel pos_y) {
-	posx_pixel mapped_pos = pos_y - ((camera_y_block * BLOCK_WIDTH) - (SCENE_HEIGHT_BLOCKS * BLOCK_WIDTH / 2));
+	posx_pixel mapped_pos = pos_y - (block_to_pixel(camera_y_block) - block_to_pixel(SCENE_HEIGHT_BLOCKS) / 2);
 
 	return mapped_pos;
 }
