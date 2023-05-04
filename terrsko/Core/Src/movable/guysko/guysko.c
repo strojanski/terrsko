@@ -15,7 +15,7 @@
 #include "guysko.h"
 #include "utils.h"
 
-bool inLava = false;
+bool in_lava = false;
 
 bool building_mode = false;
 block_t building_material = _dirt;
@@ -163,7 +163,7 @@ void update_guysko_velocity(guysko* player) {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
 		if (old_free_fall_speed < - 400) {
-			inLava = false;
+			in_lava = false;
 			update_guysko_hp(player, FALL_DAMAGE);
 		}
 	}
@@ -180,11 +180,11 @@ void update_guysko_velocity(guysko* player) {
 	}
 
 	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
-	if (collision_lava && inLava) {
+	if (collision_lava && in_lava) {
 		update_guysko_hp(player, LAVA_DAMAGE);
-		inLava = false;
+		in_lava = false;
 		//		update_position_y(player->pos, player->pos->y, -5*BLOCK_WIDTH);
-		player->vel->y = 200;
+//		player->vel->y = 200;
 	}
 
 	return;
@@ -255,11 +255,14 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 
 	// calculate the starting points of guysko image starting point
 	// IN SCENE IN PIXELS on previous and current frame
-	int prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH);
-	int prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH);
-	int draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2)* BLOCK_WIDTH);
-	int draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2)* BLOCK_WIDTH);
-
+//	int prev_draw_startPoint_x = prev_guysko_x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2) * BLOCK_WIDTH);
+	int prev_draw_startPoint_x = world_pixel_to_scene_pixel_x_band(prev_guysko_x - GUYSKO_IMG_X);
+//	int prev_draw_startPoint_y = prev_guysko_y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2) * BLOCK_WIDTH);
+	int prev_draw_startPoint_y = world_pixel_to_scene_pixel_y_band(prev_guysko_y - GUYSKO_IMG_Y);
+//	int draw_startPoint_x = player->pos->x - GUYSKO_IMG_X - (camera_x_block * BLOCK_WIDTH - (SCENE_WIDTH_BLOCKS / 2)* BLOCK_WIDTH);
+	int draw_startPoint_x = world_pixel_to_scene_pixel_x_band(player->pos->x - GUYSKO_IMG_X);
+//	int draw_startPoint_y = player->pos->y - GUYSKO_IMG_Y - (camera_y_block * BLOCK_WIDTH - (SCENE_HEIGHT_BLOCKS / 2)* BLOCK_WIDTH);
+	int draw_startPoint_y = world_pixel_to_scene_pixel_y_band(player->pos->y - GUYSKO_IMG_Y);
 	// calculate the difference the guysko has made since the previous frame (his previous drawing)
 	// the difference is in pixels but on screen! Meaning it only checks for the difference it made on
 	// screen, not his global moving in WORLD!
@@ -269,23 +272,21 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 	// calculate the starting points of guysko image starting point
 	// IN WORLD IN PIXELS on previous and current frame
 	// make four calls based on which direction the guysko moved in:
-	// right
-	if (x_diff > 0) {
-		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
-				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, (-1) * GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
-	} else if (x_diff < 0) {
-	// left
-		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
+	uint8_t padding = 8;
+	if (x_diff > 0) {		// right
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X - padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, -GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
+
+	} else if (x_diff < 0) {	// left
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
 				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
 	}
 
-	if (y_diff > 0) {
-	// down
-		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, (-1) * GUYSKO_IMG_Y),
-				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, (-1) * GUYSKO_IMG_Y - 10));
-	} else if (y_diff < 0) {
-	// up
-		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, (-1) * GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, 0),
+	if (y_diff > 0) {	// down
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y - padding),
+				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, (-1) * GUYSKO_IMG_Y));
+	} else if (y_diff < 0) {	// up
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, padding),
 				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
 	}
 

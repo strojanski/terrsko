@@ -348,7 +348,7 @@ extern TIM_HandleTypeDef htim2;
 void TIM2_IRQHandler () {
 	if (__HAL_TIM_GET_FLAG(&htim2, TIM_IT_UPDATE)) {
 		__HAL_TIM_CLEAR_FLAG(&htim2, TIM_IT_UPDATE);
-		inLava = true;
+		in_lava = true;
 	}
 }
 /*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */

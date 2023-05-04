@@ -333,6 +333,7 @@ int main(void)
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
 			draw_scene(true);
+			refresh_guysko(player, FPS);
 			action_reset(MOVE_ENTER_INDEX);
 		} else {
 			draw_scene(false);
@@ -362,6 +363,7 @@ int main(void)
 				set_time("night");
 				draw_scene(true);
 			}
+			refresh_guysko(player, FPS);
 			if (count == 30000) {
 				count = 0;
 			}

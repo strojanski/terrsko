@@ -65,7 +65,7 @@
  * true		= right
  * false 	= left
  */
-extern bool inLava;
+extern bool in_lava;
 
 typedef struct _guysko {
 	life_points* lp;

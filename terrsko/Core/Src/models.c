@@ -67,13 +67,11 @@ block* create_block(uint16_t x, uint16_t y, uint16_t colors[4], uint8_t type, fl
 	}
 
 	// Get appropriate colors
-//	if (illumination != 1.0) {
-//	}
-		uint16_t *new_colors = apply_shading(copy, illumination);
-		for (uint8_t i = 0; i < 4; i++) {
-			block->colors[i] = new_colors[i];
-		}
 
+	uint16_t *new_colors = apply_shading(copy, illumination);
+	for (uint8_t i = 0; i < 4; i++) {
+		block->colors[i] = new_colors[i];
+	}
 
 	return block;
 }
@@ -330,6 +328,18 @@ void draw_scene(bool init) {
 			cell_c scene_cell_x = i;
 			cell_c scene_cell_y = j;
 			
+			// Ignore majority of hp line
+//			pixel_c hp_start_x = 1 + BLOCK_WIDTH, hp_end_x = 2 + GUYSKO_HP_BAR_PIXEL_X + 1 + BLOCK_WIDTH;
+//			pixel_c hp_start_y = 1 + BLOCK_WIDTH, hp_end_y = 2 + GUYSKO_HP_BAR_PIXEL_Y + 1 + BLOCK_WIDTH;
+//			if (
+//					cell_x_to_pixel(i) > hp_start_x &&
+//					cell_x_to_pixel(i) < hp_end_x &&
+//					cell_y_to_pixel(j) > hp_start_y &&
+//					cell_y_to_pixel(j) < hp_end_y
+//			) {
+//				continue;
+//			}
+
 			// Coordinates of scene[scene_cell_y][scene_cell_x] in world coordinates in current frame
 			cell_c world_cell_x = block_to_cell_x(world_block_x0) + i;
 			cell_c world_cell_y = block_to_cell_y(world_block_y0) + j;
