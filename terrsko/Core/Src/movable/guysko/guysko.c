@@ -86,9 +86,11 @@ void update_guysko_velocity(guysko* player) {
 //		_HW_FillFrame_(30, 20, 40, 30, C_BLUE);
 //	}
 //
-//	if (collision_left) {
-//		_HW_FillFrame_(40, 20, 40, 30, C_RED);
-//	}
+	if (collision_left) {
+		_HW_FillFrame_(40, 40, 50, 50, C_RED);
+	} else {
+		_HW_FillFrame_(40, 40, 50, 50, C_GREEN);
+	}
 //
 //	if (collision_right) {
 //		_HW_FillFrame_(50, 20, 60, 30, C_PURPLE);
@@ -179,7 +181,10 @@ void update_guysko_velocity(guysko* player) {
 		set_velocity(player->vel, player->vel->x, GUYSKO_MAX_UP_VELOCITY);
 	}
 
-	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
+	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y) ||
+			collision(_harmful, _left, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y) ||
+			collision(_harmful, _up, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y) ||
+			collision(_harmful, _right, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
 	if (collision_lava && in_lava) {
 		update_guysko_hp(player, LAVA_DAMAGE);
 		in_lava = false;
@@ -314,7 +319,7 @@ void refresh_guysko(guysko* player, int FPS) {
 //	if (old_guysko_hp != get_life_points(player->lp)) {
 ////		display_guysko_hp(player);
 //	}
-			display_guysko_hp(player);
+		display_guysko_hp(player);
 		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			action_reset(ESC_INDEX);
 		}

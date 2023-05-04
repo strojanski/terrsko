@@ -325,6 +325,36 @@ int main(void)
 	while (1) {
 		cycle = false;
 
+		// Check player hp
+		if (player->lp->life_points == 0) {
+			// Clear screen
+			UG_FillScreen(C_BLACK);
+
+			// Print "you died"
+			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ");
+			HAL_Delay(500);
+
+			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning .");
+			HAL_Delay(500);
+
+			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ..");
+			HAL_Delay(500);
+
+			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ...");
+			HAL_Delay(1000);
+
+			// Respawn
+			player->lp->life_points = GUYSKO_MAX_LP;
+			camera_x_block = WORLD_WIDTH_BLOCKS / 2;
+			camera_y_block = WORLD_HEIGHT_BLOCKS / 2;
+			update_camera_center(camera_x_block, camera_y_block);
+			player->pos->x = camera_x_block;
+			player->pos->y = camera_y_block;
+
+			refresh_guysko(player, FPS);
+			draw_scene(true);
+		}
+
 		if (beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
 			insert_movables(beings);
 		}
@@ -346,17 +376,17 @@ int main(void)
 			refresh_guysko(player, FPS);
 		}
 
-		if (count % 6000 == 0) {
-			if (count / 6000 == 0) {
+		if (count % 3000 == 0) {
+			if (count / 3000 == 0) {
 				set_time("morning");
 				draw_scene(true);
-			} else if (count / 6000 == 1) {
+			} else if (count / 3000 == 1) {
 				set_time("noon");
 				draw_scene(true);
-			} else if (count / 6000 == 2) {
+			} else if (count / 3000 == 2) {
 				set_time("afternoon");
 				draw_scene(true);
-			} else if (count / 6000 == 3) {
+			} else if (count / 3000 == 3) {
 				set_time("evening");
 				draw_scene(true);
 			} else {
@@ -364,25 +394,25 @@ int main(void)
 				draw_scene(true);
 			}
 			refresh_guysko(player, FPS);
-			if (count == 30000) {
+			if (count == 15000) {
 				count = 0;
 			}
 		}
-
+//
 //		new_camera_x = player->pos->x / BLOCK_WIDTH;
 //		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
 		// When guysko is at postition x=0, it will be drawn nearly fully off the screen, becouse of this two if sentences. Fix it to
 		// roll the camera smoothly
-		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
-			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
-		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
-			new_camera_x = camera_x_block + abs(-camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
+		if (camera_x_block - pixel_to_block(player->pos->x) > pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X)) {
+			new_camera_x = camera_x_block - abs(camera_x_block - pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X) - pixel_to_block(player->pos->x));
+		} else if (camera_x_block - pixel_to_block(player->pos->x) < -pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X)) {
+			new_camera_x = camera_x_block + abs(-camera_x_block - pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X) + pixel_to_block(player->pos->x));
 		}
-		if (camera_y_block * BLOCK_WIDTH - player->pos->y > GUYSKO_WINDOW_SPAN_PIXEL_Y) {
-			new_camera_y = (camera_y_block * BLOCK_WIDTH - abs(camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y - player->pos->y)) / BLOCK_WIDTH;
-		} else if (camera_y_block * BLOCK_WIDTH - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
-			new_camera_y = (camera_y_block * BLOCK_WIDTH + abs((-1) * camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y)) / BLOCK_WIDTH;
+		if (block_to_pixel(camera_y_block) - player->pos->y > GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = pixel_to_block(block_to_pixel(camera_y_block) - abs(block_to_pixel(camera_y_block) - GUYSKO_WINDOW_SPAN_PIXEL_Y - player->pos->y));
+		} else if (block_to_pixel(camera_y_block) - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = pixel_to_block(block_to_pixel(camera_y_block) + abs((-1) * block_to_pixel(camera_y_block) - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y));
 		}
 
 		// Set camera to block position, allow moving it with actions
@@ -447,10 +477,12 @@ int main(void)
 
 			if (act_left) {
 				dig_left(player->pos);
-				action_reset(ACT_LEFT_INDEX);
 
 				// Compensate for guysko movement
 				set_position(player->pos, player->pos->x+5, player->pos->y);
+				overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(player->pos->x - 12, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, -GUYSKO_IMG_Y - 4),
+								world_pixel_to_world_pixel_x_no_band_param(player->pos->x + 4, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 0));
+				action_reset(ACT_LEFT_INDEX);
 			}
 
 			if (act_right) {

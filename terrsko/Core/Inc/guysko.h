@@ -46,7 +46,7 @@
 
 #define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
 
-#define LAVA_DAMAGE 50
+#define LAVA_DAMAGE 100
 #define FALL_DAMAGE 200
 
 /*
