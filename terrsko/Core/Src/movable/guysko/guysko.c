@@ -15,7 +15,7 @@
 #include "guysko.h"
 #include "utils.h"
 
-
+bool inLava = false;
 
 bool building_mode = false;
 block_t building_material = _dirt;
@@ -30,7 +30,8 @@ void display_guysko_hp (guysko* player) {
 }
 
 void update_guysko_hp (guysko* player, short y_diff) {
-	set_life_points(player->lp, get_life_points(player->lp) + y_diff);
+//	set_life_points(player->lp, get_life_points(player->lp) + y_diff);
+	player->lp->life_points -= y_diff;
 }
 
 /*
@@ -162,7 +163,8 @@ void update_guysko_velocity(guysko* player) {
 			set_velocity(player->vel, player->vel->x, 0);
 		}
 		if (old_free_fall_speed < - 400) {
-			update_guysko_hp(player, -2);
+			inLava = false;
+			update_guysko_hp(player, FALL_DAMAGE);
 		}
 	}
 	// Check for collision upwards regardless of the ground
@@ -178,9 +180,10 @@ void update_guysko_velocity(guysko* player) {
 	}
 
 	bool collision_lava = collision(_harmful, _down, player->pos, GUYSKO_IMG_X, GUYSKO_IMG_Y);
-	if (collision_lava) {
-		update_guysko_hp(player, -1);
-//		update_position_y(player->pos, player->pos->y, -5*BLOCK_WIDTH);
+	if (collision_lava && inLava) {
+		update_guysko_hp(player, LAVA_DAMAGE);
+		inLava = false;
+		//		update_position_y(player->pos, player->pos->y, -5*BLOCK_WIDTH);
 		player->vel->y = 200;
 	}
 
@@ -310,8 +313,8 @@ void refresh_guysko(guysko* player, int FPS) {
 //	if (old_guysko_hp != get_life_points(player->lp)) {
 ////		display_guysko_hp(player);
 //	}
-		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			display_guysko_hp(player);
+		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			action_reset(ESC_INDEX);
 		}
 }

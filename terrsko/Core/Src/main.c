@@ -262,20 +262,21 @@ int main(void)
 	 * TIM4 intervals: 1 / 16800
 	 * Meaning it "ticks" 16800 times every 1 second
 	 * */
-	//	__HAL_RCC_TIM2_CLK_ENABLE();
-	//	htim2.Instance = TIM2;
-	//	htim2.Init.Prescaler = 10000 - 1;
-	//	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	//	htim2.Init.Period = 16800 - 1;
-	//	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	//	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-	//	HAL_TIM_Base_Init(&htim2);
-	//
-	//	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
-	//	HAL_TIM_Base_Start(&htim2);
-	//
-	//	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
-	//	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+	__HAL_RCC_TIM2_CLK_ENABLE();
+	htim2.Instance = TIM2;
+	htim2.Init.Prescaler = 10000 - 1;
+	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+//	htim2.Init.Period = 16800 - 1;
+	htim2.Init.Period = (16800 / 2) - 1;
+	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+	HAL_TIM_Base_Init(&htim2);
+
+	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim2);
+
+	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
+	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
 	// initialize guysko
 	/*

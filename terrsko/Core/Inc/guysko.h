@@ -42,10 +42,12 @@
 #define GUYSKO_HP_BAR_PIXEL_Y	8
 
 #define GUYSKO_WINDOW_SPAN_PIXEL_X 75
-#define GUYSKO_WINDOW_SPAN_PIXEL_Y 20
+#define GUYSKO_WINDOW_SPAN_PIXEL_Y 30
 
 #define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
 
+#define LAVA_DAMAGE 50
+#define FALL_DAMAGE 200
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second
@@ -63,6 +65,7 @@
  * true		= right
  * false 	= left
  */
+extern bool inLava;
 
 typedef struct _guysko {
 	life_points* lp;
