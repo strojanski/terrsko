@@ -46,8 +46,7 @@
 
 #define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
 
-#define LAVA_DAMAGE 100
-#define FALL_DAMAGE 200
+
 
 /*
  * GUYSKO's speed (while walking) is at most GUYSKO_MAX_X_VELOCITY pixels per second

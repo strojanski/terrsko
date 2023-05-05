@@ -355,10 +355,6 @@ int main(void)
 			draw_scene(true);
 		}
 
-		if (beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
-			insert_movables(beings);
-		}
-
 //		draw_movables(beings);
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
@@ -374,6 +370,7 @@ int main(void)
 
 		if (!building_mode) {
 			refresh_guysko(player, FPS);
+			refresh_movables(beings, FPS);
 		}
 
 		if (count % 3000 == 0) {

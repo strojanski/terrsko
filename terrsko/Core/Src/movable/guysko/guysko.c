@@ -193,7 +193,6 @@ void update_guysko_velocity(guysko* player) {
 	}
 
 	return;
-	// TODO: DIFFERENCE OF PREVIOUS AND NEW VELOCITY: FOR DAMAGE OF HIGH FALL
 }
 
 /*
@@ -279,9 +278,10 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 	// make four calls based on which direction the guysko moved in:
 	uint8_t padding = 8;
 	if (x_diff > 0) {		// right
-		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X - padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
-				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, -GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
-
+//		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X - padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
+//				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, -GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x1, -GUYSKO_IMG_X), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, -GUYSKO_IMG_Y),
+		                        world_pixel_to_world_pixel_x_no_band_param(guysko_x1 + 4, 0),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
 	} else if (x_diff < 0) {	// left
 		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
 				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
