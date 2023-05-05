@@ -10,7 +10,7 @@
 #include "guysko.h"
 #include "collision.h"
 #include "material_classes.h"
-
+#include "ugui.h"
 
 /*
  * 1. Get blocks surrounding guysko in each direction
@@ -38,7 +38,7 @@ block_pos get_colliding_block_down(pixel_position* pos) {
 block_pos get_colliding_block_up(pixel_position* pos, pixel_c movable_height) {
 	// Move a pixel in direction, map to block
 	pixel_c cx = pos->x;
-	pixel_c cy = world_pixel_to_world_pixel_y_no_band_param(pos->y, -(movable_height + BLOCK_WIDTH));
+	pixel_c cy = world_pixel_to_world_pixel_y_no_band_param(pos->y, -(movable_height + 2));
 
 	block_pos result_block_c = {
 			x: pixel_to_block(cx),
@@ -50,8 +50,11 @@ block_pos get_colliding_block_up(pixel_position* pos, pixel_c movable_height) {
 
 block_pos get_colliding_block_left(pixel_position* pos, pixel_c movable_width) {
 	// Move a pixel in direction, map to block
-	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x, (-1) * (movable_width + BLOCK_WIDTH));
-	pixel_c cy = pos->y;
+	pixel_c cx = world_pixel_to_world_pixel_x_no_band_param(pos->x,  (-1) * (4 * BLOCK_WIDTH));//(4 * BLOCK_WIDTH));
+	pixel_c cy = pos->y - 1;
+//	pixel_c collison_point = world_pixel_to_scene_pixel_x_band(cx);
+//	pixel_c c_y = world_pixel_to_scene_pixel_y_band(cy);
+//	UG_DrawPixel(collison_point, c_y, C_RED);
 
 	block_pos result_block_c = {
 			x: pixel_to_block(cx),
