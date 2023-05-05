@@ -48,7 +48,6 @@ typedef struct cow {
 	struct cow* prev;
 } cow;
 
-void draw_cow(cow* krava);
 cow* new_cow (life_points* lp, velocity* vel, pixel_position* pos, move* mov);
 
 #endif /* INC_COW_H_ */

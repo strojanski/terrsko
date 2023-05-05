@@ -282,7 +282,7 @@ int main(void)
 	/*
 	 * Procedure for movable objects:
 	 *
-	 * 1.) The input of player will be read and updated all the time
+	 * 1.) The input of player will be read and updated all the time // INTERRUPTS for buttons AND DMA for joystick
 	 * 2.) Just before the calculation of movement of guysko, each movement and action will be declared
 	 * 3.) Calculate acc, vel, movement, action and demage of guysko and every other movable object
 	 * 	FOR EVERY MOVABLE OBJECT:
@@ -351,15 +351,15 @@ int main(void)
 			player->pos->x = camera_x_block;
 			player->pos->y = camera_y_block;
 
-			refresh_guysko(player, FPS);
 			draw_scene(true);
+			draw_guysko(player);
 		}
 
 //		draw_movables(beings);
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
 			draw_scene(true);
-			refresh_guysko(player, FPS);
+			draw_guysko(player);
 			action_reset(MOVE_ENTER_INDEX);
 		} else {
 			draw_scene(false);
@@ -376,21 +376,26 @@ int main(void)
 		if (count % 3000 == 0) {
 			if (count / 3000 == 0) {
 				set_time("morning");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 1) {
 				set_time("noon");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 2) {
 				set_time("afternoon");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 3) {
 				set_time("evening");
+				night = false;
 				draw_scene(true);
 			} else {
 				set_time("night");
+				night = true;
 				draw_scene(true);
 			}
-			refresh_guysko(player, FPS);
+			draw_guysko(player);
 			if (count == 15000) {
 				count = 0;
 			}

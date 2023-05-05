@@ -273,7 +273,13 @@ void render_block(block_t material, pixel_c pixel_pos_x, pixel_c pixel_pos_y, fl
 		free_bg_material(diamond);
 	} else if (material == (block_t) _sky) {
 
-		bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, C_SKY, _sky, illumination);
+		float p_star = 1;
+		uint16_t* color = C_SKY;
+		if (is_night() && rand() % 100 < p_star) {
+			color = C_STAR;
+		}
+
+		bg_material *sky = create_bg_material(pixel_pos_x, pixel_pos_y, color, _sky, illumination);
 
 		draw_block(sky->block);
 		free_bg_material(sky);
@@ -404,6 +410,7 @@ void draw_scene(bool init) {
 			}
 
 //			illumination = compute_illumination(scene_cell_x, scene_cell_y);
+
 
 			// Render left and right blocks
 			if (!skip_left) {
