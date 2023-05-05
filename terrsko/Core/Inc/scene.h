@@ -77,8 +77,6 @@ extern block_c camera_y_block;
 extern block_c old_camera_x;
 extern block_c old_camera_y;
 
-extern bool night;
-
 void get_scene();
 
 void get_scene_mask();

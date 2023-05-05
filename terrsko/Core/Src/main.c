@@ -262,27 +262,26 @@ int main(void)
 	 * TIM4 intervals: 1 / 16800
 	 * Meaning it "ticks" 16800 times every 1 second
 	 * */
-	__HAL_RCC_TIM2_CLK_ENABLE();
-	htim2.Instance = TIM2;
-	htim2.Init.Prescaler = 10000 - 1;
-	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-//	htim2.Init.Period = 16800 - 1;
-	htim2.Init.Period = (16800 / 2) - 1;
-	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-	HAL_TIM_Base_Init(&htim2);
-
-	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
-	HAL_TIM_Base_Start(&htim2);
-
-	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
-	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+	//	__HAL_RCC_TIM2_CLK_ENABLE();
+	//	htim2.Instance = TIM2;
+	//	htim2.Init.Prescaler = 10000 - 1;
+	//	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+	//	htim2.Init.Period = 16800 - 1;
+	//	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	//	htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+	//	HAL_TIM_Base_Init(&htim2);
+	//
+	//	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+	//	HAL_TIM_Base_Start(&htim2);
+	//
+	//	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 2);
+	//	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
 	// initialize guysko
 	/*
 	 * Procedure for movable objects:
 	 *
-	 * 1.) The input of player will be read and updated all the time // INTERRUPTS for buttons AND DMA for joystick
+	 * 1.) The input of player will be read and updated all the time
 	 * 2.) Just before the calculation of movement of guysko, each movement and action will be declared
 	 * 3.) Calculate acc, vel, movement, action and demage of guysko and every other movable object
 	 * 	FOR EVERY MOVABLE OBJECT:
@@ -303,6 +302,7 @@ int main(void)
 	// initialize guysko
 
 	guysko* player = new_guysko();
+	movable* beings = new_movables();
 
 	block_c new_camera_x = camera_x_block;
 	block_c new_camera_y = camera_y_block;
@@ -317,49 +317,14 @@ int main(void)
 	old_camera_y = camera_y_block;
 	draw_scene(true);
 
-	// initialize movables
-	movable* beings = new_movables();
-
-	volatile int count = 6001;
+	volatile int count = 0;
 
 	while (1) {
 		cycle = false;
 
-		// Check player hp
-		if (player->lp->life_points == 0) {
-			// Clear screen
-			UG_FillScreen(C_BLACK);
-
-			// Print "you died"
-			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ");
-			HAL_Delay(500);
-
-			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning .");
-			HAL_Delay(500);
-
-			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ..");
-			HAL_Delay(500);
-
-			UG_PutString(SCREEN_WIDTH/4, SCREEN_HEIGHT/2, "You died, respawning ...");
-			HAL_Delay(1000);
-
-			// Respawn
-			player->lp->life_points = GUYSKO_MAX_LP;
-			camera_x_block = WORLD_WIDTH_BLOCKS / 2;
-			camera_y_block = WORLD_HEIGHT_BLOCKS / 2;
-			update_camera_center(camera_x_block, camera_y_block);
-			player->pos->x = camera_x_block;
-			player->pos->y = camera_y_block;
-
-			draw_scene(true);
-			draw_guysko(player);
-		}
-
-//		draw_movables(beings);
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
 			draw_scene(true);
-			draw_guysko(player);
 			action_reset(MOVE_ENTER_INDEX);
 		} else {
 			draw_scene(false);
@@ -370,51 +335,21 @@ int main(void)
 
 		if (!building_mode) {
 			refresh_guysko(player, FPS);
-			refresh_movables(beings, FPS);
 		}
-
-		if (count % 3000 == 0) {
-			if (count / 3000 == 0) {
-				set_time("morning");
-				night = false;
-				draw_scene(true);
-			} else if (count / 3000 == 1) {
-				set_time("noon");
-				night = false;
-				draw_scene(true);
-			} else if (count / 3000 == 2) {
-				set_time("afternoon");
-				night = false;
-				draw_scene(true);
-			} else if (count / 3000 == 3) {
-				set_time("evening");
-				night = false;
-				draw_scene(true);
-			} else {
-				set_time("night");
-				night = true;
-				draw_scene(true);
-			}
-			draw_guysko(player);
-			if (count == 15000) {
-				count = 0;
-			}
-		}
-//
 //		new_camera_x = player->pos->x / BLOCK_WIDTH;
 //		new_camera_y = player->pos->y / BLOCK_WIDTH;
 
 		// When guysko is at postition x=0, it will be drawn nearly fully off the screen, becouse of this two if sentences. Fix it to
 		// roll the camera smoothly
-		if (camera_x_block - pixel_to_block(player->pos->x) > pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X)) {
-			new_camera_x = camera_x_block - abs(camera_x_block - pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X) - pixel_to_block(player->pos->x));
-		} else if (camera_x_block - pixel_to_block(player->pos->x) < -pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X)) {
-			new_camera_x = camera_x_block + abs(-camera_x_block - pixel_to_block(GUYSKO_WINDOW_SPAN_PIXEL_X) + pixel_to_block(player->pos->x));
+		if (camera_x_block - player->pos->x / BLOCK_WIDTH > GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block - abs(camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH - player->pos->x / BLOCK_WIDTH);
+		} else if (camera_x_block - player->pos->x / BLOCK_WIDTH < - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH) {
+			new_camera_x = camera_x_block + abs(-camera_x_block - GUYSKO_WINDOW_SPAN_PIXEL_X / BLOCK_WIDTH + player->pos->x / BLOCK_WIDTH);
 		}
-		if (block_to_pixel(camera_y_block) - player->pos->y > GUYSKO_WINDOW_SPAN_PIXEL_Y) {
-			new_camera_y = pixel_to_block(block_to_pixel(camera_y_block) - abs(block_to_pixel(camera_y_block) - GUYSKO_WINDOW_SPAN_PIXEL_Y - player->pos->y));
-		} else if (block_to_pixel(camera_y_block) - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
-			new_camera_y = pixel_to_block(block_to_pixel(camera_y_block) + abs((-1) * block_to_pixel(camera_y_block) - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y));
+		if (camera_y_block * BLOCK_WIDTH - player->pos->y > GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = (camera_y_block * BLOCK_WIDTH - abs(camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y - player->pos->y)) / BLOCK_WIDTH;
+		} else if (camera_y_block * BLOCK_WIDTH - player->pos->y < (-1) * GUYSKO_WINDOW_SPAN_PIXEL_Y) {
+			new_camera_y = (camera_y_block * BLOCK_WIDTH + abs((-1) * camera_y_block * BLOCK_WIDTH - GUYSKO_WINDOW_SPAN_PIXEL_Y + player->pos->y)) / BLOCK_WIDTH;
 		}
 
 		// Set camera to block position, allow moving it with actions
@@ -479,12 +414,10 @@ int main(void)
 
 			if (act_left) {
 				dig_left(player->pos);
+				action_reset(ACT_LEFT_INDEX);
 
 				// Compensate for guysko movement
 				set_position(player->pos, player->pos->x+5, player->pos->y);
-				overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(player->pos->x - 12, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, -GUYSKO_IMG_Y - 4),
-								world_pixel_to_world_pixel_x_no_band_param(player->pos->x + 4, 0), world_pixel_to_world_pixel_y_no_band_param(player->pos->y, 0));
-				action_reset(ACT_LEFT_INDEX);
 			}
 
 			if (act_right) {

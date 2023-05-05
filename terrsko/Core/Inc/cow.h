@@ -23,15 +23,6 @@
 #define COW_SPAWN_PROBABILITY 50
 #define COW_MAX_LP						100
 
-#define COW_JUMP_ACCELERATION 50
-
-#define COW_MAX_UP_VELOCITY 200
-#define COW_MAX_DOWN_VELOCITY -500
-#define COW_MAX_RIGHT_VELOCITY 100
-#define COW_MAX_LEFT_VELOCITY -100
-
-#define COW_WALK_VEL_INC 10
-
 extern uint16_t cow_colors_0[];
 extern uint8_t cow_r_0[];
 extern uint8_t cow_l_0[];
@@ -42,12 +33,13 @@ typedef struct cow {
 	uint8_t state;
 	velocity* vel;
 	pixel_position* pos;
-	move* mov;
+//	move* mov
 
 	struct cow* next;
 	struct cow* prev;
 } cow;
 
-cow* new_cow (life_points* lp, velocity* vel, pixel_position* pos, move* mov);
+void draw_cow(cow* krava);
+cow* new_cow (life_points* lp, velocity* vel, pixel_position* pos);
 
 #endif /* INC_COW_H_ */

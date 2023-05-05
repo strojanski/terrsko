@@ -53,13 +53,13 @@ void dig_down(pixel_position* pos) {
 void dig_left(pixel_position* pos) {
 
 	// Move 1 + guysko width left first
-	pixel_c x = world_pixel_to_world_pixel_x_no_band_param(pos->x, -(GUYSKO_IMG_X + BLOCK_WIDTH));
+	pixel_c x = world_pixel_to_world_pixel_x_no_band_param(pos->x, -(GUYSKO_IMG_X/2 + 1));
 	pixel_c y = pos->y;
 
 	cell_c wx = pixel_to_cell_x(x);
 	cell_c wy = pixel_to_cell_y(y);
 
-	uint8_t hole_size = (GUYSKO_IMG_Y / BLOCK_WIDTH) + 1;
+	uint8_t hole_size = (GUYSKO_IMG_Y / BLOCK_WIDTH);
 
 	for (int i = 0; i < hole_size; i++) {
 		// Determine background
@@ -136,7 +136,7 @@ void dig_right(pixel_position* pos) {
 	cell_c wx = pixel_to_cell_x(x);
 	cell_c wy = pixel_to_cell_y(y);
 
-	uint8_t hole_size = (GUYSKO_IMG_Y / BLOCK_WIDTH) + 1;
+	uint8_t hole_size = (GUYSKO_IMG_Y / BLOCK_WIDTH);
 
 	for (int i = 0; i < hole_size; i++) {
 		// Determine background

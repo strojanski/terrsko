@@ -23,7 +23,7 @@
 #include "stm32g4xx_it.h"
 #include <stdbool.h>
 #include "action.h"
-#include "guysko.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -343,14 +343,12 @@ void I2C1_ER_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 
 /*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
-
-extern TIM_HandleTypeDef htim2;
-void TIM2_IRQHandler () {
-	if (__HAL_TIM_GET_FLAG(&htim2, TIM_IT_UPDATE)) {
-		__HAL_TIM_CLEAR_FLAG(&htim2, TIM_IT_UPDATE);
-		in_lava = true;
-	}
-}
+//extern TIM_HandleTypeDef htim2;
+//void TIM2_IRQHandler () {
+//	if (__HAL_TIM_GET_FLAG(&htim2, TIM_IT_UPDATE)) {
+//		__HAL_TIM_CLEAR_FLAG(&htim2, TIM_IT_UPDATE);
+//	}
+//}
 /*	TIM2 IS READY FOR ACTIVITY IN FREQUENCY: 1HZ */
 
 void EXTI0_IRQHandler() {
