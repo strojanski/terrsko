@@ -97,8 +97,8 @@ void camouflage_movable (pixel_position* pos, uint16_t prev_movable_x, uint16_t 
 
 	// calculate the starting points of guysko image starting point
 	// IN SCENE IN PIXELS on previous and current frame
-	int prev_draw_startPoint_x = world_pixel_to_scene_pixel_x_band(movable_x0 - size_x - 5);
-	int prev_draw_startPoint_y = world_pixel_to_scene_pixel_y_band(movable_y0 - size_y - 5);
+	int prev_draw_startPoint_x = world_pixel_to_scene_pixel_x_band(movable_x0 - size_x);
+	int prev_draw_startPoint_y = world_pixel_to_scene_pixel_y_band(movable_y0 - size_y);
 	int draw_startPoint_x = world_pixel_to_scene_pixel_x_band(movable_x1 - size_x - camera_diff_x_pixel);
 	int draw_startPoint_y = world_pixel_to_scene_pixel_y_band(movable_y1 - size_y - camera_diff_y_pixel);
 
