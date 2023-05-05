@@ -282,9 +282,16 @@ void camouflage (guysko* player, uint16_t prev_guysko_x, uint16_t prev_guysko_y)
 		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, -GUYSKO_IMG_X - padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
 				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, -GUYSKO_IMG_X),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
 
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, -GUYSKO_IMG_Y),
+						world_pixel_to_world_pixel_x_no_band_param(guysko_x1 + 4, 0),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
+
 	} else if (x_diff < 0) {	// left
 		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x0, padding), world_pixel_to_world_pixel_y_no_band_param(guysko_y0, -GUYSKO_IMG_Y),
 				world_pixel_to_world_pixel_x_no_band_param(guysko_x1, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, 0));
+
+		overdraw_background_rectangle(world_pixel_to_world_pixel_x_no_band_param(guysko_x1 - GUYSKO_IMG_X, 0), world_pixel_to_world_pixel_y_no_band_param(guysko_y1, -GUYSKO_IMG_Y),
+								world_pixel_to_world_pixel_x_no_band_param(guysko_x1 - GUYSKO_IMG_X - 4, 0),world_pixel_to_world_pixel_y_no_band_param (guysko_y1, 0));
+
 	}
 
 	if (y_diff > 0) {	// down

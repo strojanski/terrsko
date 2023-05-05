@@ -1005,6 +1005,7 @@ uint8_t random_int(uint8_t min, uint8_t max) {
 // function used for movables to get what is around them
 block_t get_block_with_pixels_from_WORLD(pixel_c x, pixel_c y) {
 	// Same as x % 2 but for pixel coordinates
+	x -= BLOCK_WIDTH;
 	if (x % 8 >= 4) {
 		return lower(WORLD[pixel_to_cell_y(y)][pixel_to_cell_x(x)]);
 	}

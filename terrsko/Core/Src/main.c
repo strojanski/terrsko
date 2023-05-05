@@ -351,8 +351,8 @@ int main(void)
 			player->pos->x = camera_x_block;
 			player->pos->y = camera_y_block;
 
-			refresh_guysko(player, FPS);
 			draw_scene(true);
+			draw_guysko(player);
 		}
 
 		if (beings->beings_quantity < MAX_MOVABLE_CAPACTIY) {
@@ -363,7 +363,7 @@ int main(void)
 		// Redraw entire scene
 		if (move_enter && !building_mode) {
 			draw_scene(true);
-			refresh_guysko(player, FPS);
+			draw_guysko(player);
 			action_reset(MOVE_ENTER_INDEX);
 		} else {
 			draw_scene(false);
@@ -393,7 +393,7 @@ int main(void)
 				set_time("night");
 				draw_scene(true);
 			}
-			refresh_guysko(player, FPS);
+			draw_guysko(player);
 			if (count == 15000) {
 				count = 0;
 			}
