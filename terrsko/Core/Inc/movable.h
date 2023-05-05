@@ -59,10 +59,6 @@ movable* new_movables();
 
 void insert_movables(movable* beings);
 
-<<<<<<< HEAD
-void refresh_movables(movable* beings, uint8_t FPS);
-
-=======
 void camouflage_movable (pixel_position* pos, uint16_t prev_movable_x, uint16_t prev_movable_y, Npcs species);
 void draw_movable(uint8_t* pic, uint16_t* pic_colors, pixel_position* pos, Npcs species);
 void update_movables_velocity(velocity* vel, pixel_position* pos, uint8_t species);
@@ -73,7 +69,6 @@ void refresh_movables(movable* beings, uint8_t FPS);
 void insert_fashionist(movable* beings, fashionist* fash);
 void insert_miner(movable* beings, miner* min);
 void insert_merchant(movable* beings, merchant* merchant);
->>>>>>> refs/remotes/origin/master
 void insert_cow (movable* beings, cow* krava);
 void remove_cow (cow* krava);
 

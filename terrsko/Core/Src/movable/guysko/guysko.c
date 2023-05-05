@@ -327,13 +327,14 @@ void refresh_guysko(guysko* player, int FPS) {
 //	if (old_guysko_hp != get_life_points(player->lp)) {
 ////		display_guysko_hp(player);
 //	}
-<<<<<<< HEAD
 			display_guysko_hp(player);
-=======
-		display_guysko_hp(player);
->>>>>>> refs/remotes/origin/master
 		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			action_reset(ESC_INDEX);
+		}
+
+		// redraw scene when going around the world
+		if (abs(prev_guysko_x - player->pos->x) > 500) {
+			draw_scene(true);
 		}
 }
 

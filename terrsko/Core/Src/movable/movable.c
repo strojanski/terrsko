@@ -616,19 +616,6 @@ void refresh_movables(movable* beings, uint8_t FPS) {
 		if (cows_finished && fash_finished && miner_finished && merchant_finished) break;
 	}
 }
-<<<<<<< HEAD
-
-void update_movables(movable* beings) {
-
-
-}
-
-void refresh_movables(movable* beings, uint8_t FPS) {
-
-}
-
-=======
->>>>>>> refs/remotes/origin/master
 /*
  * Initiate linked list with movables. Every species has their own linked list
  */
