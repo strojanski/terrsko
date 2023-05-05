@@ -39,12 +39,13 @@
 
 #define GUYSKO_MAX_LP	1000
 #define GUYSKO_HP_BAR_PIXEL_X	50
-#define GUYSKO_HP_BAR_PIXEL_Y	8
+#define GUYSKO_HP_BAR_PIXEL_Y	3
 
 #define GUYSKO_WINDOW_SPAN_PIXEL_X 75
-#define GUYSKO_WINDOW_SPAN_PIXEL_Y 20
+#define GUYSKO_WINDOW_SPAN_PIXEL_Y 30
 
 #define BUILD_CAMERA_SPEED 2	// how many blocks a click moves in building mode
+
 
 
 /*
@@ -63,6 +64,7 @@
  * true		= right
  * false 	= left
  */
+extern bool in_lava;
 
 typedef struct _guysko {
 	life_points* lp;

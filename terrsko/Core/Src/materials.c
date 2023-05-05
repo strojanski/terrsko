@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 #include "ugui.h"
 #include "enums.h"
 #include "materials.h"
@@ -27,13 +26,37 @@ uint16_t C_GOLDB[4] = {0xFEA0, 0xFEA0, 0xFEA0, 0xFEA0};
 uint16_t C_DIAMOND[4] = {0xAEDE, 0xAEDE, 0xAEDE, 0xAEDE};
 uint16_t C_PAINT[4] = {0xA06B, 0xA06B, 0xA06B, 0xA06B};
 // BACKGROUNDS
-uint16_t C_SKY[4] = {0x5FF, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
+uint16_t C_SKY[] = {0x5FF, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE, C_DEEP_SKY_BLUE};
 uint16_t C_NIGHT_SKY[4] = {0x0011, 0x0011, 0x0011, 0x0011};
 uint16_t C_BG_DIRT[4] = {C_BLACK, C_BLACK, C_BLACK,C_BLACK};//{0x01AD, 0x01AD, 0x01AD, 0x01AD};	// Caves
 uint16_t C_STAR[4] = {0xCDA7, 0xCDA7, 0xCDA7, 0xCDA7};
 
 //#define COLOR_DIRT {C_BROWN, C_BROWN, C_SADDLE_BROWN, C_BROWN}
 //#define COLOR_GRASS {C_GREEN, C_GREEN, C_DARK_GREEN, C_GREEN}
+
+void set_time(char* time) {
+	if (strcmp(time, "morning") == 0) {
+		for (int i = 0; i < 4; i++) {
+			C_SKY[i] = 0x8E7D;
+		}
+	} else if (strcmp(time, "noon") == 0) {
+		for (int i = 0; i < 4; i++) {
+			C_SKY[i] = 0x347C;
+		}
+	} else if (strcmp(time, "afternoon") == 0) {
+		for (int i = 0; i < 4; i++) {
+			C_SKY[i] = 0x23BF;
+		}
+	} else if (strcmp(time, "evening") == 0) {
+		for (int i = 0; i < 4; i++) {
+			C_SKY[i] = 0x2B13;
+		}
+	} else {
+		for (int i = 0; i < 4; i++) {
+			C_SKY[i] = 0x018C;
+		}
+	}
+}
 
 uint16_t* map_name_to_material (block_t block) {
 
