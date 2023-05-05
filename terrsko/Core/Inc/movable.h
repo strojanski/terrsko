@@ -41,6 +41,8 @@ void insert_movables(movable* beings);
 void draw_movables(movable* beings);
 void update_movables(movable* beings);
 
+void refresh_movables(movable* beings, uint8_t FPS);
+
 void insert_cow (movable* beings, cow* krava);
 void remove_cow (cow* krava);
 

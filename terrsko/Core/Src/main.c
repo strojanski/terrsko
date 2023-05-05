@@ -335,6 +335,7 @@ int main(void)
 
 		if (!building_mode) {
 			refresh_guysko(player, FPS);
+			refresh_movables(beings, FPS);
 		}
 //		new_camera_x = player->pos->x / BLOCK_WIDTH;
 //		new_camera_y = player->pos->y / BLOCK_WIDTH;

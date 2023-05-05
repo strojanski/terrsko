@@ -123,6 +123,10 @@ void update_movables(movable* beings) {
 
 }
 
+void refresh_movables(movable* beings, uint8_t FPS) {
+
+}
+
 /*
  * Initiate linked list with movables. Every species has their own linked list
  */
