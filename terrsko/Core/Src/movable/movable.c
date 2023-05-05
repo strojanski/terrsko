@@ -571,7 +571,7 @@ void refresh_movables(movable* beings, uint8_t FPS) {
 			update_movables_velocity(travers_fashionist->vel, travers_fashionist->pos, _fashionist);
 			update_movables_move(travers_fashionist->mov, travers_fashionist->vel, FPS);
 			update_movables_position(travers_fashionist->pos, travers_fashionist->mov);
-			draw_movable(fashionist_r_0, fashionist_colors_0, travers_fashionist->pos, _fashionist);
+			draw_movable(fashionist_l_0, fashionist_colors_0, travers_fashionist->pos, _fashionist);
 			camouflage_movable(travers_fashionist->pos, prev_fashionist_x, prev_fashionist_y, _fashionist);
 			/* if dynamic movement of npc-s: uncomment if sentence and put in the draw and camo function */
 //			if (!(prev_fashionist_x == travers_fashionist->pos->x && prev_fashionist_y == travers_fashionist->pos->y)) {
@@ -603,7 +603,7 @@ void refresh_movables(movable* beings, uint8_t FPS) {
 			update_movables_velocity(travers_merchant->vel, travers_merchant->pos, _merchant);
 			update_movables_move(travers_merchant->mov, travers_merchant->vel, FPS);
 			update_movables_position(travers_merchant->pos, travers_merchant->mov);
-			draw_movable(merchant_r_0, merchant_colors_0, travers_merchant->pos, _merchant);
+			draw_movable(merchant_l_0, merchant_colors_0, travers_merchant->pos, _merchant);
 			camouflage_movable(travers_merchant->pos, prev_merchant_x, prev_merchant_y, _merchant);
 			/* if dynamic movement of npc-s: uncomment if sentence and put in the draw and camo function */
 //			if (!(prev_merchant_x == travers_merchant->pos->x && prev_merchant_y == travers_merchant->pos->y)) {

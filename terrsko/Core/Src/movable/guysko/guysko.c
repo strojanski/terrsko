@@ -331,6 +331,11 @@ void refresh_guysko(guysko* player, int FPS) {
 		if (esc || old_guysko_hp != get_life_points(player->lp)) {
 			action_reset(ESC_INDEX);
 		}
+
+		// redraw scene when going around the world
+		if (abs(prev_guysko_x - player->pos->x) > 500) {
+			draw_scene(true);
+		}
 }
 
 
@@ -370,8 +375,8 @@ guysko* new_guysko() {
 //	player->lp = malloc(sizeof(life_points));
 //	player->lp->life_points = GUYSKO_MAX_LP;
 	player->standing_bits		= 0b1111111111111111;
-
 	player->orientation = true;
+
 
 	return player;
 }
