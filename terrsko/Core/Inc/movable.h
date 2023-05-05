@@ -24,7 +24,7 @@
 
 #define GRAVITY -5
 
-#define MAX_MOVABLE_CAPACTIY	3
+#define MAX_MOVABLE_CAPACTIY	4
 #define MOVABLE_DIFFERENT_SPECIES 4 // cow, fash, miner, merchant
 
 #define LAVA_DAMAGE 100
