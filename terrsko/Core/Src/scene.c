@@ -273,15 +273,9 @@ void init_light_map() {
 		}
 	}
 }
-
+bool night = false;
 bool is_night() {
-	srand(time(NULL));
-	float random = (float)rand() / RAND_MAX;
-
-	if (random < 0.5) {
-		return true;
-	}
-	return false;
+	return night;
 }
 
 // x,y are scene coordinates

@@ -379,18 +379,23 @@ int main(void)
 		if (count % 3000 == 0) {
 			if (count / 3000 == 0) {
 				set_time("morning");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 1) {
 				set_time("noon");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 2) {
 				set_time("afternoon");
+				night = false;
 				draw_scene(true);
 			} else if (count / 3000 == 3) {
 				set_time("evening");
+				night = false;
 				draw_scene(true);
 			} else {
 				set_time("night");
+				night = true;
 				draw_scene(true);
 			}
 			draw_guysko(player);
