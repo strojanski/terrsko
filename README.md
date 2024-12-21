@@ -3,3 +3,6 @@ Gre za 2D ’sandbox’ igro, kjer igralec igro prične na naključni poziciji v
 jame, gozdovi, jezera, ruševine... Cilj igre je odkriti čim večji del levela in se čim bolj razviti ter odkriti nove predmete - se modernizirati.
 Junaka igralec upravlja z joystickom, z gumbi pa uporablja razna orodja, za
 interakcijo s svetom.
+
+# Izvorna koda
+Izvorna koda je na voljo [tukaj.](terrsko/Core/Src/), (scena.c, main.c, materials.c,...)
